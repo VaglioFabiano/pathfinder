@@ -1,0 +1,75 @@
+/* Contenitore della SearchBar */
+.search-bar-container {
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    width: 90%;
+    max-width: 500px;
+    display: flex;
+    justify-content: center;
+  }
+  
+  /* Stile della barra di ricerca */
+  .search-bar {
+    display: flex;
+    align-items: center;
+    background-color: #ffffff;
+    border: 2px solid #ccc;
+    border-radius: 25px;
+    padding: 10px 15px;
+    width: 100%;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .search-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    padding: 5px;
+  }
+  
+  .search-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    color: #555;
+    padding-left: 10px;
+  }
+  
+  .search-input:focus {
+    outline: none;
+    border-bottom: 2px solid #007bff;
+  }
+  
+  /* Contenitore dei suggerimenti */
+  .suggestions-container {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 500px;
+    background-color: #ffffff;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 999;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  
+  .suggestion {
+    padding: 10px 15px;
+    font-size: 16px;
+    cursor: pointer;
+    color: #333;
+  }
+  
+  .suggestion:hover {
+    background-color: #f0f0f0;
+  }
+  

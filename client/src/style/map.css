@@ -1,0 +1,25 @@
+/* La mappa deve occupare tutta la finestra */
+.leaflet-container {
+    height: 100%;
+    width: 100%;
+    border: none;
+  }
+  
+  /* Rimuove il bordo dal TileLayer */
+  .leaflet-tile {
+    border: none;
+  }
+  
+  /* Custom marker */
+  .custom-end-marker {
+    background-color: red;
+    color: white;
+    text-align: center;
+    border-radius: 50%;
+    height: 20px;
+    width: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  

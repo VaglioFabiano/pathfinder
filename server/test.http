@@ -1,0 +1,81 @@
+
+POST  http://localhost:3001/api/sessions HTTP/1.1
+content-type: application/json
+
+{
+    "username": "marco.sportelli@studenti.polito.it",
+    "password": "testtest"
+}
+###
+DELETE http://localhost:3001/api/sessions/current HTTP/1.1
+###
+
+GET http://localhost:3001/api/sessions/current HTTP/1.1
+
+
+###
+POST http://localhost:3001/api/register HTTP/1.1
+content-type: application/json
+
+{
+    "email": "test@example.com",
+    "password": "mypassword123",
+    "name": "Test Name",
+    "surname": "Test Surname"
+}
+
+###
+
+POST http://localhost:3001/api/trail HTTP/1.1
+content-type: application/json
+
+{
+    "name": "Advanced Politecnico Trail",
+    "downhill": 7,
+    "difficulty": "Advanced",
+    "length": 10,
+    "duration": 6,
+    "elevation": 10,
+    "startpoint": [45.062208, 7.666218],
+    "trails": [
+        [45.062208, 7.666218],
+        [45.062380, 7.666550],
+        [45.062520, 7.666900],
+        [45.062690, 7.667200],
+        [45.062860, 7.667500],
+        [45.063040, 7.667750],
+        [45.063150, 7.667980],
+        [45.063300, 7.668200],
+        [45.063480, 7.668470],
+        [45.063600, 7.668750],
+        [45.063780, 7.669020],
+        [45.063950, 7.669310],
+        [45.064120, 7.669580],
+        [45.064280, 7.669860],
+        [45.064440, 7.670150],
+        [45.064600, 7.670420],
+        [45.064750, 7.670700],
+        [45.064880, 7.670950],
+        [45.065040, 7.671230]
+    ],
+    "endpoint": [45.065040, 7.671230],
+    "description": "A more challenging trail that starts from the Politecnico di Torino and passes through different terrains.",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Politecnico_Torino_Torre_U_1.jpg/800px-Politecnico_Torino_Torre_U_1.jpg"
+}
+
+
+
+###
+GET http://localhost:3001/api/trails HTTP/1.1
+
+###
+
+POST http://localhost:3001/api/review HTTP/1.1
+content-type: application/json
+
+{
+    "user_id": 1,
+    "trail_id": 1,
+    "rating": 5,
+    "comment": "This trail is amazing! I loved it!"
+}

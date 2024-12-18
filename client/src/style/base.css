@@ -1,0 +1,28 @@
+/* Stili generali */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+  }
+  
+  /* Garantisce che il corpo e il contenitore della mappa non abbiano margini o padding */
+  html,
+  body,
+  #root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Mobile-specific styles */
+  @media only screen and (max-width: 768px) {
+    body {
+      background-color: #f8f9fa; /* Colore di sfondo diverso per il mobile */
+      padding: 10px;
+    }
+  
+    h1 {
+      font-size: 1.5rem;
+      text-align: center;
+    }
+  }
+  
