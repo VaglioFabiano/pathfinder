@@ -34,8 +34,7 @@ const getTrail = async (id) => {
 const saveTrail = async (trail) => {
   const response = await fetch(SERVER_URL + '/api/trail', {
     method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify(trail)
+    body: trail 
   });
   if (response.ok) {
     return await response.json();

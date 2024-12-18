@@ -11,8 +11,7 @@ const TrailForm = ({ distance, duration, elevation, downhill, positions, onSave 
     //funzione per gestire immagini scelte dalla galleria o scattate con la fotocamera
     const handleImageCapture = (e) => {
       const files = Array.from(e.target.files);
-      const newImages = files.map((file) => URL.createObjectURL(file));
-      setImages((prevImages) => [...prevImages, ...newImages]);
+      setImages((prevImages) => [...prevImages, ...files]);
     };
   
     const handleFileInputClick = () => {
@@ -21,18 +20,26 @@ const TrailForm = ({ distance, duration, elevation, downhill, positions, onSave 
   
     const handleSubmit = async () => {
       const formData = new FormData();
-      formData.append('name', 'Trail Name'); // Aggiungi i campi necessari
-      formData.append('downhill', downhill);
-      formData.append('length', distance);
-      formData.append('duration', duration);
-      formData.append('elevation', elevation);
-      formData.append('startpoint', JSON.stringify(positions[0]));
-      formData.append('trails', JSON.stringify(positions));
-      formData.append('endpoint', JSON.stringify(positions[positions.length - 1]));
-      if (images) formData.append('image', images);
-      
-      console.log('Form data:', formData);  
 
+      formData.append("trail", JSON.stringify({
+        name,
+        difficulty,
+        description,
+        length: distance,
+        duration,
+        elevation,
+        downhill,
+        startpoint: positions[0],
+        endpoint: positions[positions.length - 1],
+        trails: positions,
+      }));
+
+      images.forEach((image) => {
+        formData.append("image", image);
+      });
+      
+      await API.saveTrail(formData);
+      onSave();
   };
   
     return (

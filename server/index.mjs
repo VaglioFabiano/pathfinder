@@ -4,6 +4,8 @@ import morgan from 'morgan';
 import cors from 'cors';
 import crypto from 'crypto';
 import multer from 'multer';
+import path from 'path'; // Importa il modulo path
+import fs from 'fs';
 
 import {body, check, validationResult } from 'express-validator';
 
@@ -65,12 +67,17 @@ app.use(passport.authenticate('session'));
 
 //gestione immagini
 
+const uploadDir = path.resolve('./public'); // Percorso assoluto
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-      cb(null, './public/uploads'); // Cartella dove salvare le immagini
+    cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-      cb(null, `${Date.now()}_${file.originalname}`);
+    cb(null, `${Date.now()}_${file.originalname}`);
   },
 });
 
@@ -78,13 +85,13 @@ const upload = multer({
   storage: storage,
   limits: { fileSize: 5 * 1024 * 1024 }, // Limite di 5MB
   fileFilter: (req, file, cb) => {
-      const fileTypes = /jpeg|jpg|png/;
-      const extName = fileTypes.test(path.extname(file.originalname).toLowerCase());
-      const mimeType = fileTypes.test(file.mimetype);
-      if (mimeType && extName) {
-          return cb(null, true);
-      }
-      cb(new Error('File type not supported'));
+    const fileTypes = /jpeg|jpg|png/;
+    const extName = fileTypes.test(path.extname(file.originalname).toLowerCase()); // Usa path
+    const mimeType = fileTypes.test(file.mimetype);
+    if (mimeType && extName) {
+      return cb(null, true);
+    }
+    cb(new Error('File type not supported'));
   },
 });
 
@@ -135,18 +142,21 @@ app.post(
           return res.status(422).json({ errors: errors.array() });
       }
 
-      const trailData = {
-          ...req.body,
-          image: req.file ? `/uploads/${req.file.filename}` : null, // Percorso immagine
-      };
-
       try {
-          const trail = await trailDao.createTrail(trailData);
-          res.status(201).json(trail);
-      } catch (err) {
-          res.status(500).json({ error: err.message });
+        const trail = JSON.parse(req.body.trail); // Dati del trail inviati come stringa JSON
+        const files = req.file; // File caricati
+    
+        console.log("Dati del trail:", trail);
+        console.log("Immagini caricate:", files);
+    
+        // Salva i dati e i riferimenti alle immagini nel database
+        res.status(200).json({ message: "Trail salvato con successo!" });
+      } catch (error) {
+        console.error("Errore:", error);
+        res.status(500).json({ message: "Errore durante il salvataggio del trail" });
       }
-  }
+
+    }
 );
 
 //REVIEWS ROUTES
