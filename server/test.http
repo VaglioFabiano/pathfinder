@@ -25,7 +25,6 @@ content-type: application/json
 }
 
 ###
-
 POST http://localhost:3001/api/trail HTTP/1.1
 content-type: application/json
 

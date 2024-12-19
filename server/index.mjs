@@ -147,7 +147,9 @@ app.post(
         const files = req.file; // File caricati
     
         console.log("Dati del trail:", trail);
-        console.log("Immagini caricate:", files);
+        trail.image = files.originalname;
+
+        trailDao.createTrail(trail);
     
         // Salva i dati e i riferimenti alle immagini nel database
         res.status(200).json({ message: "Trail salvato con successo!" });
