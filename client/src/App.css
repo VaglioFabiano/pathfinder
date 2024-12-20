@@ -483,3 +483,64 @@ body,
   border-bottom: 1px solid #ddd; /* Separatore */
   padding-bottom: 5px;
 }
+
+
+/* Assistente ALBERO   */
+.tree-assistant-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.tree-assistant-popup {
+  position: absolute;
+  bottom: 60px;
+  right: 0;
+  width: 300px;
+  background-color: #ffffff;
+  border: 2px solid #4caf50;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  animation: slide-in 0.5s forwards;
+}
+
+.tree-assistant-content {
+  padding: 15px;
+  text-align: center;
+}
+
+.filters {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.filters label {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.generate-button {
+  margin-top: 10px;
+  background-color: #4caf50;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.generate-button:hover {
+  background-color: #388e3c;
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

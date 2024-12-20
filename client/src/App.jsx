@@ -9,11 +9,14 @@ import AddTrail from './Components/AddTrail';
 import Tutorial from './Components/Tutorial';
 import Profile from './Components/Profile';
 import AuthModal from './Components/AuthModal'; // Componente per autenticazione
+import TreeAssistant from './Components/TreeAssistant';
 
 const App = () => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
   const [mod, setMod] = useState("map");
   const [user, setUser] = useState(null); // Stato utente loggato
+  const [isVisibleTree, setIsVisibleTree] = useState(false);
+  
 
   const handleLoginSuccess = (loggedInUser) => {
     setUser(loggedInUser); // Salva l'utente loggato
@@ -23,7 +26,7 @@ const App = () => {
   return (
     <div className={isMobile ? 'mobileContainer' : 'container'}>
       <Routes>
-        <Route path="/" element={<Layout mod={mod} setMod={setMod} user={user} onLoginSuccess={handleLoginSuccess} />}>
+        <Route path="/" element={<Layout mod={mod} setMod={setMod} user={user} onLoginSuccess={handleLoginSuccess} isVisibleTree={isVisibleTree} setIsVisibleTree={setIsVisibleTree} />}>
           <Route index element={<Home mod={mod} user={user} />} />
           <Route path="/trails/:startpoint" element={<TrailsList />} />
           <Route path="/profile" element={<Profile user={user} setUser={setUser} setMod={setMod} />} />
@@ -40,7 +43,7 @@ const NOT_FOUND = (props) => (
   </div>
 );
 
-const Layout = ({ mod, setMod, user, onLoginSuccess }) => {
+const Layout = ({ mod, setMod, user, onLoginSuccess,isVisibleTree, setIsVisibleTree }) => {
   return (
     <div className="layout">
       <div className="content">
@@ -57,8 +60,9 @@ const Layout = ({ mod, setMod, user, onLoginSuccess }) => {
 
       <div className="bottom-container">
         {mod !== "profile" && <Tutorial mod={mod} />}
+        {isVisibleTree && <TreeAssistant  isVisibleTree={isVisibleTree} />}
         <div className="bottom-nav">
-          <BottomNavigation mod={mod} setMod={setMod} user={user} />
+          <BottomNavigation mod={mod} setMod={setMod} user={user} setIsVisibleTree = {setIsVisibleTree}/>
         </div>
       </div>
     </div>

@@ -70,7 +70,7 @@ function BottomNavigation(props) {
         />
       </button>
       <button className="nav-button">
-        <GiDekuTree className="nav-icon" />
+        <GiDekuTree className="nav-icon" onClick={() =>{props.setIsVisibleTree((T)=> !T)}}/>
       </button>
       <button className="nav-button">
         <FaUser className="nav-icon" onClick={handleProfileClick} />
