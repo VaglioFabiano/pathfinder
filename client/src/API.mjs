@@ -1,5 +1,5 @@
 import { Trail, Review } from "../../server/Class.mjs";
-const SERVER_URL = "http://localhost:3001";
+const SERVER_URL = 'http://localhost:3001';
 
 // Trail Api
 
@@ -34,6 +34,7 @@ const getTrail = async (id) => {
     }
 }
 const saveTrail = async (trail) => {
+  console.log(trail);
   const response = await fetch(SERVER_URL + '/api/trail', {
     method: 'POST',
     body: trail 

@@ -18,7 +18,7 @@ const RecenterButton = ({ position, mod }) => {
 
   const recenterMap = () => {
     if (position) {
-      map.flyTo(position, 17); // Usa flyTo per un'animazione fluida
+      map.flyTo(position, 20); // Usa flyTo per un'animazione fluida
     }
     setIsClicked(true);
     setTimeout(() => setIsClicked(false), 300);
@@ -216,22 +216,8 @@ const AddTrail = ({ mod }) => {
     setIsRecap(false);
   };
 
-  const startTrail = (position) => {
+  const startTrail = () => {
     setIsActive(true);
-    const map = useMapEvents({
-      locationfound(e) {
-        map.flyTo(e.latlng, map.getZoom());
-      },
-    });
-  
-    const recenterMap = () => {
-      if (position) {
-        map.flyTo(position, 20); // Usa flyTo per un'animazione fluida
-      }
-    };
-
-    recenterMap();
-
   };
 
   const calculateAverageSpeed = () => (distance / (time / 3600)).toFixed(2);
@@ -239,7 +225,7 @@ const AddTrail = ({ mod }) => {
   return (
     <>
       {currentPosition.length > 0 && currentPosition[0] !== 0 && currentPosition[1] !== 0 ? (
-        <LeafletMap center={currentPosition} zoom={17} style={{ height: '100vh', width: '100%' }} zoomControl={false} ref={mapRef} >
+        <LeafletMap center={currentPosition} zoom={20} style={{ height: '100vh', width: '100%' }} zoomControl={false} ref={mapRef} >
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

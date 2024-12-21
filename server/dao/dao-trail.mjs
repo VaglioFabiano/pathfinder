@@ -93,9 +93,9 @@ export default function TrailDAO() {
                     trail.length,
                     trail.duration,
                     trail.elevation,
-                    trail.startpoint ? JSON.stringify(trail.startpoint) : null,
-                    trail.trails ? JSON.stringify(trail.trails) : null,
-                    trail.endpoint ? JSON.stringify(trail.endpoint) : null, // Stringify JSON
+                    JSON.stringify(trail.startpoint),
+                    JSON.stringify(trail.trails) ,
+                    JSON.stringify(trail.endpoint), 
                     trail.description,
                     trail.image,
                 ],
