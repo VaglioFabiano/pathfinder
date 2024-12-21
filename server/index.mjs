@@ -125,41 +125,24 @@ app.get('/api/trail/:id',
 
 app.post(
   '/api/trail',
-  upload.single('image'), // Middleware per un singolo file immagine
-  [
-      check('name').isLength({ min: 1 }),
-      check('downhill').isNumeric(),
-      check('length').isNumeric(),
-      check('duration').isNumeric(),
-      check('elevation').isNumeric(),
-      check('startpoint').isLength({ min: 1 }),
-      check('trails').isLength({ min: 1 }),
-      check('endpoint').isLength({ min: 1 }),
-  ],
+  upload.single('image'), 
   async (req, res) => {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-          return res.status(422).json({ errors: errors.array() });
-      }
+      const trail = JSON.parse(req.body.trail); // Dati del trail inviati come stringa JSON
+      const files = req.file; // File caricati
+      trail.image = `${Date.now()}_${files.originalname}`;
 
-      try {
-        const trail = JSON.parse(req.body.trail); // Dati del trail inviati come stringa JSON
-        const files = req.file; // File caricati
-    
-        console.log("Dati del trail:", trail);
-        trail.image = files.originalname;
+      console.log("Dati del trail:", trail);
 
-        trailDao.createTrail(trail);
-    
-        // Salva i dati e i riferimenti alle immagini nel database
-        res.status(200).json({ message: "Trail salvato con successo!" });
-      } catch (error) {
-        console.error("Errore:", error);
-        res.status(500).json({ message: "Errore durante il salvataggio del trail" });
-      }
+      trailDao.createTrail(trail)
+      .then((id) => {res.status(201).json(id);})
+      .catch((err) => {res.status(500).json({ error: err });});
 
     }
 );
+
+
+
+
 
 //REVIEWS ROUTES
 app.post('/api/review', 
@@ -169,6 +152,9 @@ app.post('/api/review',
         .catch((err) => {res.status(500).json({ error: err });});
     }
 );
+
+
+
 
 
 // SESSION ROUTES

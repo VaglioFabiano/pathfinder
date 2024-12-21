@@ -45,6 +45,8 @@ const TrailForm = ({ distance, duration, elevation, downhill, positions, onSave 
     return (
       <form onSubmit={handleSubmit} style={{ marginTop: "20px" }}>
         <div>
+        <button type="submit">Salva Trail</button>
+
           <label>Nome del Trail:</label>
           <input
             type="text"
@@ -111,7 +113,6 @@ const TrailForm = ({ distance, duration, elevation, downhill, positions, onSave 
             />
           ))}
         </div>
-        <button type="submit">Salva Trail</button>
       </form>
     );
   };
