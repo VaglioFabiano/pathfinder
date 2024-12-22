@@ -98,6 +98,7 @@ const upload = multer({
 // Validation
 
 // TRAIL ROUTES
+
 app.get('/api/trails/', 
     (req, res) => {
         trailDao.getTrails()
@@ -125,7 +126,8 @@ app.get('/api/trail/:id',
 
 app.post(
   '/api/trail',
-  upload.single('image'), 
+  upload.single('image'), // Middleware per un singolo file immagine
+  
   async (req, res) => {
       const trail = JSON.parse(req.body.trail); // Dati del trail inviati come stringa JSON
       const files = req.file; // File caricati
@@ -145,6 +147,7 @@ app.post(
 
 
 //REVIEWS ROUTES
+
 app.post('/api/review', 
     (req, res) => {
         reviewDao.submitReview(req.body)
@@ -153,9 +156,13 @@ app.post('/api/review',
     }
 );
 
-
-
-
+app.get('/api/reviews/:trail_id',
+    (req, res) => {
+        reviewDao.getReviewsByTrail(req.params.trail_id)
+        .then((reviews) => {res.status(201).json(reviews);})
+        .catch((err) => {res.status(500).json({ error: err });});
+    }
+);
 
 // SESSION ROUTES
 app.post('/api/sessions', 

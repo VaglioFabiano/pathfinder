@@ -1,6 +1,8 @@
 import { Trail, Review } from "../../server/Class.mjs";
 const SERVER_URL = 'http://localhost:3001';
 
+// Trail Api
+
 const getTrails = async () => {
     const response = await fetch(SERVER_URL + '/api/trails/');
     const trails = await response.json();
@@ -46,6 +48,8 @@ const saveTrail = async (trail) => {
   }
 }
 
+// Review Api
+
 const submitReview = async (review) => {
   const response = await fetch(SERVER_URL + '/api/review', {
     method: 'POST',
@@ -61,6 +65,21 @@ const submitReview = async (review) => {
   }
 }
 
+const getReviewsByTrail = async (trail_id) => {
+  const response = await fetch(SERVER_URL + '/api/review/' + trail_id);
+  const reviews = await response.json();
+  console.log("Reviews", reviews);
+  if (response.ok) {
+    return reviews.map((review) => new Review(review.id, review.user_id, review.trail_id, review.rating, review.comment));
+  }
+  else {
+    console.log(reviews);
+    throw reviews;
+    
+  }
+}
+
+// User Api
 
 const login = async (credentials) => {
     const response = await fetch(SERVER_URL + '/api/sessions', {
@@ -116,5 +135,5 @@ const register = async (newUser) => {
 };
 
 
-const API = { login, getUserInfo, logout,register, getTrails, getTrailsMoreInfo, getTrail, saveTrail, submitReview };
+const API = { login, getUserInfo, logout,register, getTrails, getTrailsMoreInfo, getTrail, saveTrail, submitReview, getReviewsByTrail };
 export default API;

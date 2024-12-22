@@ -5,22 +5,41 @@ import { useState } from "react";
 
 const TrailsList = () => {
   const { startpoint } = useParams();
-    const [trailsAtStartpoint, setTrailsAtStartpoint] = useState([]);
+ const [trails, setTrails] = useState([]);
+  const [reviewsByTrail, setReviewsByTrail] = useState({});
+  const [newReviews, setNewReviews] = useState({});
+  const [selectedTrail, setSelectedTrail] = useState(null);
+
     
   // Filtra i trail relativi allo startpoint specifico
+  
   useEffect(() => {
-    const fetchTrailDetails = async () => {
-        try {
-            const trailDetails = await API.getTrailsMoreInfo(startpoint);
-            console.log("Dettagli del trail:", trailDetails);
-            setTrailsAtStartpoint(trailDetails);
-        } catch (error) {
-          console.error("Errore nel recupero dei dettagli del trail:", error);
-          setSelectedStartpoint(null);
-        }
-      };
-    
-    fetchTrailDetails();
+    const fetchTrailsData = async () => {
+      try {
+        const trailDetails = await API.getTrailsMoreInfo(startpoint);
+        setTrails(trailDetails);
+
+        // Pre-carica le recensioni per ogni trail
+        const reviewsPromises = trailDetails.map((trail) =>
+          API.getReviewsByTrail(trail.id).then((reviews) => ({
+            trailId: trail.id,
+            reviews,
+          }))
+        );
+
+        const reviewsData = await Promise.all(reviewsPromises);
+        const reviewsMap = reviewsData.reduce((acc, { trailId, reviews }) => {
+          acc[trailId] = reviews;
+          return acc;
+        }, {});
+
+        setReviewsByTrail(reviewsMap);
+      } catch (error) {
+        console.error("Errore durante il recupero dei trail o delle recensioni:", error);
+      }
+    };
+
+    fetchTrailsData();
   }, [startpoint]);
   const formatDuration = (durationInSeconds) => {
     const hours = Math.floor(durationInSeconds / 3600);
@@ -29,22 +48,128 @@ const TrailsList = () => {
   
     return `${hours}h:${minutes}m:${seconds}s`;
   };
-  
+  const handleReviewChange = (trailId, field, value) => {
+    setNewReviews((prev) => ({
+      ...prev,
+      [trailId]: {
+        ...prev[trailId],
+        [field]: value,
+      },
+    }));
+  }; 
+
+  const handleSubmitReview = async (trailId) => {
+    const { comment, rating } = newReviews[trailId] || {};
+    if (!comment || !rating) {
+      alert("Inserisci un commento e una valutazione.");
+      return;
+    }
+
+    const review = {
+      trail_id: trailId,
+      user_id: 1, // Da sostituire con l'ID utente reale
+      rating,
+      comment,
+    };
+
+    try {
+      await API.submitReview(review);
+
+      setReviewsByTrail((prev) => ({
+        ...prev,
+        [trailId]: [...(prev[trailId] || []), review],
+      }));
+
+      setNewReviews((prev) => ({
+        ...prev,
+        [trailId]: { comment: "", rating: 0 },
+      }));
+    } catch (error) {
+      console.error("Errore nell'invio della recensione:", error);
+      alert("Errore nell'invio della recensione.");
+    }
+  };
+    
   return (
-    <div>
-      <h1>Trail per Startpoint: {startpoint}</h1>
-      <ul>
-        {trailsAtStartpoint.map((trail) => (
-          <li key={trail.id}>
-            <h3>{trail.name}</h3>
-            <p>
-              Lunghezza: {trail.length.toFixed(2)} km<br />
-              Durata: {formatDuration(trail.duration)}<br />
-              Difficoltà: {trail.difficulty}
-            </p>
-          </li>
-        ))}
-      </ul>
+    <div style={{ padding: "20px" }}>
+      <h1>Trails per Startpoint: {startpoint}</h1>
+      {trails.map((trail) => (
+        <div key={trail.id} style={{ marginBottom: "40px" }}>
+          {/* Dettagli del Trail */}
+          <h2>{trail.name}</h2>
+          <p>
+            <strong>Descrizione:</strong> {trail.description}<br />
+            <strong>Lunghezza:</strong> {trail.length.toFixed(2)} km<br />
+            <strong>Durata:</strong> {formatDuration(trail.duration)}<br />
+            <strong>Difficoltà:</strong> {trail.difficulty}<br />
+            <strong>Dislivello:</strong> {trail.downhill} m<br />
+          </p>
+
+          {/* Immagini */}
+          {trail.images && trail.images.length > 0 && (
+            <div style={{ marginBottom: "20px" }}>
+              <h4>Immagini del Trail:</h4>
+              {trail.images.map((image, index) => (
+                <img
+                  key={index}
+                  src={image}
+                  alt={`Immagine del trail ${trail.name}`}
+                  style={{ width: "100%", maxWidth: "500px", margin: "10px 0" }}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Aggiungi Recensione */}
+          <div style={{ marginBottom: "20px" }}>
+            <h3>Aggiungi una recensione</h3>
+            <textarea
+              value={newReviews[trail.id]?.comment || ""}
+              onChange={(e) =>
+                handleReviewChange(trail.id, "comment", e.target.value)
+              }
+              placeholder="Scrivi il tuo commento..."
+              rows="4"
+              style={{ width: "100%", marginBottom: "10px" }}
+            />
+            <div style={{ marginBottom: "10px" }}>
+              <label>
+                Valutazione:{" "}
+                <input
+                  type="number"
+                  value={newReviews[trail.id]?.rating || 0}
+                  onChange={(e) =>
+                    handleReviewChange(trail.id, "rating", Number(e.target.value))
+                  }
+                  min="1"
+                  max="5"
+                  style={{ width: "50px" }}
+                />
+                /5
+              </label>
+            </div>
+            <button onClick={() => handleSubmitReview(trail.id)}>
+              Invia Recensione
+            </button>
+          </div>
+
+          {/* Lista delle Recensioni */}
+          <h3>Recensioni</h3>
+          {reviewsByTrail[trail.id]?.length > 0 ? (
+            <ul>
+              {reviewsByTrail[trail.id].map((review, index) => (
+                <li key={index} style={{ marginBottom: "10px" }}>
+                  <strong>Utente:</strong> {review.user_id}<br />
+                  <strong>Voto:</strong> {review.rating}/5<br />
+                  <strong>Commento:</strong> {review.comment}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>Non ci sono recensioni per questo trail.</p>
+          )}
+        </div>
+      ))}
     </div>
   );
 };

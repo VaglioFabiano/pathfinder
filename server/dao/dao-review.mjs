@@ -15,4 +15,53 @@ export default function ReviewDAO() {
             });
         });
     };
+
+    this.getReviewsByTrail = (trail_id) => {
+        return new Promise((resolve, reject) => {
+            db.all(
+                'SELECT * FROM Review WHERE trail_id = ?',
+                [trail_id],
+                (err, rows) => {
+                    if (err) {
+                        reject(err);
+                        return;
+                    }
+                    resolve(rows);
+                }
+            );
+        });
+    };
+
+    this.getReviewsByUser = (user_id) => {
+        return new Promise((resolve, reject) => {
+            db.all(
+                'SELECT * FROM Review WHERE user_id = ?',
+                [user_id],
+                (err, rows) => {
+                    if (err) {
+                        reject(err);
+                        return;
+                    }
+                    resolve(rows);
+                }
+            );
+        });
+    };
+
+    this.deleteReview = (id) => {
+        return new Promise((resolve, reject) => {
+            db.run(
+                'DELETE FROM Review WHERE id = ?',
+                [id],
+                (err) => {
+                    if (err) {
+                        reject(err);
+                        return;
+                    }
+                    resolve(null);
+                }
+            );
+        });
+    };
+
 }
