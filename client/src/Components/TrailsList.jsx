@@ -22,6 +22,13 @@ const TrailsList = () => {
     
     fetchTrailDetails();
   }, [startpoint]);
+  const formatDuration = (durationInSeconds) => {
+    const hours = Math.floor(durationInSeconds / 3600);
+    const minutes = Math.floor((durationInSeconds % 3600) / 60);
+    const seconds = durationInSeconds % 60;
+  
+    return `${hours}h:${minutes}m:${seconds}s`;
+  };
   
   return (
     <div>
@@ -31,8 +38,8 @@ const TrailsList = () => {
           <li key={trail.id}>
             <h3>{trail.name}</h3>
             <p>
-              Lunghezza: {trail.length} km<br />
-              Durata: {trail.duration} ore<br />
+              Lunghezza: {trail.length.toFixed(2)} km<br />
+              Durata: {formatDuration(trail.duration)}<br />
               Difficoltà: {trail.difficulty}
             </p>
           </li>

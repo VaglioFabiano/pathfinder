@@ -54,6 +54,14 @@ const TrailPopup = ({ trailsAtStartpoint, onClose, onStartTrail, onReadMore, use
     }
   }, [userPosition, trailsAtStartpoint]);
 
+  const formatDuration = (durationInSeconds) => {
+    const hours = Math.floor(durationInSeconds / 3600);
+    const minutes = Math.floor((durationInSeconds % 3600) / 60);
+    const seconds = durationInSeconds % 60;
+  
+    return `${hours}h:${minutes}m:${seconds}s`;
+  };
+
   return (
     <div>
       <div>
@@ -65,9 +73,9 @@ const TrailPopup = ({ trailsAtStartpoint, onClose, onStartTrail, onReadMore, use
                 <div>
                   <strong>{trail.name}</strong>
                   <br />
-                  Lunghezza: {trail.length} km
+                  Lunghezza: {trail.length.toFixed(2)} km
                   <br />
-                  Durata: {trail.duration} h
+                  Durata: {formatDuration(trail.duration)}<br />
                 </div>
                 <div>
                   <button
