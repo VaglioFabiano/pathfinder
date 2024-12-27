@@ -68,7 +68,6 @@ const submitReview = async (review) => {
 const getReviewsByTrail = async (trail_id) => {
   const response = await fetch(SERVER_URL + '/api/review/' + trail_id);
   const reviews = await response.json();
-  console.log("Reviews", reviews);
   if (response.ok) {
     return reviews.map((review) => new Review(review.id, review.user_id, review.trail_id, review.rating, review.comment));
   }

@@ -102,7 +102,7 @@ const TrailsList = () => {
             <strong>Lunghezza:</strong> {trail.length.toFixed(2)} km<br />
             <strong>Durata:</strong> {formatDuration(trail.duration)}<br />
             <strong>Difficoltà:</strong> {trail.difficulty}<br />
-            <strong>Dislivello:</strong> {trail.downhill} m<br />
+            <strong>Dislivello:</strong> {trail.downhill.toFixed(2)} m<br />
           </p>
 
           {/* Immagini */}

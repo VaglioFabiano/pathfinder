@@ -156,7 +156,7 @@ app.post('/api/review',
     }
 );
 
-app.get('/api/reviews/:trail_id',
+app.get('/api/review/:trail_id',
     (req, res) => {
         reviewDao.getReviewsByTrail(req.params.trail_id)
         .then((reviews) => {res.status(201).json(reviews);})

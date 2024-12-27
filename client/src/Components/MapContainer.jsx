@@ -187,7 +187,6 @@ const CurrentPositionMarker = ({ position, setCoords, setMapLink }) => {
   return <Marker position={position} icon={customMarkerIcon} />;
 };
 
-
 const TrailPath = ({ trail }) => {
   if (!trail || !trail.startpoint || !trail.endpoint) return null;
   trail.trails ? trail.trails : trail.trails = [trail.startpoint, trail.endpoint];
@@ -288,17 +287,17 @@ const MapContainer = ({mod, user}) => {
 
       const moveToNextPoint = (timestamp) => {
         if (!startTime) startTime = timestamp;
-
+      
         const currentPosition = path[index];
         const nextPosition = path[index + 1];
-
+      
         if (index < path.length - 1) {
           const distance = calculateDistance(currentPosition, nextPosition); // Calcola la distanza tra i punti
           const travelTime = (distance / speedMetersPerSecond) * 1000; // Tempo necessario in millisecondi
-
+      
           const elapsed = timestamp - startTime; // Tempo trascorso dall'inizio dell'interpolazione
           const fraction = Math.min(elapsed / travelTime, 1); // Percentuale del percorso completata
-
+      
           // Interpola tra i due punti
           const interpolatedPosition = interpolatePosition(
             currentPosition,
@@ -306,18 +305,27 @@ const MapContainer = ({mod, user}) => {
             fraction
           );
           setSimulatedPosition(interpolatedPosition);
-
+      
           if (fraction === 1) {
             // Passa al prossimo segmento
             startTime = null;
             index++;
           }
-
+      
+          // Controlla se il puntatore ha raggiunto l'endpoint
+          const endpoint = path[path.length - 1];
+          const distanceToEndpoint = calculateDistance(interpolatedPosition, endpoint);
+      
+          if (distanceToEndpoint < 5) { // Distanza in metri per considerare l'arrivo
+            console.log("Raggiunto l'endpoint!");
+            endTrail(); // Chiama la funzione endTrail
+            return; // Interrompe l'animazione
+          }
+      
           // Richiede il prossimo frame
           animationFrameId = requestAnimationFrame(moveToNextPoint);
         }
       };
-
       // Avvia l'animazione
       animationFrameId = requestAnimationFrame(moveToNextPoint);
 
@@ -469,11 +477,13 @@ const MapContainer = ({mod, user}) => {
             {/* Bottone per recentrare */}
                      
             <RecenterButton position={position} mod = {mod} />
-            {trailActive && (
+
+            
+            {/*trailActive && (
             <button className="end-trail-button" onClick={endTrail} aria-label="End Trail">
               <IoStop className='nav-icon' />
             </button>
-          )}
+          )*/}
           
           {user && showReviewForm && (
             <Modal onClose={() => setShowReviewForm(false)}>

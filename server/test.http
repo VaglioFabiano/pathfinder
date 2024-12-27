@@ -78,3 +78,7 @@ content-type: application/json
     "rating": 5,
     "comment": "This trail is amazing! I loved it!"
 }
+
+###
+
+GET http://localhost:3001/api/review/13 HTTP/1.1
