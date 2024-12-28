@@ -1,4 +1,4 @@
-function Trail(id,name,downhill,difficulty,length,duration,elevation,startpoint,trails,endpoint,description,images){
+function Trail(id,name,downhill,difficulty,length,duration,elevation,startpoint,trails,endpoint,description,image){
     this.id = id;
     this.name = name;
     this.downhill = downhill;
@@ -12,7 +12,7 @@ function Trail(id,name,downhill,difficulty,length,duration,elevation,startpoint,
     this.endpoint = endpoint; 
 
     this.description = description;
-    this.images = images;
+    this.image = image;
 }
 function Review(id,user_id,trail_id,rating,comment){
     this.id = id;

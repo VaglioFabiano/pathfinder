@@ -27,7 +27,7 @@ const getTrail = async (id) => {
     const response = await fetch(SERVER_URL + '/api/trail/' + id);
     const trail = await response.json();
     if (response.ok) {
-      return new Trail(trail.id, trail.name, trail.downhill, trail.difficulty, trail.length, trail.duration, trail.elevation, trail.startpoint, trail.trails,trail.endpoint, trail.description, trail.images);
+      return new Trail(trail.id, trail.name, trail.downhill, trail.difficulty, trail.length, trail.duration, trail.elevation, trail.startpoint, trail.trails,trail.endpoint, trail.description, trail.image);
     }
     else {
       throw trail;
@@ -51,6 +51,7 @@ const saveTrail = async (trail) => {
 // Review Api
 
 const submitReview = async (review) => {
+  console.log(review);
   const response = await fetch(SERVER_URL + '/api/review', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},

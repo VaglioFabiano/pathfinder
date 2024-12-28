@@ -150,6 +150,7 @@ app.post(
 
 app.post('/api/review', 
     (req, res) => {
+      console.log(req.body);
         reviewDao.submitReview(req.body)
         .then((review) => {res.status(201).json(review);})
         .catch((err) => {res.status(500).json({ error: err });});
