@@ -26,7 +26,9 @@
   right: 20px;
   background-color: #838990;
 }
-
+.tutorial-button:hover {
+  background-color: #d2dae2;
+}*/
 .end-trail-button {
   bottom: 100px;
   left: 20px;
@@ -37,9 +39,7 @@
   background-color: #0056b3;
 }
 
-.tutorial-button:hover {
-  background-color: #d2dae2;
-}
+
 
 .end-trail-button:hover {
   background-color: #c0392b;

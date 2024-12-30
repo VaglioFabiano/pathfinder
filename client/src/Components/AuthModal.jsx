@@ -110,22 +110,23 @@ const AuthModal = ({ onLoginSuccess, onClose }) => {
       <div className="auth-modal-content">
         {/* Bottone Indietro */}
         <img
-          src={backImage} // Percorso dell'immagine
+          src={backImage}
           alt="Indietro"
           className="back-image"
           onClick={onClose}
         />
 
+  
         {/* Messaggi */}
         {message && <div className={`alert ${message.type}`}>{message.msg}</div>}
-
+  
         {/* Contenuto della Modal */}
         {isLoginMode ? (
           <>
             <h2>Login</h2>
             <LoginForm onLogin={handleLogin} />
             <p>
-              Non hai un account?{" "}
+              Non hai ancora un account?{" "}
               <button onClick={() => setIsLoginMode(false)}>Registrati</button>
             </p>
           </>
@@ -142,6 +143,7 @@ const AuthModal = ({ onLoginSuccess, onClose }) => {
       </div>
     </div>
   );
+  
 };
 
 
