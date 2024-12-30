@@ -13,9 +13,8 @@ import '../style/layout.css';
 import '../style/map.css';
 import '../style/modal.css';
 import '../style/navigation.css';
-import { use } from 'react';
 
-const TrailPopup = ({ trailsAtStartpoint, onClose, onStartTrail, onReadMore, userPosition, setTrailActive }) => {
+const TrailPopup = ({ trailsAtStartpoint, onClose, onStartTrail, userPosition, setTrailActive }) => {
   const [isNearStartpoint, setIsNearStartpoint] = useState(false);
   const distanceThreshold = 1000; // Soglia di distanza in metri (ad esempio 100 metri)
   const navigate = useNavigate();
@@ -23,14 +22,15 @@ const TrailPopup = ({ trailsAtStartpoint, onClose, onStartTrail, onReadMore, use
   // Funzione per calcolare la distanza tra la posizione dell'utente e il startpoint
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
     const R = 6371e3; // Raggio della Terra in metri
-    const φ1 = lat1 * Math.PI / 180;
-    const φ2 = lat2 * Math.PI / 180;
-    const Δφ = (lat2 - lat1) * Math.PI / 180;
-    const Δλ = (lon2 - lon1) * Math.PI / 180;
+    const φ1 = (lat1 * Math.PI) / 180;
+    const φ2 = (lat2 * Math.PI) / 180;
+    const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+    const Δλ = ((lon2 - lon1) * Math.PI) / 180;
 
-    const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-              Math.cos(φ1) * Math.cos(φ2) *
-              Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+    const a =
+      Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+      Math.cos(φ1) * Math.cos(φ2) *
+      Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const distance = R * c; // Distanza in metri
     return distance;
@@ -40,7 +40,6 @@ const TrailPopup = ({ trailsAtStartpoint, onClose, onStartTrail, onReadMore, use
   useEffect(() => {
     if (userPosition) {
       trailsAtStartpoint.forEach((trail) => {
-
         const distance = calculateDistance(
           userPosition[0],
           userPosition[1],
@@ -49,10 +48,17 @@ const TrailPopup = ({ trailsAtStartpoint, onClose, onStartTrail, onReadMore, use
         );
         console.log("Distanza:", distance);
         setIsNearStartpoint(distance <= distanceThreshold);
-
       });
     }
   }, [userPosition, trailsAtStartpoint]);
+
+  const formatDuration = (durationInSeconds) => {
+    const hours = Math.floor(durationInSeconds / 3600);
+    const minutes = Math.floor((durationInSeconds % 3600) / 60);
+    const seconds = durationInSeconds % 60;
+
+    return `${hours}h:${minutes}m:${seconds}s`;
+  };
 
   return (
     <div>
@@ -65,20 +71,27 @@ const TrailPopup = ({ trailsAtStartpoint, onClose, onStartTrail, onReadMore, use
                 <div>
                   <strong>{trail.name}</strong>
                   <br />
-                  Lunghezza: {trail.length} km
+                  Lunghezza: {trail.length.toFixed(2)} km
                   <br />
-                  Durata: {trail.duration} h
+                  Durata: {formatDuration(trail.duration)}<br />
                 </div>
-                <div>
+                <div style={{ display: 'flex', gap: '10px' }}>
                   <button
                     onClick={() => {
                       onStartTrail(trail.id);
-                      onClose()
+                      onClose();
                       setTrailActive(true);
                     }}
                     disabled={!isNearStartpoint} // Disabilita il tasto "Start" se non siamo vicini al punto di partenza
                   >
                     Start
+                  </button>
+                  <button
+                    onClick={() => {
+                      navigate(`/trails/${trail.id}`);
+                    }}
+                  >
+                    Read More
                   </button>
                 </div>
               </div>
@@ -86,14 +99,7 @@ const TrailPopup = ({ trailsAtStartpoint, onClose, onStartTrail, onReadMore, use
           ))}
         </ul>
       </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
-      <button
-          onClick={() =>{
-            navigate(`/trails/${trailsAtStartpoint[0]?.startpoint.join(",")}`);
-          }}
-        >
-          Read More
-        </button>
+      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
         <button onClick={onClose}>Close</button>
       </div>
     </div>
@@ -138,7 +144,6 @@ const RecenterButton = ({ position, mod }) => {
   );
 };
 
-
 // Component: CurrentPositionMarker
 const CurrentPositionMarker = ({ position, setCoords, setMapLink }) => {
   useEffect(() => {
@@ -178,7 +183,6 @@ const CurrentPositionMarker = ({ position, setCoords, setMapLink }) => {
 
   return <Marker position={position} icon={customMarkerIcon} />;
 };
-
 
 const TrailPath = ({ trail }) => {
   if (!trail || !trail.startpoint || !trail.endpoint) return null;
@@ -280,17 +284,17 @@ const MapContainer = ({mod, user}) => {
 
       const moveToNextPoint = (timestamp) => {
         if (!startTime) startTime = timestamp;
-
+      
         const currentPosition = path[index];
         const nextPosition = path[index + 1];
-
+      
         if (index < path.length - 1) {
           const distance = calculateDistance(currentPosition, nextPosition); // Calcola la distanza tra i punti
           const travelTime = (distance / speedMetersPerSecond) * 1000; // Tempo necessario in millisecondi
-
+      
           const elapsed = timestamp - startTime; // Tempo trascorso dall'inizio dell'interpolazione
           const fraction = Math.min(elapsed / travelTime, 1); // Percentuale del percorso completata
-
+      
           // Interpola tra i due punti
           const interpolatedPosition = interpolatePosition(
             currentPosition,
@@ -298,18 +302,27 @@ const MapContainer = ({mod, user}) => {
             fraction
           );
           setSimulatedPosition(interpolatedPosition);
-
+      
           if (fraction === 1) {
             // Passa al prossimo segmento
             startTime = null;
             index++;
           }
-
+      
+          // Controlla se il puntatore ha raggiunto l'endpoint
+          const endpoint = path[path.length - 1];
+          const distanceToEndpoint = calculateDistance(interpolatedPosition, endpoint);
+      
+          if (distanceToEndpoint < 5) { // Distanza in metri per considerare l'arrivo
+            console.log("Raggiunto l'endpoint!");
+            endTrail(); // Chiama la funzione endTrail
+            return; // Interrompe l'animazione
+          }
+      
           // Richiede il prossimo frame
           animationFrameId = requestAnimationFrame(moveToNextPoint);
         }
       };
-
       // Avvia l'animazione
       animationFrameId = requestAnimationFrame(moveToNextPoint);
 
@@ -361,8 +374,8 @@ const MapContainer = ({mod, user}) => {
     try {
       // Simula una chiamata API per salvare la recensione
       const response = await API.submitReview({
-        trailId: detailedTrail.id,
-        userId: user.id,
+        trail_id: detailedTrail.id,
+        user_id: user.id,
         rating: review.rating,
         comment: review.comment,
       });
@@ -372,10 +385,10 @@ const MapContainer = ({mod, user}) => {
     } finally {
       setShowReviewForm(false); // Chiudi il popup
       setReview({ rating: 0, comment: '' }); // Resetta il form
+      setDetailedTrail(null);
     }
   };
   
-
   // Funzione per caricare e visualizzare un trail completo
   const startTrail = async (trailId) => {
     try {
@@ -421,7 +434,6 @@ const MapContainer = ({mod, user}) => {
 
   const endTrail = () => {
     setTrailActive(false);
-    setDetailedTrail(null);
     setShowReviewForm(true); // Mostra il popup
   };
 
@@ -457,15 +469,17 @@ const MapContainer = ({mod, user}) => {
 
           {/* Trail dettagliato */}
           {detailedTrail && <TrailPath key={detailedTrail.id} trail={detailedTrail} />}
-          <div>
+        <div>
             {/* Bottone per recentrare */}
                      
             <RecenterButton position={position} mod = {mod} />
+
+            
             {trailActive && (
             <button className="end-trail-button" onClick={endTrail} aria-label="End Trail">
               <IoStop className='nav-icon' />
             </button>
-          )}
+            )}
           
           {user && showReviewForm && (
             <Modal onClose={() => setShowReviewForm(false)}>

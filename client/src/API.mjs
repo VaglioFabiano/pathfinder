@@ -1,6 +1,8 @@
 import { Trail, Review } from "../../server/Class.mjs";
 const SERVER_URL = 'http://localhost:3001';
 
+// Trail Api
+
 const getTrails = async () => {
     const response = await fetch(SERVER_URL + '/api/trails/');
     const trails = await response.json();
@@ -25,7 +27,7 @@ const getTrail = async (id) => {
     const response = await fetch(SERVER_URL + '/api/trail/' + id);
     const trail = await response.json();
     if (response.ok) {
-      return new Trail(trail.id, trail.name, trail.downhill, trail.difficulty, trail.length, trail.duration, trail.elevation, trail.startpoint, trail.trails,trail.endpoint, trail.description, trail.images);
+      return new Trail(trail.id, trail.name, trail.downhill, trail.difficulty, trail.length, trail.duration, trail.elevation, trail.startpoint, trail.trails,trail.endpoint, trail.description, trail.image);
     }
     else {
       throw trail;
@@ -46,7 +48,10 @@ const saveTrail = async (trail) => {
   }
 }
 
+// Review Api
+
 const submitReview = async (review) => {
+  console.log(review);
   const response = await fetch(SERVER_URL + '/api/review', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
@@ -61,6 +66,20 @@ const submitReview = async (review) => {
   }
 }
 
+const getReviewsByTrail = async (trail_id) => {
+  const response = await fetch(SERVER_URL + '/api/review/' + trail_id);
+  const reviews = await response.json();
+  if (response.ok) {
+    return reviews.map((review) => new Review(review.id, review.user_id, review.trail_id, review.rating, review.comment));
+  }
+  else {
+    console.log(reviews);
+    throw reviews;
+    
+  }
+}
+
+// User Api
 
 const login = async (credentials) => {
     const response = await fetch(SERVER_URL + '/api/sessions', {
@@ -116,5 +135,5 @@ const register = async (newUser) => {
 };
 
 
-const API = { login, getUserInfo, logout,register, getTrails, getTrailsMoreInfo, getTrail, saveTrail, submitReview };
+const API = { login, getUserInfo, logout,register, getTrails, getTrailsMoreInfo, getTrail, saveTrail, submitReview, getReviewsByTrail };
 export default API;

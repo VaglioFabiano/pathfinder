@@ -8,39 +8,63 @@ const TrailForm = ({ distance, duration, elevation, downhill, positions, onSave 
     const [description, setDescription] = useState("");
     const [images, setImages] = useState([]);
   
-    //funzione per gestire immagini scelte dalla galleria o scattate con la fotocamera
     const handleImageCapture = (e) => {
       const files = Array.from(e.target.files);
       setImages((prevImages) => [...prevImages, ...files]);
     };
-  
     const handleFileInputClick = () => {
       document.getElementById("file-input").click();
     };
-  
-    const handleSubmit = async () => {
-      const formData = new FormData();
+    const getLocationDetails = async (latitude, longitude) => {
+      const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`;
+    
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        const state = data.address.country;
+        const region = data.address.state;
+        const province = data.address.county;
+        const city = data.address.city || data.address.town || data.address.village;
+    
+        return { state, region, province, city };
+      } catch (error) {
+        console.error("Errore durante il reverse geocoding:", error);
+        return null;
+      }
+    };
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const formData = new FormData();
+    
+        const {state, region,province, city} = await getLocationDetails(positions[0][0], positions[0][1]);
 
-      formData.append("trail", JSON.stringify({
-        name,
-        difficulty,
-        description,
-        length: distance,
-        duration,
-        elevation,
-        downhill,
-        startpoint: positions[0],
-        endpoint: positions[positions.length - 1],
-        trails: positions,
-      }));
+        console.log(state, region, province, city);
 
-      images.forEach((image) => {
-        formData.append("image", image);
-      });
-      
-      await API.saveTrail(formData);
-      onSave();
-  };
+        formData.append("trail", JSON.stringify({
+          name,
+          difficulty,
+          description,
+          length: distance.toFixed(2),
+          duration,
+          elevation,
+          downhill,
+          startpoint: positions[0],
+          endpoint: positions[positions.length - 1],
+          trails: positions,
+          state: state,
+          region: region,
+          province: province,
+          city: city
+        }));
+
+        images.forEach((image) => {
+          formData.append("image", image);
+        });
+        
+        await API.saveTrail(formData);
+        onSave();
+    };
   
     return (
       <form onSubmit={handleSubmit} style={{ marginTop: "20px" }}>

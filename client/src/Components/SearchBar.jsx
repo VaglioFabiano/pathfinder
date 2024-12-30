@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import '../style/search.css';
 import { FaSearchLocation } from "react-icons/fa";
 import { GiPositionMarker } from "react-icons/gi";
+import { MapContainer as LeafletMap, TileLayer, Marker, Polyline, Popup, useMap, useMapEvents } from 'react-leaflet';
 
 
 function SearchBar() {

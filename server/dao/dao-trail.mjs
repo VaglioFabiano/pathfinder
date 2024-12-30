@@ -81,8 +81,8 @@ export default function TrailDAO() {
     this.createTrail = (trail) => {
         return new Promise((resolve, reject) => {
             const query = `
-                INSERT INTO Trail (name, downhill, difficulty, length, duration, elevation, startpoint, trails, endpoint, description, image)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO Trail (name, downhill, difficulty, length, duration, elevation, startpoint, trails, endpoint, description, image, city, region, state, province)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `;
             db.run(
                 query,
@@ -98,6 +98,10 @@ export default function TrailDAO() {
                     JSON.stringify(trail.endpoint), 
                     trail.description,
                     trail.image,
+                    trail.city,
+                    trail.region,
+                    trail.state,
+                    trail.province
                 ],
                 function (err) {
                     if (err) {

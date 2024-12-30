@@ -21,6 +21,7 @@ const App = () => {
   const handleLoginSuccess = (loggedInUser) => {
     setUser(loggedInUser); // Salva l'utente loggato
     setMod("map"); // Torna alla mappa
+    console.log("Utente loggato:", loggedInUser);
   };
 
   return (
@@ -28,7 +29,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Layout mod={mod} setMod={setMod} user={user} onLoginSuccess={handleLoginSuccess} isVisibleTree={isVisibleTree} setIsVisibleTree={setIsVisibleTree} />}>
           <Route index element={<Home mod={mod} user={user} />} />
-          <Route path="/trails/:startpoint" element={<TrailsList />} />
+          <Route path="/trails/:id" element={<TrailsList />} />
           <Route path="/profile" element={<Profile user={user} setUser={setUser} setMod={setMod} />} />
           <Route path="*" element={<NOT_FOUND isMobile={isMobile} />} />
         </Route>
@@ -47,17 +48,12 @@ const Layout = ({ mod, setMod, user, onLoginSuccess,isVisibleTree, setIsVisibleT
   return (
     <div className="layout">
       <div className="content">
-        
-        {mod === "add" ? (
-            <AddTrail mod={mod} />
-        ): <Outlet />}
+        {mod === "add" ? ( <AddTrail mod={mod} /> ): <Outlet />}
       </div>
-
       {/* Modale Auth per login/register */}
       {mod === "profile" && !user && (
         <AuthModal onLoginSuccess={onLoginSuccess} onClose={() => setMod("map")} />
       )}
-
       <div className="bottom-container">
         {mod !== "profile" && <Tutorial mod={mod} />}
         {isVisibleTree && <TreeAssistant  isVisibleTree={isVisibleTree} />}
