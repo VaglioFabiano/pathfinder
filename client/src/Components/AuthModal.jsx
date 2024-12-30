@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import API from "../API"; // Assicurati di importare le funzioni API corrette
+import backImage from '../assets/back.png'; // Importa l'immagine
 
 
 const LoginForm = ({ onLogin }) => {
@@ -108,14 +109,12 @@ const AuthModal = ({ onLoginSuccess, onClose }) => {
     <div className="auth-modal" onClick={handleOutsideClick}>
       <div className="auth-modal-content">
         {/* Bottone Indietro */}
-        <button className="back-button" onClick={onClose}>
-          ← Indietro
-        </button>
-
-        {/* Bottone per chiudere */}
-        <button className="close-button" onClick={onClose}>
-          ✖
-        </button>
+        <img
+          src={backImage} // Percorso dell'immagine
+          alt="Indietro"
+          className="back-image"
+          onClick={onClose}
+        />
 
         {/* Messaggi */}
         {message && <div className={`alert ${message.type}`}>{message.msg}</div>}
