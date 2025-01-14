@@ -2,18 +2,17 @@ import React, { useState, useEffect, useRef } from 'react';
 import '../style/search.css';
 import { FaSearchLocation } from "react-icons/fa";
 import { GiPositionMarker } from "react-icons/gi";
-import { MapContainer as LeafletMap, TileLayer, Marker, Polyline, Popup, useMap, useMapEvents } from 'react-leaflet';
-
 
 function SearchBar() {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [recentSearches, setRecentSearches] = useState([]);
   const [currentLocation, setCurrentLocation] = useState(null);
-  const [showDropdown, setShowDropdown] = useState(false); // Per controllare la visibilità della tendina
+  const [showDropdown, setShowDropdown] = useState(false);
   const searchBarRef = useRef(null);
+  const debounceTimeout = useRef(null);
 
-  // Carica le ricerche recenti dal localStorage
+  // Load recent searches from localStorage on mount
   useEffect(() => {
     const storedSearches = localStorage.getItem('recentSearches');
     if (storedSearches) {
@@ -21,14 +20,14 @@ function SearchBar() {
     }
   }, []);
 
-  // Aggiorna le ricerche recenti nel localStorage
+  // Save recent searches to localStorage
   const updateRecentSearches = (newSearch) => {
     const updatedSearches = [newSearch, ...recentSearches.filter(item => item !== newSearch)].slice(0, 5);
     setRecentSearches(updatedSearches);
     localStorage.setItem('recentSearches', JSON.stringify(updatedSearches));
   };
 
-  // Ottieni la posizione attuale dell'utente
+  // Get the user's current location
   const handleCurrentLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -36,54 +35,58 @@ function SearchBar() {
           const { latitude, longitude } = pos.coords;
           setCurrentLocation({ latitude, longitude });
           setQuery('Current Location');
-          setShowDropdown(false); // Chiude la tendina
+          setShowDropdown(false);
         },
         (error) => {
-          console.error('Errore nella geolocalizzazione:', error);
-          alert('Impossibile ottenere la posizione attuale.');
+          console.error('Geolocation error:', error);
+          alert('Unable to get current location.');
         },
         { enableHighAccuracy: true }
       );
     } else {
-      alert('La geolocalizzazione non è supportata dal browser.');
+      alert('Geolocation is not supported by your browser.');
     }
   };
 
-  // Gestisce il cambiamento del campo di input
+  // Handle input changes with debouncing for API calls
   const handleInputChange = (e) => {
     const value = e.target.value;
     setQuery(value);
-  
-    if (value.length > 0) {
-      fetch(`https://nominatim.openstreetmap.org/search?q=${value}&format=json&addressdetails=1&limit=5`)
-        .then(response => response.json())
-        .then(data => {
-          setSuggestions(data.map(item => item.display_name));
-        })
-        .catch(error => {
-          console.error("Errore durante il completamento automatico:", error);
-          setSuggestions([]);
-        });
-    } else {
-      setSuggestions([]);
-    }
     setShowDropdown(true);
+
+    if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+
+    debounceTimeout.current = setTimeout(() => {
+      if (value.length > 0) {
+        fetch(`https://nominatim.openstreetmap.org/search?q=${value}&format=json&addressdetails=1&limit=5&countrycodes=it`)
+          .then(response => response.json())
+          .then(data => {
+            setSuggestions(data.map(item => item.display_name));
+          })
+          .catch(error => {
+            console.error('Autocomplete error:', error);
+            setSuggestions([]);
+          });
+      } else {
+        setSuggestions([]);
+      }
+    }, 300); // Debounce delay of 300ms
   };
-  
-  // Gestisce il click sui suggerimenti o la ricerca
+
+  // Handle selecting a suggestion or performing a search
   const handleSearch = (searchTerm) => {
     setQuery(searchTerm);
     setSuggestions([]);
     updateRecentSearches(searchTerm);
-    setShowDropdown(false); // Chiude la tendina dopo una selezione
+    setShowDropdown(false);
   };
 
-  // Chiude i suggerimenti quando si clicca fuori
+  // Close the dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (searchBarRef.current && !searchBarRef.current.contains(event.target)) {
-        setShowDropdown(false); // Nasconde la tendina
-        setSuggestions([]); // Svuota i suggerimenti
+        setShowDropdown(false);
+        setSuggestions([]);
       }
     };
 
@@ -102,21 +105,19 @@ function SearchBar() {
           placeholder="Search..."
           value={query}
           onChange={handleInputChange}
-          onFocus={() => setShowDropdown(true)} // Mostra la tendina quando l'input è focalizzato
+          onFocus={() => setShowDropdown(true)}
         />
         <button className="search-button" onClick={() => handleSearch(query)}>
           <FaSearchLocation />
         </button>
       </div>
 
-      {/* Suggerimenti e Ricerche Recenti */}
       {showDropdown && (
         <div className="suggestions-container">
           {query.length === 0 && (
             <>
               <div className="suggestion" onClick={handleCurrentLocation}>
-              <GiPositionMarker />
-              Usa la mia posizione attuale
+                <GiPositionMarker /> Usa la mia posizione attuale
               </div>
               {recentSearches.length > 0 && (
                 <div className="recent-searches">
