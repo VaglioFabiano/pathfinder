@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaMapMarkedAlt } from "react-icons/fa";
+import { SiOpenstreetmap } from "react-icons/si";
 import { GiTrail, GiDekuTree } from "react-icons/gi";
 import { FaUser } from "react-icons/fa";
 import API from "../API.mjs";
 import AuthModal from "./AuthModal"; // Importa il componente AuthModal
+import addTrailIcon from '../assets/addTrail.png';
+
 
 
 import '../style/base.css';
@@ -53,7 +55,7 @@ function BottomNavigation(props) {
   return (
     <div className="bottom-navigation">
       <button className="nav-button">
-        <FaMapMarkedAlt
+        <SiOpenstreetmap
           className="nav-icon"
           onClick={() => {
             props.setMod("map");
@@ -62,7 +64,9 @@ function BottomNavigation(props) {
         />
       </button>
       <button className="nav-button">
-        <GiTrail
+        <img
+          src={addTrailIcon}
+          alt="Add Trail"
           className="nav-icon"
           onClick={() => {
             props.setMod("add");
