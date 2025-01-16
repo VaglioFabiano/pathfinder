@@ -1,18 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import '../style/search.css';
-import { FaSearchLocation } from "react-icons/fa";
-import { GiPositionMarker } from "react-icons/gi";
+import { FaSearchLocation } from 'react-icons/fa';
 
-function SearchBar() {
+function SearchBar({ map }) {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [recentSearches, setRecentSearches] = useState([]);
-  const [currentLocation, setCurrentLocation] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const searchBarRef = useRef(null);
   const debounceTimeout = useRef(null);
 
-  // Load recent searches from localStorage on mount
+  // Carica le ricerche recenti da localStorage
   useEffect(() => {
     const storedSearches = localStorage.getItem('recentSearches');
     if (storedSearches) {
@@ -20,35 +18,14 @@ function SearchBar() {
     }
   }, []);
 
-  // Save recent searches to localStorage
+  // Salva le ricerche recenti in localStorage
   const updateRecentSearches = (newSearch) => {
-    const updatedSearches = [newSearch, ...recentSearches.filter(item => item !== newSearch)].slice(0, 5);
+    const updatedSearches = [newSearch, ...recentSearches.filter((item) => item !== newSearch)].slice(0, 5);
     setRecentSearches(updatedSearches);
     localStorage.setItem('recentSearches', JSON.stringify(updatedSearches));
   };
 
-  // Get the user's current location
-  const handleCurrentLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const { latitude, longitude } = pos.coords;
-          setCurrentLocation({ latitude, longitude });
-          setQuery('Current Location');
-          setShowDropdown(false);
-        },
-        (error) => {
-          console.error('Geolocation error:', error);
-          alert('Unable to get current location.');
-        },
-        { enableHighAccuracy: true }
-      );
-    } else {
-      alert('Geolocation is not supported by your browser.');
-    }
-  };
-
-  // Handle input changes with debouncing for API calls
+  // Gestisci le modifiche all'input con debounce per ridurre le richieste API
   const handleInputChange = (e) => {
     const value = e.target.value;
     setQuery(value);
@@ -59,29 +36,63 @@ function SearchBar() {
     debounceTimeout.current = setTimeout(() => {
       if (value.length > 0) {
         fetch(`https://nominatim.openstreetmap.org/search?q=${value}&format=json&addressdetails=1&limit=5&countrycodes=it`)
-          .then(response => response.json())
-          .then(data => {
-            setSuggestions(data.map(item => item.display_name));
+          .then((response) => response.json())
+          .then((data) => {
+            setSuggestions(
+              data.map((item) => ({
+                name: item.display_name,
+                coords: [parseFloat(item.lat), parseFloat(item.lon)],
+              }))
+            );
           })
-          .catch(error => {
+          .catch((error) => {
             console.error('Autocomplete error:', error);
             setSuggestions([]);
           });
       } else {
         setSuggestions([]);
       }
-    }, 300); // Debounce delay of 300ms
+    }, 300); // Debounce delay di 300ms
   };
 
-  // Handle selecting a suggestion or performing a search
+  // Gestisce la ricerca e centra la mappa
   const handleSearch = (searchTerm) => {
+    if (!map) {
+      console.error('Map instance is not available.');
+      alert('The map is not ready yet. Please try again.');
+      return;
+    }
+
+    setShowDropdown(false);
+    const selectedSuggestion = suggestions.find((s) => s.name === searchTerm);
+
+    if (selectedSuggestion) {
+      map.flyTo(selectedSuggestion.coords, 17); // Centra la mappa
+      updateRecentSearches(searchTerm);
+    } else {
+      // Cerca direttamente tramite Nominatim
+      fetch(`https://nominatim.openstreetmap.org/search?q=${searchTerm}&format=json&addressdetails=1&limit=1`)
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.length > 0) {
+            const coords = [parseFloat(data[0].lat), parseFloat(data[0].lon)];
+            map.flyTo(coords, 17); // Centra la mappa
+            updateRecentSearches(searchTerm);
+          } else {
+            alert('Location not found. Please refine your search.');
+          }
+        })
+        .catch((error) => {
+          console.error('Error during search:', error);
+          alert('An error occurred while searching for the location.');
+        });
+    }
+
     setQuery(searchTerm);
     setSuggestions([]);
-    updateRecentSearches(searchTerm);
-    setShowDropdown(false);
   };
 
-  // Close the dropdown when clicking outside
+  // Chiudi il dropdown quando si clicca all'esterno
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (searchBarRef.current && !searchBarRef.current.contains(event.target)) {
@@ -102,10 +113,11 @@ function SearchBar() {
         <input
           type="text"
           className="search-input"
-          placeholder="Search..."
+          placeholder="Search for a location..."
           value={query}
           onChange={handleInputChange}
           onFocus={() => setShowDropdown(true)}
+          onKeyPress={(e) => e.key === 'Enter' && handleSearch(query)} // Cerca con Invio
         />
         <button className="search-button" onClick={() => handleSearch(query)}>
           <FaSearchLocation />
@@ -114,36 +126,30 @@ function SearchBar() {
 
       {showDropdown && (
         <div className="suggestions-container">
-          {query.length === 0 && (
-            <>
-              <div className="suggestion" onClick={handleCurrentLocation}>
-                <GiPositionMarker /> Usa la mia posizione attuale
-              </div>
-              {recentSearches.length > 0 && (
-                <div className="recent-searches">
-                  <h4>Ricerche Recenti:</h4>
-                  {recentSearches.map((item, index) => (
-                    <div
-                      key={index}
-                      className="suggestion"
-                      onClick={() => handleSearch(item)}
-                    >
-                      {item}
-                    </div>
-                  ))}
+          {query.length === 0 && recentSearches.length > 0 && (
+            <div className="recent-searches">
+              <h4>Recent Searches:</h4>
+              {recentSearches.map((item, index) => (
+                <div
+                  key={index}
+                  className="suggestion"
+                  onClick={() => handleSearch(item)}
+                >
+                  {item}
                 </div>
-              )}
-            </>
-          )}
-          {query.length > 0 && suggestions.map((suggestion, index) => (
-            <div
-              key={index}
-              className="suggestion"
-              onClick={() => handleSearch(suggestion)}
-            >
-              {suggestion}
+              ))}
             </div>
-          ))}
+          )}
+          {query.length > 0 &&
+            suggestions.map((suggestion, index) => (
+              <div
+                key={index}
+                className="suggestion"
+                onClick={() => handleSearch(suggestion.name)}
+              >
+                {suggestion.name}
+              </div>
+            ))}
         </div>
       )}
     </div>
