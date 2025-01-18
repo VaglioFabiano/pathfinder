@@ -1,46 +1,71 @@
-/* Contenitore della SearchBar */
+/* Contenitore principale della barra */
 .search-bar-container {
-  position: fixed;
-  top: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-  width: 95%; /* Aumenta la larghezza totale */
-  max-width: 700px; /* Maggiore larghezza massima */
   display: flex;
-  justify-content: center;
+  justify-content: center; /* Centra il wrapper orizzontalmente */
+  position: absolute; /* Posiziona il contenitore in modo assoluto */
+  top: 20px; /* Distanza dalla parte superiore */
+  width: 100%; /* Occupa tutta la larghezza */
+  z-index: 1000; /* Assicurati che sia sopra altri elementi della mappa */
 }
 
-/* Stile della barra di ricerca */
+/* Wrapper per barra e pulsante */
+.search-bar-wrapper {
+  display: flex;
+  align-items: center; /* Allinea la barra e il pulsante verticalmente */
+  gap: 10px; /* Spaziatura tra barra e pulsante */
+}
+
+/* Barra di ricerca */
 .search-bar {
   display: flex;
   align-items: center;
   background-color: #ffffff;
-  border: 1px solid #ccc; /* Mantieni un bordo sottile */
-  border-radius: 25px; /* Angoli arrotondati */
-  padding: 8px 15px; /* Margine interno per elementi */
-  width: 100%; /* Occupa tutta la larghezza disponibile */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Ombra leggera */
+  border: 1px solid #ccc;
+  border-radius: 50px;
+  padding: 0 15px;
+  height: 50px; /* Altezza uniforme */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+/* Campo di input */
 .search-input {
-  flex: 1; /* Si espande per occupare tutto lo spazio disponibile */
+  flex: 1;
   border: none;
   outline: none;
-  font-size: 16px; /* Dimensione font più leggibile */
-  padding: 6px; /* Margine interno dell'input */
+  background: transparent;
+  font-size: 16px;
+  height: 100%; /* Si adatta all'altezza del contenitore */
+  line-height: 50px; /* Allinea verticalmente il testo */
+  color: #333;
 }
 
+/* Pulsante di ricerca */
 .search-button {
-  background: none;
+  background-color: #555; /* Sfondo del pulsante */
+  color: white; /* Colore dell'icona */
   border: none;
-  cursor: pointer;
-  font-size: 20px; /* Dimensione dell'icona */
-  color: #555;
-  padding-left: 10px; /* Spazio tra input e bottone */
+  border-radius: 50%; /* Forma circolare */
+  width: 50px; /* Larghezza */
+  height: 50px; /* Altezza */
+  display: flex; /* Flexbox per centraggio */
+  align-items: center; /* Centra il contenuto verticalmente */
+  justify-content: center; /* Centra il contenuto orizzontalmente */
+  cursor: pointer; /* Puntatore al passaggio */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Ombra */
+  padding: 0; /* Nessun padding */
+  margin: 0; /* Nessun margine */
+  transition: background-color 0.3s ease; /* Effetto al passaggio */
+  flex-shrink: 0; /* Impedisce che si deformi */
 }
 
-.search-input:focus {
-  outline: none;
-  border-bottom: 2px solid #007bff; /* Evidenziazione al focus */
+.search-button:hover {
+  background-color: #333; /* Cambio colore al passaggio del mouse */
 }
+
+/* Assicurati che l'icona SVG sia corretta */
+.search-button svg {
+  display: block;
+  width: 18px; /* Dimensione icona */
+  height: 18px;
+}
+

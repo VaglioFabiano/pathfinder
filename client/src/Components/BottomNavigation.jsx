@@ -9,6 +9,7 @@ import addTrailIcon from '../assets/addTrail.png';
 
 
 
+
 import '../style/base.css';
 import '../style/button.css';
 import '../style/layout.css';

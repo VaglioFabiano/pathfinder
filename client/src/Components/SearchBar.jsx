@@ -108,52 +108,26 @@ function SearchBar({ map }) {
   }, []);
 
   return (
-    <div className="search-bar-container" ref={searchBarRef}>
-      <div className="search-bar">
-        <input
-          type="text"
-          className="search-input"
-          placeholder="Search for a location..."
-          value={query}
-          onChange={handleInputChange}
-          onFocus={() => setShowDropdown(true)}
-          onKeyPress={(e) => e.key === 'Enter' && handleSearch(query)} // Cerca con Invio
-        />
+    <div className="search-bar-container">
+      <div className="search-bar-wrapper">
+        <div className="search-bar">
+          <input
+            type="text"
+            className="search-input"
+            placeholder="Search..."
+            value={query}
+            onChange={handleInputChange}
+            onFocus={() => setShowDropdown(true)}
+            onKeyPress={(e) => e.key === 'Enter' && handleSearch(query)}
+          />
+        </div>
         <button className="search-button" onClick={() => handleSearch(query)}>
           <FaSearchLocation />
         </button>
       </div>
-
-      {showDropdown && (
-        <div className="suggestions-container">
-          {query.length === 0 && recentSearches.length > 0 && (
-            <div className="recent-searches">
-              <h4>Recent Searches:</h4>
-              {recentSearches.map((item, index) => (
-                <div
-                  key={index}
-                  className="suggestion"
-                  onClick={() => handleSearch(item)}
-                >
-                  {item}
-                </div>
-              ))}
-            </div>
-          )}
-          {query.length > 0 &&
-            suggestions.map((suggestion, index) => (
-              <div
-                key={index}
-                className="suggestion"
-                onClick={() => handleSearch(suggestion.name)}
-              >
-                {suggestion.name}
-              </div>
-            ))}
-        </div>
-      )}
     </div>
   );
+
 }
 
 export default SearchBar;

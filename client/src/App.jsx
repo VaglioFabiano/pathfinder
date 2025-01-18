@@ -121,6 +121,7 @@ function MapWithSearch() {
       center={userLocation || [41.9028, 12.4964]} // Usa la posizione dell'utente o Roma come fallback
       zoom={13}
       style={{ height: "100vh", width: "100%" }}
+      zoomControl={false} // Disabilita il controllo dello zoom
     >
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -130,6 +131,7 @@ function MapWithSearch() {
       <SearchBarWrapper />
       <RecenterButton userLocation={userLocation} />
     </MapContainer>
+
   );
 }
 
