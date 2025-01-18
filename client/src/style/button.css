@@ -39,8 +39,12 @@
   background-color: #0056b3;
 }
 
-
-
 .end-trail-button:hover {
   background-color: #c0392b;
+}
+
+.recenter-button svg,
+.tutorial-button svg{
+  width: 34px; /* Larghezza dell'icona */
+  height: 24px; /* Altezza dell'icona */
 }
