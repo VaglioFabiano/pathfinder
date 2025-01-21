@@ -75,7 +75,7 @@ const RegisterForm = ({ onRegister }) => {
     );
 };
 
-const AuthModal = ({ onLoginSuccess, onClose }) => {
+const AuthModal = ({ onLoginSuccess, onClose, setUser }) => {
   const [isLoginMode, setIsLoginMode] = useState(true); // Alterna tra Login e Registrazione
   const [message, setMessage] = useState("");
 
@@ -84,6 +84,7 @@ const AuthModal = ({ onLoginSuccess, onClose }) => {
       const user = await API.login(credentials);
       setMessage({ msg: `Benvenuto, ${user.username}!`, type: "success" });
       onLoginSuccess(user);
+      setUser(user);
     } catch (err) {
       setMessage({ msg: "Errore durante il login. Verifica le credenziali.", type: "danger" });
     }

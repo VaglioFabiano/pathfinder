@@ -5,7 +5,7 @@ import { CiGps } from "react-icons/ci";
 import API from '../API.mjs';
 import { IoStop } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
-
+import SearchBar from './SearchBar';
 
 import '../style/base.css';
 import '../style/button.css';
@@ -243,7 +243,10 @@ const Modal = ({ children, onClose }) => {
   );
 };
 
-
+function SearchBarWrapper() {
+  const map = useMap();
+  return <SearchBar map={map} />;
+}
 // Main Component: MapContainer
 const MapContainer = ({mod, user}) => {
   const [position, setPosition] = useState(null);
@@ -444,7 +447,7 @@ const MapContainer = ({mod, user}) => {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
-
+        <SearchBarWrapper />
         {/* Posizione attuale */}
         <CurrentPositionMarker position={simulatedPosition || position} setCoords={setCoords} setMapLink={setMapLink} />
 
@@ -469,61 +472,61 @@ const MapContainer = ({mod, user}) => {
 
           {/* Trail dettagliato */}
           {detailedTrail && <TrailPath key={detailedTrail.id} trail={detailedTrail} />}
-        <div>
-            {/* Bottone per recentrare */}
-                     
-            <RecenterButton position={position} mod = {mod} />
+          <div>
+              {/* Bottone per recentrare */}
+                      
+              <RecenterButton position={position} mod = {mod} />
 
+              
+              {trailActive && (
+              <button className="end-trail-button" onClick={endTrail} aria-label="End Trail">
+                <IoStop className='nav-icon' />
+              </button>
+              )}
             
-            {trailActive && (
-            <button className="end-trail-button" onClick={endTrail} aria-label="End Trail">
-              <IoStop className='nav-icon' />
-            </button>
+            {user && showReviewForm && (
+              <Modal onClose={() => setShowReviewForm(false)}>
+                <h2>Lascia una recensione</h2>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    submitReview();
+                  }}
+                >
+                  <div className="form-group">
+                    <label>Valutazione:</label>
+                    <select
+                      value={review.rating}
+                      onChange={(e) => setReview({ ...review, rating: e.target.value })}
+                      required
+                    >
+                      <option value={0} disabled>Seleziona</option>
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <option key={star} value={star}>
+                          {`${star} Stelle`}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>Commento:</label>
+                    <textarea
+                      value={review.comment}
+                      onChange={(e) => setReview({ ...review, comment: e.target.value })}
+                      placeholder="Scrivi il tuo commento qui..."
+                      required
+                    />
+                  </div>
+                  <button type="submit">Invia Recensione</button>
+                </form>
+              </Modal>
             )}
-          
-          {user && showReviewForm && (
-            <Modal onClose={() => setShowReviewForm(false)}>
-              <h2>Lascia una recensione</h2>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  submitReview();
-                }}
-              >
-                <div className="form-group">
-                  <label>Valutazione:</label>
-                  <select
-                    value={review.rating}
-                    onChange={(e) => setReview({ ...review, rating: e.target.value })}
-                    required
-                  >
-                    <option value={0} disabled>Seleziona</option>
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <option key={star} value={star}>
-                        {`${star} Stelle`}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label>Commento:</label>
-                  <textarea
-                    value={review.comment}
-                    onChange={(e) => setReview({ ...review, comment: e.target.value })}
-                    placeholder="Scrivi il tuo commento qui..."
-                    required
-                  />
-                </div>
-                <button type="submit">Invia Recensione</button>
-              </form>
-            </Modal>
-          )}
-          {!user && showReviewForm && (
-            <Modal onClose={() => setShowReviewForm(false)}>
-              <h2>Devi essere loggato per lasciare una recensione</h2>
-            </Modal>
-          )}
-        </div>
+            {!user && showReviewForm && (
+              <Modal onClose={() => setShowReviewForm(false)}>
+                <h2>Devi essere loggato per lasciare una recensione</h2>
+              </Modal>
+            )}
+          </div>
       </LeafletMap>
     </div>
   );
