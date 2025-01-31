@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, act } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, Pressable} from 'react-native';
 import MapView, { Marker, UrlTile, Polyline } from 'react-native-maps';
 import * as Location from 'expo-location';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import SearchBar from '@/components/Searchbar';
 import RecenterButton from '@/components/recenterBotton';
 
@@ -11,6 +11,8 @@ import Tutorial from '@/components/Tutorial';
 
 import * as TrailDAO from '@/dao/trailDAO';
 import TrailDropdown from '@/components/TrailDropdown';
+
+import TrailInfoModal from '@/components/DetailTrail';
 
 interface Trail {
   id: number;
@@ -52,6 +54,9 @@ const MapWithTopoMap = () => {
   
   const [trailOptionsVisible, setTrailOptionsVisible] = useState<Trail[]>([]);
   const [visibileOptions, setVisibleOptions] = useState(false);
+
+
+  const [isModalDetailVisible, setIsModalDetailVisible] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -118,6 +123,7 @@ const MapWithTopoMap = () => {
   const startTrail = () => {
     console.log('Starting trail:', selectedTrail?.name);
     setTrailActive(true);
+    setIsModalDetailVisible(false);
     setSimulatedPosition(selectedTrail ? { latitude: selectedTrail.trail[0][0], longitude: selectedTrail.trail[0][1] } : null);
     setModalVisible(false);
   };
@@ -172,13 +178,13 @@ const MapWithTopoMap = () => {
     }
   }, [trailActive, selectedTrail]);
 
-  const closeModal = (flag: boolean) => {
+  const closeModal = (flag:boolean) => {
     setModalVisible(false);
     if (flag){
+      setIsModalDetailVisible(false);
       setTrailActive(false);
       setSelectedTrail(null);
       setSimulatedPosition(null);
-      setRefresch((r) => !r);
     }
   };
 
@@ -246,10 +252,13 @@ const MapWithTopoMap = () => {
       )}
       
       {/* Modal per inserire la review */}
-      <ReviewModal reviewModalVisible={reviewModalVisible} reviewText={reviewText} setReviewText={setReviewText} submitReview={submitReview} />
+      {reviewModalVisible && <ReviewModal reviewModalVisible={reviewModalVisible} reviewText={reviewText} setReviewText={setReviewText} submitReview={submitReview} />}
+
+
+      {isModalDetailVisible && <TrailInfoModal isVisible={isModalDetailVisible} closeModal={closeModal} selectedTrail={selectedTrail} startTrail={startTrail}/>}
 
       {/* Bottom sheet modal */}
-      {modalVisible && ( <Popup selectedTrail={selectedTrail} startTrail={startTrail} closeModal={closeModal} /> )}
+      {modalVisible && ( <Popup selectedTrail={selectedTrail} startTrail={startTrail} closeModal={closeModal} setIsModalDetailVisible={setIsModalDetailVisible}/> )}
 
       {!modalVisible && ( <BottomSheet location={location} setRegion={setRegion} />)} 
       
@@ -258,7 +267,6 @@ const MapWithTopoMap = () => {
     </View>
   );
 };
-
 
 interface ReviewModalProps {
   reviewModalVisible: boolean;
@@ -328,32 +336,42 @@ interface PopupProps {
     path: Array<{ latitude: number; longitude: number }>;
   } | null;
   startTrail: () => void;
-  closeModal: (flag: boolean) => void;
+  closeModal: (flag:boolean) => void;
+  setIsModalDetailVisible: (value: boolean) => void;
 }
 
 
-const Popup: React.FC<PopupProps> = ({ selectedTrail, startTrail, closeModal }: PopupProps & { closeModal: (flag: boolean) => void }) => {
-  return(
+const Popup: React.FC<PopupProps> = ({ selectedTrail, startTrail, closeModal , setIsModalDetailVisible}) => {
+  return (
     <View style={styles.popupContainer}>
-      {/* Sfondo cliccabile per chiudere il popup  NON VA PECCATO (MA SI RISOLVE DAI)*/}
-      <Pressable
-        style={styles.modalOverlay}
-        onPress={() => closeModal(true)}
-      />
-
-      {/* Contenuto del popup che non deve chiudersi */}
-      <View style={styles.popup} pointerEvents="box-none">
+      
+      <TouchableOpacity style={styles.popup} onPress={() => {closeModal(false);setIsModalDetailVisible(true)}}>
         <Text style={styles.trailName}>{selectedTrail?.name}</Text>
-        <Text>Vuoi iniziare questo trail?</Text>
+        <View style={styles.infoRow}>
+          <Text style={styles.infoText}>
+            <MaterialIcons name="timeline" size={16} color="#666" /> {selectedTrail?.length} km
+          </Text>
+          <Text style={styles.infoText}>
+            <MaterialIcons name="schedule" size={16} color="#666" /> {selectedTrail?.duration} ore
+          </Text>
+          <Text style={styles.infoText}>
+            <MaterialIcons name="landscape" size={16} color="#666" /> {selectedTrail?.elevation} m
+          </Text>
+          <View style={styles.difficultyContainer}>
+            <Text style={styles.difficultyLabel}>{selectedTrail?.difficulty}</Text>
+          </View>
+        </View>
+
+        {/* Pulsanti posizionati sotto */}
         <View style={styles.buttonRow}>
-          <TouchableOpacity style={styles.button} onPress={() => startTrail()}>
-            <Text style={styles.buttonText}>Start</Text>
+          <TouchableOpacity style={styles.startButton} onPress={startTrail}>
+            <Text style={styles.buttonText}>Inizia</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={() => closeModal(true)}>
+          <TouchableOpacity style={styles.cancelButton} onPress={() => closeModal(true)}>
             <Text style={styles.buttonText}>Chiudi</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -361,15 +379,7 @@ const Popup: React.FC<PopupProps> = ({ selectedTrail, startTrail, closeModal }: 
 const styles = StyleSheet.create({
   container: { flex: 1 },
   map: { flex: 1 },
-  modalOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Opzionale, per dare uno sfondo trasparente scuro
-    zIndex: 1,
-  },
+
   markerBike: {
     width: 30,
     height: 30,
@@ -393,27 +403,59 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   popupContainer: {
-    position: 'absolute',
-    bottom: 100,
-    left: 0,
-    right: 0,
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 2, 
+    position: 'absolute',
+    bottom: 90,
+    left: 0,
+    right: 0,
   },
   popup: {
-    width: '90%',
-    backgroundColor: 'white',
-    borderRadius: 15,
+    backgroundColor: '#1a1a1a',
     padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-    elevation: 5,
+    borderRadius: 12,
+    width: 400,
+  },
+  trailName: {
+    color: '#ffffff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  infoText: {
+    color: '#bbb',
+    fontSize: 14,
+  },
+  difficultyContainer: {
+    backgroundColor: '#007BFF',
+    padding: 4,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+  },
+  difficultyLabel: {
+    color: '#fff',
+    fontSize: 12,
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
+  },
+  startButton: {
+    backgroundColor: '#28a745',
+    padding: 10,
+    borderRadius: 8,
   },
   cancelButton: {
-    backgroundColor: '#FF3B30', // Rosso per il pulsante Chiudi
+    backgroundColor: '#dc3545',
+    padding: 10,
+    borderRadius: 8,
   },
   bottomSheet: {
     width: '100%',
@@ -428,12 +470,6 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 5,
   },
-  trailName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-
   button: {
     padding: 10,
     backgroundColor: '#007BFF',
@@ -443,7 +479,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     alignItems: 'center',
   },
- 
   buttonText: {
     color: 'white',
     fontWeight: 'bold',
@@ -499,12 +534,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlignVertical: 'top',
   },
-  buttonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-  },
-
 });
 
 
