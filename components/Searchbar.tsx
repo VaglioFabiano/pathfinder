@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, TextInput, StyleSheet, Text, TouchableOpacity, FlatList, Alert } from 'react-native';
+import { View, TextInput, StyleSheet, Text, TouchableOpacity, FlatList, Alert, Keyboard, TouchableWithoutFeedback  } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { FontAwesome } from '@expo/vector-icons';
+import { FontAwesome,Entypo } from '@expo/vector-icons';
+
+
+
 
 const SearchBar = ({ mapRef }: { mapRef: React.RefObject<any> }) => {
   const [query, setQuery] = useState('');
@@ -122,51 +125,81 @@ const SearchBar = ({ mapRef }: { mapRef: React.RefObject<any> }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.searchBarWrapper}>
-        <View style={styles.searchBar}>
-          <TextInput
-            style={styles.input}
-            placeholder="Search..."
-            placeholderTextColor="#95a5a6"
-            value={query}
-            onChangeText={handleInputChange}
-            onFocus={() => setShowDropdown(true)}
-            onSubmitEditing={() => handleSearch(query)}
-          />
+    <TouchableWithoutFeedback 
+      onPress={() => {
+        Keyboard.dismiss(); // Chiude la tastiera
+        setShowDropdown(false); // Chiude il dropdown
+        setSuggestions([]); // Cancella i suggerimenti
+      }} 
+      accessible={false}
+    >
+      <View style={styles.container}>
+        <View style={styles.searchBarWrapper}>
+          <View style={styles.searchBar}>
+            <TextInput
+              style={styles.input}
+              placeholder="Search..."
+              placeholderTextColor="#95a5a6"
+              value={query}
+              onChangeText={handleInputChange}
+              onFocus={() => setShowDropdown(true)}
+              onSubmitEditing={() => handleSearch(query)}
+              blurOnSubmit={true} 
+            />
+  
+            {query.length > 0 && (
+              <TouchableOpacity 
+                onPress={() => {
+                  setQuery('');
+                  setShowDropdown(false);
+                  setSuggestions([]); 
+                  Keyboard.dismiss();
+                }} 
+                style={styles.clearButton}
+              >
+                <Entypo name="cross" size={20} color="#7f8c8d" />
+              </TouchableOpacity>
+            )}
+          </View>
+  
+          <TouchableOpacity style={styles.searchButton} onPress={() => handleSearch(query)}>
+            <FontAwesome name="search" size={20} color="#2c3e50" />
+          </TouchableOpacity>
         </View>
-
-        <TouchableOpacity style={styles.searchButton} onPress={() => handleSearch(query)}>
-          <FontAwesome name="search" size={20} color="#2c3e50" />
-        </TouchableOpacity>
+  
+        {showDropdown && suggestions.length > 0 && (
+          <TouchableWithoutFeedback 
+            onPress={() => {
+              Keyboard.dismiss(); 
+              setShowDropdown(false);
+              setSuggestions([]);
+            }} 
+          >
+            <View style={styles.suggestionsContainer}>
+              <FlatList
+                data={suggestions || []}
+                keyExtractor={(item, index) => index.toString()}
+                renderItem={({ item }) => (
+                  <TouchableOpacity onPress={() => handleSearch(item.name)}>
+                    <Text style={styles.suggestion}>{item?.name ?? 'No name available'}</Text>
+                  </TouchableOpacity>
+                )}
+                keyboardShouldPersistTaps="always" 
+                ListEmptyComponent={() => (
+                  <Text style={{ padding: 10, textAlign: 'center', color: '#aaa' }}>
+                    No suggestions found
+                  </Text>
+                )}
+              />
+            </View>
+          </TouchableWithoutFeedback>
+        )}
       </View>
-
-      {showDropdown && suggestions.length > 0 && (
-      <View style={styles.suggestionsContainer}>
-        <FlatList
-          data={suggestions || []}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => handleSearch(item.name)}>
-              <Text style={styles.suggestion}>
-                {item?.name ?? 'No name available'}
-              </Text>
-            </TouchableOpacity>
-          )}
-          ListEmptyComponent={() => (
-            <Text style={{ padding: 10, textAlign: 'center', color: '#aaa' }}>
-              No suggestions found
-            </Text>
-          )}
-        />
-      </View>
-)}
-
-
-
-
-    </View>
+    </TouchableWithoutFeedback>
   );
+  
+  
+   
 };
 
 const styles = StyleSheet.create({
@@ -196,12 +229,13 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 10,
-    elevation: 5,
+    elevation: 5, 
   },
   input: {
     flex: 1,
     fontSize: 16,
     color: '#2c3e50',
+    paddingRight: 15,
   },
   searchButton: {
     backgroundColor: '#fff',
@@ -236,8 +270,8 @@ const styles = StyleSheet.create({
   suggestionsContainer: {
     position: 'absolute',
     top: 60, 
-    left: 0,
-    right: 0,
+    left: -25,
+    right: 30,
     backgroundColor: 'white', 
     borderRadius: 10,
     paddingHorizontal: 10,
@@ -248,6 +282,11 @@ const styles = StyleSheet.create({
     elevation: 5, 
     zIndex: 1000, 
   },  
+  clearButton: {
+    position: 'absolute',    
+    right: 0,
+    padding: 10,
+  },
 });
 
 export default SearchBar;
