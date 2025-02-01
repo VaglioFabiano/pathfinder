@@ -1,21 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { getUser } from '@/dao/userDAO'; // Assicurati che il percorso sia corretto
+import * as UserDAO from '@/dao/userDAO';
 
 export default function ProfileScreen() {
-  /*const [user, setUser] = useState<{ name: string; surname: string } | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      const userData = await getUser(1); // Simula il recupero utente dal DB con ID 1
-      if (userData) {
-        setUser(userData);
-      }
-    };
+    useEffect(() => {
+        const fetchUser = async () => {
+            const user = await UserDAO.getUser(); 
+            setUserName(user);
+        };
 
-    fetchUser();
-  }, []);*/
+        fetchUser();
+    }, []);
 
   return (
     <ScrollView style={styles.container}>
@@ -23,7 +21,11 @@ export default function ProfileScreen() {
       <View style={styles.header}>
         <Ionicons name="person-circle-outline" size={80} color="white" />
         <Text style={styles.greeting}>
-          {/*user ? `${user.name}\n${user.surname}` : "Caricamento..."*/}
+          {userName
+            ? userName.includes(" ")
+              ? userName.split(" ")[0] + "\n" + userName.split(" ")[1]
+              : userName
+            : "Caricamento..."}
         </Text>
       </View>
 
