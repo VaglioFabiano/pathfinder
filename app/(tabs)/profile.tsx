@@ -1,46 +1,65 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { getUser } from '@/dao/userDAO'; // Assicurati che il percorso sia corretto
 
 export default function ProfileScreen() {
+  /*const [user, setUser] = useState<{ name: string; surname: string } | null>(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const userData = await getUser(1); // Simula il recupero utente dal DB con ID 1
+      if (userData) {
+        setUser(userData);
+      }
+    };
+
+    fetchUser();
+  }, []);*/
+
   return (
     <ScrollView style={styles.container}>
       {/* Sezione header con avatar e testo */}
       <View style={styles.header}>
-        <Icon name="person-circle-outline" size={80} color="white" />
-        <Text style={styles.greeting}>Fabiano{"\n"}Vaglio</Text>
+        <Ionicons name="person-circle-outline" size={80} color="white" />
+        <Text style={styles.greeting}>
+          {/*user ? `${user.name}\n${user.surname}` : "Caricamento..."*/}
+        </Text>
       </View>
+
       {/* Sezione contenuti */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>CONTENUTI</Text>
+
+        {/** Lista delle sezioni */}
         <TouchableOpacity style={styles.listItem}>
-          <Icon name="trail-sign-outline" size={24} color="white" />
+          <Ionicons name="trail-sign-outline" size={24} color="white" />
           <Text style={styles.listItemText}>Percorsi</Text>
-          <Icon name="chevron-forward" size={20} color="gray" />
+          <Ionicons name="chevron-forward" size={20} color="gray" />
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.listItem}>
-          <Icon name="briefcase-outline" size={24} color="white" />
+          <Ionicons name="briefcase-outline" size={24} color="white" />
           <Text style={styles.listItemText}>Progetti</Text>
-          <Icon name="chevron-forward" size={20} color="gray" />
+          <Ionicons name="chevron-forward" size={20} color="gray" />
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.listItem}>
-          <Icon name="radio-button-on-outline" size={24} color="white" />
+          <Ionicons name="radio-button-on-outline" size={24} color="white" />
           <Text style={styles.listItemText}>Tracce</Text>
-          <Icon name="chevron-forward" size={20} color="gray" />
+          <Ionicons name="chevron-forward" size={20} color="gray" />
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.listItem}>
-          <Icon name="chatbox-outline" size={24} color="white" />
+          <Ionicons name="chatbox-outline" size={24} color="white" />
           <Text style={styles.listItemText}>Punti di interesse</Text>
-          <Icon name="chevron-forward" size={20} color="gray" />
+          <Ionicons name="chevron-forward" size={20} color="gray" />
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.listItem}>
-          <Icon name="download-outline" size={24} color="white" />
+          <Ionicons name="download-outline" size={24} color="white" />
           <Text style={styles.listItemText}>Download</Text>
-          <Icon name="chevron-forward" size={20} color="gray" />
+          <Ionicons name="chevron-forward" size={20} color="gray" />
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -50,11 +69,12 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#000',
   },
   header: {
     alignItems: 'center',
     paddingVertical: 70,
-    backgroundColor: '#1c1c1e', // Colore scuro per l'header
+    backgroundColor: '#1c1c1e',
   },
   greeting: {
     color: 'white',
