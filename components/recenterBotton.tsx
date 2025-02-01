@@ -3,15 +3,25 @@ import { TouchableOpacity, StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 
 type RecenterButtonProps = {
+  mapRef: React.MutableRefObject<any>;
   location: { latitude: number; longitude: number } | null;
   setRegion: (region: { latitude: number; longitude: number; latitudeDelta: number; longitudeDelta: number }) => void;
 };
 
-const RecenterButton: React.FC<RecenterButtonProps> = ({ location, setRegion }) => {
+const RecenterButton: React.FC<RecenterButtonProps> = ({ mapRef, location, setRegion }) => {
   const [isClicked, setIsClicked] = useState(false);
 
   const recenterMap = () => {
     if (location) {
+      mapRef.current.animateToRegion(
+            {
+               latitude: location.latitude,
+                longitude: location.longitude, 
+                latitudeDelta: 0.005,
+                longitudeDelta: 0.005,
+              }, 1000);
+  
+        
       setRegion({
         latitude: location.latitude,
         longitude: location.longitude,

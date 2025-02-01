@@ -7,10 +7,10 @@ interface StartTrailButtonProps {
 }
 
 const StartTrailButton = ({ startTrail, currentPosition }: StartTrailButtonProps) => {
-  const [selectedActivity, setSelectedActivity] = useState('Escursione');
+  const [selectedActivity, setSelectedActivity] = useState('Walk');
   const [modalVisible, setModalVisible] = useState(false);
 
-  const activities = ['Escursione', 'Corsa', 'Ciclismo', 'Camminata'];
+  const activities = ['Walk', 'Hiking', 'Bike'];
 
   const handleActivitySelect = (activity: string) => {
     setSelectedActivity(activity);
@@ -32,7 +32,7 @@ const StartTrailButton = ({ startTrail, currentPosition }: StartTrailButtonProps
         style={styles.startButton}
         onPress={() => startTrail(currentPosition, selectedActivity)}
       >
-        <Text style={styles.buttonText}>Inizia Percorso</Text>
+        <Text style={styles.buttonText}>Start Trail</Text>
       </TouchableOpacity>
 
       {/* Modal per il menu a tendina */}
@@ -50,7 +50,7 @@ const StartTrailButton = ({ startTrail, currentPosition }: StartTrailButtonProps
                   <Text style={styles.modalItem}>{item}</Text>
                 </TouchableOpacity>
               )}
-              keyExtractor={(item) => item}
+              keyExtractor={(item) => item.toLowerCase()}
             />
           </View>
         </View>

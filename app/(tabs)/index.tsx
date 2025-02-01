@@ -1,18 +1,19 @@
-import React, { useState, useEffect, useRef, act } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, Pressable} from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, StyleSheet, TouchableOpacity} from 'react-native';
 import MapView, { Marker, UrlTile, Polyline } from 'react-native-maps';
 import * as Location from 'expo-location';
-import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import {  Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import SearchBar from '@/components/Searchbar';
-import RecenterButton from '@/components/recenterBotton';
+import ReviewModal from '@/components/ReviewModal';
 
-import Tree from '@/components/Tree';
-import Tutorial from '@/components/Tutorial'; 
+import Popup from '@/components/Popup';
+import BottomSheet from '@/components/BottomSheet';
 
 import * as TrailDAO from '@/dao/trailDAO';
 import TrailDropdown from '@/components/TrailDropdown';
 
 import TrailInfoModal from '@/components/DetailTrail';
+import * as ReviewDAO from '@/dao/reviewDAO';
 
 interface Trail {
   id: number;
@@ -38,7 +39,13 @@ interface Trail {
   activity: string;
 
 }
-
+interface Review {
+  id: number;
+  trail_id: number;
+  user_id: number;
+  rating: number;
+  comment: string;
+}
 const MapWithTopoMap = () => {
   const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [region, setRegion] = useState<{ latitude: number; longitude: number; latitudeDelta: number; longitudeDelta: number } | null>(null);
@@ -47,9 +54,12 @@ const MapWithTopoMap = () => {
   const [simulatedPosition, setSimulatedPosition] = useState<{ latitude: number; longitude: number } | null>(null);
   const mapRef = useRef<MapView>(null);
   const [refresch, setRefresch] = useState(false);
+
   const [modalVisible, setModalVisible] = useState(false);
   const [reviewModalVisible, setReviewModalVisible] = useState(false);
   const [reviewText, setReviewText] = useState("");
+  const [rating, setRating] = useState(0);
+
   const [trails, setTrails] = useState<Trail[]>([]);
   
   const [trailOptionsVisible, setTrailOptionsVisible] = useState<Trail[]>([]);
@@ -67,6 +77,18 @@ const MapWithTopoMap = () => {
       }
 
       const currentLocation = await Location.getCurrentPositionAsync({});
+
+      if (currentLocation)
+      {
+        mapRef.current && mapRef.current.animateToRegion(
+          {
+             latitude: currentLocation.coords.latitude,
+              longitude: currentLocation.coords.longitude, 
+             latitudeDelta: 0.01, 
+             longitudeDelta: 0.01 
+            }, 1000);
+
+      }
       setLocation(currentLocation.coords);
 
       setRegion({
@@ -75,6 +97,8 @@ const MapWithTopoMap = () => {
         latitudeDelta: 0.005,
         longitudeDelta: 0.005,
       });
+     
+      
     })();
   }, [refresch]);
 
@@ -132,9 +156,17 @@ const MapWithTopoMap = () => {
     setReviewModalVisible(true);
   };
 
-  const submitReview = () => {
-    console.log("Recensione inviata:", reviewText);
+  const submitReview = async () => {
+    const newReview: Review = {
+      trail_id: selectedTrail?.id ?? 0,
+      user_id: 1,
+      rating: rating,
+      comment: reviewText,
+      id: 0
+    };
+    await ReviewDAO.addReview(newReview);
     setReviewModalVisible(false);
+    setRating(0);
     setReviewText(""); // Resetta il campo della recensione
     setTrailActive(false);
     setSelectedTrail(null);
@@ -224,23 +256,45 @@ const MapWithTopoMap = () => {
         )}
 
         {/* Marker per ogni trail */}
-        {trails.map((trail) => ( 
-          <Marker key={trail.id} coordinate={trail.startpoint} flat={true}  onPress={() => handleMarkerPress(trail)} >
-            <View style={styles.markerBike}>
-              <MaterialCommunityIcons name="bike" size={24} color="white" />
-            </View>
-          </Marker> 
-        ))}
+        {trails.map((trail) => {
+            const difficultyColor =
+            trail.difficulty === 'Beginner' ? '#28a745' :
+            trail.difficulty === 'Intermediate' ? '#ffc107' :
+            '#dc3545';
+            
+            let activityIcon;
+            switch (trail.activity) {
+              case 'walk':
+                activityIcon = <MaterialCommunityIcons name="walk" size={24} color={difficultyColor=="#ffc107" ? "black": "white"} />;
+                break; 
+              case 'hiking':
+                activityIcon = <MaterialCommunityIcons name="hiking" size={24} color={difficultyColor=="#ffc107" ? "black": "white"}  />;
+                break;
+              default:
+                activityIcon = <MaterialCommunityIcons name="bike" size={24} color={difficultyColor=="#ffc107" ? "black": "white"}  />;
+                break;
+            }
 
-        {/* Polyline per il trail selezionato o attivo */}
-        {selectedTrail && <Polyline coordinates={selectedTrail.trail} strokeColor="blue" strokeWidth={4} />}
-        {simulatedPosition && 
-        <Marker coordinate={simulatedPosition}>
-          <View style={styles.marker}>
-            <View style={styles.innerCircle} />
-          </View>
-        </Marker>
-        }
+            return (
+              <Marker key={trail.id} coordinate={trail.startpoint} flat={true} onPress={() => handleMarkerPress(trail)}>
+                <View style={[styles.markerIcon, { backgroundColor: difficultyColor }]}>{activityIcon}</View>
+              </Marker>
+            );
+          })}
+
+          {/* Polyline per il trail selezionato o attivo */}
+          {selectedTrail && (
+            <Polyline
+              coordinates={selectedTrail.trail}
+              strokeColor={
+                selectedTrail.difficulty === 'Beginner' ? '#28a745' :
+                selectedTrail.difficulty === 'Intermediate' ? '#ffc107' :
+                '#dc3545'
+              }
+              strokeWidth={3}
+            />
+          )}
+
       </MapView>
       
       <SearchBar mapRef={mapRef} />
@@ -252,7 +306,7 @@ const MapWithTopoMap = () => {
       )}
       
       {/* Modal per inserire la review */}
-      {reviewModalVisible && <ReviewModal reviewModalVisible={reviewModalVisible} reviewText={reviewText} setReviewText={setReviewText} submitReview={submitReview} />}
+      {reviewModalVisible && <ReviewModal reviewModalVisible={reviewModalVisible} reviewText={reviewText} setReviewText={setReviewText} submitReview={submitReview} rating={rating} setRating={setRating} />}
 
 
       {isModalDetailVisible && <TrailInfoModal isVisible={isModalDetailVisible} closeModal={closeModal} selectedTrail={selectedTrail} startTrail={startTrail}/>}
@@ -260,7 +314,7 @@ const MapWithTopoMap = () => {
       {/* Bottom sheet modal */}
       {modalVisible && ( <Popup selectedTrail={selectedTrail} startTrail={startTrail} closeModal={closeModal} setIsModalDetailVisible={setIsModalDetailVisible}/> )}
 
-      {!modalVisible && ( <BottomSheet location={location} setRegion={setRegion} />)} 
+      {!modalVisible && ( <BottomSheet mapRef={mapRef} location={location} setRegion={setRegion} />)} 
       
       {/* Modal per la selezione del trail */}
       {trailOptionsVisible && visibileOptions && <TrailDropdown visible={visibileOptions}  setVisible={setVisibleOptions} trails={trailOptionsVisible} setTrail={setTrailOptionsVisible} onSelect={fetchTrail} />}
@@ -268,125 +322,17 @@ const MapWithTopoMap = () => {
   );
 };
 
-interface ReviewModalProps {
-  reviewModalVisible: boolean;
-  reviewText: string;
-  setReviewText: (text: string) => void;
-  submitReview: () => void;
-}
 
-const ReviewModal: React.FC<ReviewModalProps> = ({ reviewModalVisible, reviewText, setReviewText, submitReview }) => {
-  return(
-    <Modal visible={reviewModalVisible} animationType="fade" transparent={true}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Lascia una recensione</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Scrivi la tua recensione qui..."
-              value={reviewText}
-              onChangeText={setReviewText}
-              multiline={true}
-            />
-            <View style={styles.buttonRow}>
-              <TouchableOpacity style={styles.button} onPress={submitReview}>
-                <Text style={styles.buttonText}>Invia</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.button, styles.cancelButton]}
-                onPress={() => submitReview()}
-              >
-                <Text style={styles.buttonText}>Annulla</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
-  );
-};
-
-interface BottomSheetProps {
-  location: { latitude: number; longitude: number } | null;
-  setRegion: React.Dispatch<React.SetStateAction<{ latitude: number; longitude: number; latitudeDelta: number; longitudeDelta: number } | null>>;
-}
-
-const BottomSheet: React.FC<BottomSheetProps> = ({ location, setRegion }) => {
-  return(
-    <View style={styles.buttonGroup}>
-        {/* Tree a sinistra */}
-        <View style={styles.leftButtonContainer}>
-          <Tree/>
-        </View>
-
-        {/* RecenterButton e Tutorial a destra */}
-        <View style={styles.rightButtonContainer}>
-          <RecenterButton location={location} setRegion={setRegion} />
-          <Tutorial />
-        </View>
-      </View>
-  );
-}
-
-interface PopupProps {
-  selectedTrail: {
-    id: number;
-    name: string;
-    startpoint: { latitude: number; longitude: number };
-    endpoint: { latitude: number; longitude: number };
-    path: Array<{ latitude: number; longitude: number }>;
-  } | null;
-  startTrail: () => void;
-  closeModal: (flag:boolean) => void;
-  setIsModalDetailVisible: (value: boolean) => void;
-}
-
-
-const Popup: React.FC<PopupProps> = ({ selectedTrail, startTrail, closeModal , setIsModalDetailVisible}) => {
-  return (
-    <View style={styles.popupContainer}>
-      
-      <TouchableOpacity style={styles.popup} onPress={() => {closeModal(false);setIsModalDetailVisible(true)}}>
-        <Text style={styles.trailName}>{selectedTrail?.name}</Text>
-        <View style={styles.infoRow}>
-          <Text style={styles.infoText}>
-            <MaterialIcons name="timeline" size={16} color="#666" /> {selectedTrail?.length} km
-          </Text>
-          <Text style={styles.infoText}>
-            <MaterialIcons name="schedule" size={16} color="#666" /> {selectedTrail?.duration} ore
-          </Text>
-          <Text style={styles.infoText}>
-            <MaterialIcons name="landscape" size={16} color="#666" /> {selectedTrail?.elevation} m
-          </Text>
-          <View style={styles.difficultyContainer}>
-            <Text style={styles.difficultyLabel}>{selectedTrail?.difficulty}</Text>
-          </View>
-        </View>
-
-        {/* Pulsanti posizionati sotto */}
-        <View style={styles.buttonRow}>
-          <TouchableOpacity style={styles.startButton} onPress={startTrail}>
-            <Text style={styles.buttonText}>Inizia</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.cancelButton} onPress={() => closeModal(true)}>
-            <Text style={styles.buttonText}>Chiudi</Text>
-          </TouchableOpacity>
-        </View>
-      </TouchableOpacity>
-    </View>
-  );
-};
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
   map: { flex: 1 },
 
-  markerBike: {
-    width: 30,
-    height: 30,
+  markerIcon: {
+    padding: 5,
     borderRadius: 5,
-    backgroundColor: "red",
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
   },
   marker: {
     width: 20,
@@ -402,87 +348,8 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: 'white',
   },
-  popupContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'absolute',
-    bottom: 90,
-    left: 0,
-    right: 0,
-  },
-  popup: {
-    backgroundColor: '#1a1a1a',
-    padding: 20,
-    borderRadius: 12,
-    width: 400,
-  },
-  trailName: {
-    color: '#ffffff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginVertical: 10,
-  },
-  infoText: {
-    color: '#bbb',
-    fontSize: 14,
-  },
-  difficultyContainer: {
-    backgroundColor: '#007BFF',
-    padding: 4,
-    borderRadius: 8,
-    alignSelf: 'flex-start',
-  },
-  difficultyLabel: {
-    color: '#fff',
-    fontSize: 12,
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 10,
-  },
-  startButton: {
-    backgroundColor: '#28a745',
-    padding: 10,
-    borderRadius: 8,
-  },
-  cancelButton: {
-    backgroundColor: '#dc3545',
-    padding: 10,
-    borderRadius: 8,
-  },
-  bottomSheet: {
-    width: '100%',
-    height: 200, // Altezza della tendina
-    backgroundColor: 'white',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 5,
-  },
-  button: {
-    padding: 10,
-    backgroundColor: '#007BFF',
-    borderRadius: 10,
-    marginTop: 15,
-    flex: 1,
-    marginHorizontal: 5,
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
+ 
+
   endTrailButton: {
     position: 'absolute',
     bottom: 200,
@@ -491,49 +358,7 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     padding: 10,
   },
-  buttonGroup: {
-    position: 'absolute',
-    bottom: 20,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-  },
-  leftButtonContainer: {
-    alignItems: 'flex-start',
-  },
-  rightButtonContainer: {
-    alignItems: 'flex-end',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContainer: {
-    backgroundColor: 'white',
-    padding: 20,
-    borderRadius: 10,
-    width: '80%',
-    alignItems: 'center',
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  input: {
-    width: '100%',
-    height: 100,
-    borderColor: 'gray',
-    borderWidth: 1,
-    borderRadius: 5,
-    padding: 10,
-    marginBottom: 20,
-    textAlignVertical: 'top',
-  },
+
 });
 
 

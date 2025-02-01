@@ -64,50 +64,50 @@ const TrailForm: React.FC<TrailFormProps> = ({time, distance, downhill, elevatio
             <ScrollView style={styles.formContainer}>
               {/* Campo Nome del Trail */}
               <View style={styles.inputContainer}>
-                <Text style={styles.label}>Nome del Trail:</Text>
+                <Text style={styles.label}>Trail Name:</Text>
                 <TextInput
                   style={styles.input}
                   value={name}
                   onChangeText={setName}
-                  placeholder="Inserisci il nome del trail"
+                  placeholder="Insert Trail Name..."
                   placeholderTextColor="#888"  
                 />
               </View>
 
               {/* Campo Difficoltà */}
               <View style={styles.inputContainer}>
-                <Text style={styles.label}>Difficoltà:</Text>
+                <Text style={styles.label}>Difficulty:</Text>
                 <View style={styles.difficultyContainer}>
                   <TouchableOpacity
-                    style={[styles.difficultyButton, difficulty === 'Easy' && styles.selectedButton]}
-                    onPress={() => setDifficulty('Easy')}
+                    style={[styles.difficultyButton, difficulty === 'Beginner' && styles.selectedButton]}
+                    onPress={() => setDifficulty('Beginner')}
                   >
-                    <Text style={styles.buttonText}>Facile</Text>
+                    <Text style={styles.buttonText}>Beginner</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={[styles.difficultyButton, difficulty === 'Intermediate' && styles.selectedButton]}
                     onPress={() => setDifficulty('Intermediate')}
                   >
-                    <Text style={styles.buttonText}>Intermedio</Text>
+                    <Text style={styles.buttonText}>Intermediate</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    style={[styles.difficultyButton, difficulty === 'Hard' && styles.selectedButton]}
-                    onPress={() => setDifficulty('Hard')}
+                    style={[styles.difficultyButton, difficulty === 'Advanced' && styles.selectedButton]}
+                    onPress={() => setDifficulty('Advanced')}
                   >
-                    <Text style={styles.buttonText}>Difficile</Text>
+                    <Text style={styles.buttonText}>Advanced</Text>
                   </TouchableOpacity>
                 </View>
               </View>
 
               {/* Campo Descrizione */}
               <View style={styles.inputContainer}>
-                <Text style={styles.label}>Descrizione:</Text>
+                <Text style={styles.label}>Description:</Text>
                 <TextInput
                   style={[styles.input, { height: 80, textAlignVertical: 'top' }]}
                   value={description}
                   onChangeText={setDescription}
                   multiline
-                  placeholder="Inserisci una descrizione del trail"
+                  placeholder="Insert a description..."
                   placeholderTextColor="#888"  
                 />
               </View>

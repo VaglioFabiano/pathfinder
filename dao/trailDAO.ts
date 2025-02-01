@@ -34,7 +34,7 @@ interface Trail {
 const getTrails = async () => {
    try {
     const db = await getDatabase();
-    const sql = "SELECT id, name, length, duration, startpoint FROM Trail";
+    const sql = "SELECT id, name, length, duration, startpoint, difficulty, activity FROM Trail";
     const result = await db.getAllAsync(sql,[]);
 
     const returnResult = result.map((trail: any) => ({
@@ -42,7 +42,9 @@ const getTrails = async () => {
         name: trail.name,
         length: trail.length,
         duration: trail.duration,
-        startpoint: JSON.parse(trail.startpoint) // Se è salvato come JSON nel DB
+        startpoint: JSON.parse(trail.startpoint), 
+        difficulty: trail.difficulty,
+        activity: trail.activity,
       }));
 
       returnResult.forEach((trail: any) => {
