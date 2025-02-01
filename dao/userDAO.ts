@@ -1,7 +1,7 @@
 import getDatabase from '@/hooks/database';
 
 
-const getUser = async (id: number = 2): Promise<string | null> => {
+const getUser = async (id: number = 3): Promise<string | null> => {
     try {
         const db = await getDatabase();
         console.log("Database Object:", db); // Debug per verificare cosa viene restituito
