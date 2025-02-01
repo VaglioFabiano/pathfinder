@@ -219,7 +219,7 @@ const TrailInfoModal: React.FC<PopupProps> = ({ selectedTrail, startTrail, close
 };
 
 const styles = StyleSheet.create({
-  modalContainer: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0, 0, 0, 0)' },
+  modalContainer: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0, 0, 0, 0.5)' },
   backdrop: { flex: 1 },
   separator: { height: 1, backgroundColor: 'black', marginVertical: 5, opacity: 0.2, alignItems: 'center', justifyContent: 'center' },
   bottomSheet: { backgroundColor: 'gray', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, height: '85%' },

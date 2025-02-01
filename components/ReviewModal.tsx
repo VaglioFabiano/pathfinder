@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { Modal, View, Text, TextInput, TouchableOpacity, StyleSheet, Pressable } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 interface ReviewModalProps {
@@ -27,32 +27,33 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ reviewModalVisible, reviewTex
 
   return (
     <Modal visible={reviewModalVisible} animationType="fade" transparent={true}>
+       
       <View style={styles.modalOverlay}>
         <View style={styles.modalContainer}>
           <Text style={styles.modalTitle}>Lascia una recensione</Text>
-
-          {/* Renderizza le stelle per la valutazione */}
-          <View style={styles.starSelection}>
-            {renderStars(rating)}
-          </View>
-
           <TextInput
             style={styles.input}
             placeholder="Scrivi la tua recensione qui..."
             value={reviewText}
+            placeholderTextColor={'white'}  
             onChangeText={setReviewText}
             multiline={true}
           />
+          <View style={styles.starSelection}>
+            {renderStars(rating)}
+          </View>
 
+          <View style={styles.separator} />
+          
           <View style={styles.buttonRow}>
-            <TouchableOpacity style={styles.button} onPress={()=>submitReview(true)}>
+            <TouchableOpacity style={[styles.button,{backgroundColor: '#34495e'}]} onPress={()=>submitReview(true)}>
               <Text style={styles.buttonText}>Invia</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.button, styles.cancelButton]}
+              style={styles.button}
               onPress={() => submitReview(false)}
             >
-              <Text style={styles.buttonText}>Annulla</Text>
+              <Text style={[styles.buttonText, {textDecorationLine: 'underline'}]}>Annulla</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -62,6 +63,9 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ reviewModalVisible, reviewTex
 };
 
 const styles = StyleSheet.create({
+  
+  separator: { height: 1, backgroundColor: 'black', marginVertical: 5, opacity: 0.2, alignItems: 'center', justifyContent: 'center' },
+  backdrop: { flex: 1 },
   modalOverlay: {
     flex: 1,
     justifyContent: 'center',
@@ -69,7 +73,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContainer: {
-    backgroundColor: 'black',
+    backgroundColor: 'rgb(141, 141, 141)',
     borderRadius: 10,
     padding: 20,
     width: '80%',
@@ -86,7 +90,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   input: {
-    backgroundColor: '#333',
+    backgroundColor: '#rgb(160, 160, 160)',
     color: 'white',
     padding: 10,
     borderRadius: 8,
@@ -99,15 +103,13 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   button: {
-    backgroundColor: '#4CAF50',
+  
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
     alignItems: 'center',
   },
-  cancelButton: {
-    backgroundColor: '#FF3B30',
-  },
+
   buttonText: {
     color: 'white',
     fontSize: 16,
