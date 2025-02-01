@@ -19,28 +19,13 @@ const StartTrailButton = ({ startTrail, currentPosition }: StartTrailButtonProps
 
   return (
     <View style={styles.container}>
-      {/* Pulsante per aprire il menu a tendina */}
-      <TouchableOpacity
-        style={styles.activityButton}
-        onPress={() => setModalVisible(true)}
-      >
-        <Text style={styles.buttonText}>{selectedActivity}</Text>
+      <TouchableOpacity style={styles.activityButton} onPress={() => setModalVisible(true)}>
+        <Text style={[styles.buttonText, {textDecorationLine: 'underline'}]}>{selectedActivity}</Text>
       </TouchableOpacity>
-
-      {/* Bottone Start */}
-      <TouchableOpacity
-        style={styles.startButton}
-        onPress={() => startTrail(currentPosition, selectedActivity)}
-      >
+      <TouchableOpacity style={styles.startButton} onPress={() => startTrail(currentPosition, selectedActivity)}>
         <Text style={styles.buttonText}>Start Trail</Text>
       </TouchableOpacity>
-
-      {/* Modal per il menu a tendina */}
-      <Modal
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
+      <Modal transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
         <View style={styles.modalBackground}>
           <View style={styles.modalContainer}>
             <FlatList
@@ -78,7 +63,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   startButton: {
-    backgroundColor: '#3498db',
+    backgroundColor: '#34495e',
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
@@ -87,6 +72,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontWeight: 'bold',
+    fontSize: 16,
   },
   modalBackground: {
     flex: 1,

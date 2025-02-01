@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     alignItems: 'center',
-    backgroundColor: 'white',
+    backgroundColor: 'gray',
     borderRadius: 10,
     padding: 10,
     elevation: 5,
@@ -76,10 +76,11 @@ timeDistanceContainer: {
   infoTitle: {
     fontWeight: 'bold',
     fontSize: 26,
+    color: 'white',
   },
   infoLabel: {
     fontSize: 14,
-    color: 'gray',
+    color: 'white',
   },
   elevationContainer: {
     marginTop: 10,
@@ -94,7 +95,7 @@ timeDistanceContainer: {
     alignItems: "flex-start",
   },
   endButton: {
-    backgroundColor: '#3498db',
+    backgroundColor: '#34495e',
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',

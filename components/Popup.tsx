@@ -26,26 +26,26 @@ const Popup: React.FC<PopupProps> = ({ selectedTrail, startTrail, closeModal, se
         <Text style={styles.trailName}>{selectedTrail?.name}</Text>
         <View style={styles.infoRow}>
           <Text style={styles.infoText}>
-            <MaterialIcons name="timeline" size={16} color="#666" /> {selectedTrail?.length} km
+            <MaterialIcons name="timeline" size={16} color="#fff" /> {selectedTrail?.length} km
           </Text>
           <Text style={styles.infoText}>
-            <MaterialIcons name="schedule" size={16} color="#666" /> {selectedTrail?.duration} ore
+            <MaterialIcons name="schedule" size={16} color="#fff" /> {selectedTrail?.duration} ore
           </Text>
           <Text style={styles.infoText}>
-            <MaterialIcons name="landscape" size={16} color="#666" /> {selectedTrail?.elevation} m
+            <MaterialIcons name="landscape" size={16} color="#fff" /> {selectedTrail?.elevation} m
           </Text>
           <View style={[styles.difficultyContainer, { backgroundColor: selectedTrail?.difficulty === 'Beginner' ? '#28a745' : selectedTrail?.difficulty === 'Intermediate' ? '#ffc107' : '#dc3545' }]}>
-            <Text style={styles.difficultyLabel}>{selectedTrail?.difficulty}</Text>
+            <Text style={[styles.difficultyLabel, {color: selectedTrail?.difficulty === 'Intermediate' ? '#000': "#fff"} ]}>{selectedTrail?.difficulty}</Text>
           </View>
         </View>
-
+        <View style={styles.separator} />
         {/* Pulsanti posizionati sotto */}
         <View style={styles.buttonRow}>
           <TouchableOpacity style={styles.startButton} onPress={startTrail}>
             <Text style={styles.buttonText}>Inizia</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.cancelButton} onPress={() => closeModal(true)}>
-            <Text style={styles.buttonText}>Chiudi</Text>
+            <Text style={[styles.buttonText, {textDecorationLine:"underline"}]}>Chiudi</Text>
           </TouchableOpacity>
         </View>
       </TouchableOpacity>
@@ -54,6 +54,7 @@ const Popup: React.FC<PopupProps> = ({ selectedTrail, startTrail, closeModal, se
 };
 
 const styles = StyleSheet.create({
+  separator: { height: 1, backgroundColor: 'black', marginVertical: 5, opacity: 0.2, alignItems: 'center', justifyContent: 'center' },
   popupContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -64,14 +65,14 @@ const styles = StyleSheet.create({
     right: 0,
   },
   popup: {
-    backgroundColor: '#1a1a1a',
+    backgroundColor: 'gray',
     padding: 20,
     borderRadius: 12,
     width: 400,
   },
   trailName: {
     color: '#ffffff',
-    fontSize: 18,
+    fontSize: 21,
     fontWeight: 'bold',
   },
   infoRow: {
@@ -81,7 +82,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   infoText: {
-    color: '#bbb',
+    color: '#fff',
     fontSize: 14,
   },
   difficultyContainer: {
@@ -96,21 +97,23 @@ const styles = StyleSheet.create({
   buttonRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 10,
+    marginTop: 5,
   },
   startButton: {
-    backgroundColor: '#28a745',
+    backgroundColor: '#34495e',
     padding: 10,
     borderRadius: 8,
   },
   cancelButton: {
-    backgroundColor: '#dc3545',
     padding: 10,
     borderRadius: 8,
   },
   buttonText: {
     color: 'white',
     fontWeight: 'bold',
+    marginHorizontal: 10,
+    marginVertical: 5,
+    fontSize: 16,
   },
 });
 

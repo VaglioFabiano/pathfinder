@@ -6,7 +6,7 @@ interface ReviewModalProps {
   reviewModalVisible: boolean;
   reviewText: string;
   setReviewText: (text: string) => void;
-  submitReview: () => void;
+  submitReview: (flag:boolean) => void;
   rating: number;
   setRating: (rating: number) => void;
 }
@@ -45,12 +45,12 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ reviewModalVisible, reviewTex
           />
 
           <View style={styles.buttonRow}>
-            <TouchableOpacity style={styles.button} onPress={submitReview}>
+            <TouchableOpacity style={styles.button} onPress={()=>submitReview(true)}>
               <Text style={styles.buttonText}>Invia</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.button, styles.cancelButton]}
-              onPress={() => submitReview()}
+              onPress={() => submitReview(false)}
             >
               <Text style={styles.buttonText}>Annulla</Text>
             </TouchableOpacity>

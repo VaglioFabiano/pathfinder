@@ -8,7 +8,7 @@ import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import MapView from 'react-native-maps';
-import { MaterialIcons } from '@expo/vector-icons';
+import { FontAwesome5, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -23,7 +23,7 @@ export default function TabLayout() {
         tabBarBackground: TabBarBackground,
         tabBarStyle: Platform.select({
           ios: {
-            backgroundColor: Colors[colorScheme ?? "light"].background,
+            backgroundColor: "gray",
             position: 'absolute',
           },
           default: {},
@@ -33,21 +33,21 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          tabBarIcon: ({ color }) => <FontAwesome5 name="map-marked-alt" size={28}  color={color} />,
         }}
       />
       <Tabs.Screen
         name="addtrail"
         options={{
           title: 'Add Trail',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          tabBarIcon: ({ color }) => <MaterialCommunityIcons name="map-marker-plus-outline" size={28} color={color} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: 'profile',
-          tabBarIcon: ({ color }) => <MaterialIcons name="person" size={28}  color={color} />,
+          tabBarIcon: ({ color }) => <FontAwesome5 name="user" size={28}  color={color} />,
         }}
       />
     </Tabs>

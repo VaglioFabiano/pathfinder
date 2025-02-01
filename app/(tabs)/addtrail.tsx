@@ -1,17 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import MapView, { Marker, UrlTile } from 'react-native-maps';
 import * as Location from 'expo-location';
-import { MaterialIcons } from '@expo/vector-icons';
 import RecenterButton from '@/components/recenterBotton';
-import SearchBar from '@/components/Searchbar';
 import Tutorial from '@/components/Tutorial';
 import TrailComponent from '@/components/TrailComponent';
+import MapViewDirections from 'react-native-maps-directions';
+
+
+const GOOGLE_MAPS_APIKEY = 'AIzaSyCU6HZpj6mSlmeb7UZsZNXM2nuyG9hJVos';
+
 
 const AddTrail = () => {
   const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [region, setRegion] = useState<{ latitude: number; longitude: number; latitudeDelta: number; longitudeDelta: number } | null>(null);
   const [refresch, setRefresh] = useState(false);
+  const [trailStarted, setTrailStarted] = useState(false);
+  const destination = { latitude: 45.464664, longitude: 9.188540 }; // Coordinata di destinazione
 
   const mapRef = React.useRef<MapView>(null);
 
@@ -30,6 +35,8 @@ const AddTrail = () => {
 
   const speedInKmPerSecond = 4 / 3600; // Velocità di 4 km/h in km/s
   const intervalDuration = 30; // Intervallo di 30 secondi
+
+
 
   useEffect(() => {
     let generalInterval = null;
@@ -83,7 +90,9 @@ const AddTrail = () => {
       elevation: 0,
       positions: [position],
       activityType: selectedActivity,
+      
     });
+    setTrailStarted(true);
     setLocation(position); // Inizia il percorso con la posizione iniziale
   };
 
@@ -107,7 +116,8 @@ const AddTrail = () => {
       positions: [],
       activityType: '',
     });
-    setRefresh((r) => !r); // Reset della posizione
+    setRefresh((r) => !r);
+    setTrailStarted(false);
   };
 
   const calculateAverageSpeed = () => {
@@ -153,6 +163,7 @@ const AddTrail = () => {
             </View>
           </Marker>
         )}
+        { trailStarted && <MapViewDirections origin={{latitude: region.latitude, longitude: region.longitude}} destination={destination} apikey={GOOGLE_MAPS_APIKEY} />}
       </MapView>
 
       {/* Componenti Trail */}
@@ -176,7 +187,7 @@ const AddTrail = () => {
         <View style={styles.leftButtonContainer}></View>
 
         <View style={styles.rightButtonContainer}>
-          <RecenterButton location={location} setRegion={setRegion} />
+          <RecenterButton mapRef={mapRef} location={location} setRegion={setRegion} />
           <Tutorial />
         </View>
       </View>

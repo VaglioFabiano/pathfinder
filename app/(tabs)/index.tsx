@@ -53,7 +53,7 @@ const MapWithTopoMap = () => {
   const [trailActive, setTrailActive] = useState(false);
   const [simulatedPosition, setSimulatedPosition] = useState<{ latitude: number; longitude: number } | null>(null);
   const mapRef = useRef<MapView>(null);
-  const [refresch, setRefresch] = useState(false);
+  const [refresh, setRefresh] = useState(false);
 
   const [modalVisible, setModalVisible] = useState(false);
   const [reviewModalVisible, setReviewModalVisible] = useState(false);
@@ -100,7 +100,7 @@ const MapWithTopoMap = () => {
      
       
     })();
-  }, [refresch]);
+  }, [refresh]);
 
   useEffect(() => {
     const fetchTrails = async () => {
@@ -113,7 +113,7 @@ const MapWithTopoMap = () => {
     };
 
     fetchTrails();
-  }, [refresch]);
+  }, [refresh]);
 
   const fetchTrail = async (t: Trail) => {
     try {
@@ -145,7 +145,6 @@ const MapWithTopoMap = () => {
   };
 
   const startTrail = () => {
-    console.log('Starting trail:', selectedTrail?.name);
     setTrailActive(true);
     setIsModalDetailVisible(false);
     setSimulatedPosition(selectedTrail ? { latitude: selectedTrail.trail[0][0], longitude: selectedTrail.trail[0][1] } : null);
@@ -156,22 +155,28 @@ const MapWithTopoMap = () => {
     setReviewModalVisible(true);
   };
 
-  const submitReview = async () => {
-    const newReview: Review = {
-      trail_id: selectedTrail?.id ?? 0,
-      user_id: 1,
-      rating: rating,
-      comment: reviewText,
-      id: 0
-    };
-    await ReviewDAO.addReview(newReview);
+  const submitReview = async (flag:boolean) => {
+    if (flag){
+      if (reviewText.trim() === '') {
+        alert('Inserisci un commento e seleziona una valutazione.');
+        return;
+      }
+      const newReview: Review = {
+        trail_id: selectedTrail?.id ?? 0,
+        user_id: 1,
+        rating: rating,
+        comment: reviewText,
+        id: 0
+      };
+      await ReviewDAO.addReview(newReview);
+    }
     setReviewModalVisible(false);
     setRating(0);
     setReviewText(""); // Resetta il campo della recensione
     setTrailActive(false);
     setSelectedTrail(null);
     setSimulatedPosition(null);
-    setRefresch((r) => !r);
+    setRefresh((r) => !r);
   };
 
   useEffect(() => {
@@ -243,19 +248,17 @@ const MapWithTopoMap = () => {
   return (
     <View style={styles.container}>
       <MapView showsCompass={false} ref={mapRef} style={styles.map} region={region} onRegionChangeComplete={(region) => setRegion(region)} mapType="terrain" >
-        {/* Overlay per mappe topografiche */}
         <UrlTile urlTemplate="http://c.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-
-        {/* Marker per la posizione corrente */}
-        {!simulatedPosition && location && (
-          <Marker coordinate={location}>
+        
+        
+        {location && (
+          <Marker coordinate={simulatedPosition ?? location}>
             <View style={styles.marker}>
               <View style={styles.innerCircle} />
             </View>
           </Marker>
         )}
 
-        {/* Marker per ogni trail */}
         {trails.map((trail) => {
             const difficultyColor =
             trail.difficulty === 'Beginner' ? '#28a745' :
@@ -280,20 +283,19 @@ const MapWithTopoMap = () => {
                 <View style={[styles.markerIcon, { backgroundColor: difficultyColor }]}>{activityIcon}</View>
               </Marker>
             );
-          })}
+        })}
 
-          {/* Polyline per il trail selezionato o attivo */}
-          {selectedTrail && (
-            <Polyline
-              coordinates={selectedTrail.trail}
-              strokeColor={
-                selectedTrail.difficulty === 'Beginner' ? '#28a745' :
-                selectedTrail.difficulty === 'Intermediate' ? '#ffc107' :
-                '#dc3545'
-              }
-              strokeWidth={3}
-            />
-          )}
+        {selectedTrail && (
+          <Polyline
+            coordinates={selectedTrail.trail}
+            strokeColor={
+              selectedTrail.difficulty === 'Beginner' ? '#28a745' :
+              selectedTrail.difficulty === 'Intermediate' ? '#ffc107' :
+              '#dc3545'
+            }
+            strokeWidth={3}
+          />
+        )}
 
       </MapView>
       

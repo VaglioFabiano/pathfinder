@@ -94,6 +94,19 @@ const TrailInfoModal: React.FC<PopupProps> = ({ selectedTrail, startTrail, close
     ));
   };
 
+  const renderstaticStars = (rating: number) => {
+    const maxStars = 5;
+    return Array.from({ length: maxStars }, (_, index) => (
+        <MaterialIcons
+          name={index < rating ? 'star' : 'star-outline'}
+          size={24}
+          color="#FFD700"
+        />
+      
+    ));
+  };
+
+
   return (
     <Modal
       visible={isVisible}
@@ -111,12 +124,7 @@ const TrailInfoModal: React.FC<PopupProps> = ({ selectedTrail, startTrail, close
           onPress={() => closeModal(true)}
         />
         <View style={styles.bottomSheet}>
-          <TouchableOpacity
-            style={styles.closeButtonContainer}
-            onPress={() => closeModal(true)}
-          >
-            <Text style={styles.closeButtonText}>Chiudi</Text>
-          </TouchableOpacity>
+          
           <View style={styles.separator} />
           <ScrollView contentContainerStyle={styles.scrollView}>
             <Text style={styles.trailName}>{selectedTrail?.name}</Text>
@@ -124,55 +132,55 @@ const TrailInfoModal: React.FC<PopupProps> = ({ selectedTrail, startTrail, close
             {/* Informazioni principali */}
             <View style={styles.infoRow}>
               <Text style={styles.infoText}>
-                <MaterialIcons name="timeline" size={16} color="#666" /> {selectedTrail?.length} km
+                <MaterialIcons name="timeline" size={16} color="#fff" /> {selectedTrail?.length} km
               </Text>
               <Text style={styles.infoText}>
-                <MaterialIcons name="schedule" size={16} color="#666" /> {selectedTrail?.duration} ore
+                <MaterialIcons name="schedule" size={16} color="#fff" /> {selectedTrail?.duration} ore
               </Text>
               <Text style={styles.infoText}>
-                <MaterialIcons name="landscape" size={16} color="#666" /> {selectedTrail?.elevation} m
+                <MaterialIcons name="landscape" size={16} color="#fff" /> {selectedTrail?.elevation} m
               </Text>
-              <View style={styles.difficultyContainer}>
-                <Text style={styles.difficultyLabel}>{selectedTrail?.difficulty}</Text>
+              <View style={[styles.difficultyContainer, { backgroundColor: selectedTrail?.difficulty === 'Beginner' ? '#4CAF50' : selectedTrail?.difficulty === 'Intermediate' ? '#FFD700' : '#FF3B30' }]}>
+                <Text style={[styles.difficultyLabel, {color: selectedTrail?.difficulty === 'Intermediate' ? '#000' : '#fff'}]}>{selectedTrail?.difficulty}</Text>
               </View>
             </View>
             <View style={styles.separator} />
 
             {/* Descrizione del Trail */}
             <View style={styles.descriptionContainer}>
-              <Text style={styles.descriptionTitle}>Descrizione</Text>
+              <Text style={styles.descriptionTitle}>Description:</Text>
               <Text style={styles.descriptionText}>{selectedTrail?.description}</Text>
             </View>
             <View style={styles.separator} />
 
             {/* Commenti */}
             <View style={styles.commentSection}>
-              <Text style={styles.commentTitle}>Comments({reviews.length})</Text>
+              <Text style={styles.commentTitle}>Comments({reviews.length}):</Text>
               {reviews.length > 0 ? (
                 reviews.map((review) => (
                   <View key={review.id} style={styles.commentContainer}>
                     <Text style={styles.commentText}>
-                      <MaterialIcons name="person" size={16} color="#888" />{" "}
+                      <MaterialIcons name="person" size={16} color="#fff" />{" "}
                       Utente {review.user_id}: {review.comment}
                     </Text>
                     <View style={styles.ratingContainer}>
-                      {renderStars(review.rating)}
+                      {renderstaticStars(review.rating)}
                     </View>
                   </View>
                 ))
               ) : (
-                <Text style={styles.noCommentsText}>Nessun commento disponibile.</Text>
+                <Text style={styles.noCommentsText}>No comment</Text>
               )}
             </View>
 
             {/* Form Aggiunta Commento */}
             <View style={styles.addCommentSection}>
-              <Text style={styles.commentTitle}>Submit a comment</Text>
+              <Text style={styles.commentTitle}>Submit a comment:</Text>
               <View style={styles.commentForm}>
                 <TextInput
                   style={styles.commentInput}
                   placeholder="Write your comment..."
-                  placeholderTextColor="#888"
+                  placeholderTextColor="#fff"
                   value={newComment}
                   onChangeText={setNewComment}
                 />
@@ -183,17 +191,27 @@ const TrailInfoModal: React.FC<PopupProps> = ({ selectedTrail, startTrail, close
                   <TouchableOpacity style={styles.submitButton} onPress={handleAddComment}>
                     <Text style={styles.submitButtonText}>Send</Text>
                   </TouchableOpacity>
+                  
                 </View>
               </View>
             </View>
           </ScrollView>
 
           {/* Pulsante Inizia */}
-          <View style={styles.buttonRow}>
-            <TouchableOpacity style={styles.startButton} onPress={startTrail}>
-              <Text style={styles.buttonText}>Inizia</Text>
-            </TouchableOpacity>
-          </View>
+          <View>
+            <View style={styles.separator} />
+              <View style={styles.buttonRow}>
+                <TouchableOpacity style={styles.startButton} onPress={startTrail}>
+                  <Text style={styles.buttonText}>Inizia</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.closeButtonContainer}
+                  onPress={() => closeModal(true)}
+                >
+                  <Text style={styles.closeButtonText}>Chiudi</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
         </View>
       </KeyboardAvoidingView>
     </Modal>
@@ -201,35 +219,35 @@ const TrailInfoModal: React.FC<PopupProps> = ({ selectedTrail, startTrail, close
 };
 
 const styles = StyleSheet.create({
-  modalContainer: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0, 0, 0, 0.5)' },
+  modalContainer: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0, 0, 0, 0)' },
   backdrop: { flex: 1 },
-  separator: { height: 1, backgroundColor: 'gray', marginVertical: 10 },
-  bottomSheet: { backgroundColor: 'black', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, height: '85%' },
-  closeButtonContainer: { alignSelf: 'flex-end' },
-  closeButtonText: { color: '#FF3B30', fontSize: 16, fontWeight: 'bold', marginBottom: 5 },
+  separator: { height: 1, backgroundColor: 'black', marginVertical: 5, opacity: 0.2, alignItems: 'center', justifyContent: 'center' },
+  bottomSheet: { backgroundColor: 'gray', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, height: '85%' },
+  closeButtonContainer: { paddingVertical: 10, paddingHorizontal: 20, borderRadius: 5  },
+  closeButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold', marginBottom: 5 , textDecorationLine: 'underline'},
   scrollView: { paddingBottom: 20 },
   trailName: { fontSize: 24, fontWeight: 'bold', marginBottom: 10, marginTop: 10, color: 'white' },
-  infoRow: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 20 },
+  infoRow: { flexDirection: 'row', justifyContent:"space-between" , flexWrap: 'wrap', marginTop: 10, marginBottom: 10 },
   infoText: { fontSize: 16, marginRight: 10, marginBottom: 5, color: 'white' },
-  difficultyContainer: { backgroundColor: '#f5f5f5', paddingVertical: 3, paddingHorizontal: 8, borderRadius: 5, marginBottom: 5 },
-  difficultyLabel: { fontSize: 16, fontWeight: 'bold', color: '#444' },
-  descriptionContainer: { marginBottom: 20 },
+  difficultyContainer: { paddingVertical: 2, paddingHorizontal: 5, borderRadius: 5, marginBottom: 5 },
+  difficultyLabel: { fontSize: 16, fontWeight: 'bold'},
+  descriptionContainer: { marginBottom: 0,marginTop: 10 },
   descriptionTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 10, color: 'white' },
-  descriptionText: { fontSize: 16, color: '#ddd', textAlign: 'justify' },
+  descriptionText: { fontSize: 16, color: '#fff', textAlign: 'justify' },
   commentSection: { marginTop: 10 },
   commentTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 10, color: 'white' },
-  commentContainer: { marginBottom: 10, padding: 10, backgroundColor: '#1c1c1c', borderRadius: 8 },
+  commentContainer: { marginBottom: 10, padding: 10, backgroundColor: 'rgb(141, 141, 141)', borderRadius: 8 },
   commentText: { color: 'white' },
   ratingContainer: { flexDirection: 'row', marginTop: 5 },
-  noCommentsText: { color: '#888', fontStyle: 'italic' },
+  noCommentsText: { color: '#fff', fontStyle: 'italic' },
   addCommentSection: { marginTop: 20 },
-  commentForm: { backgroundColor: '#1c1c1c', padding: 10, borderRadius: 8 },
-  commentInput: { backgroundColor: '#333', color: 'white', borderRadius: 8, padding: 10, marginBottom: 10 },
+  commentForm: { backgroundColor: '#rgb(141, 141, 141)', padding: 10, borderRadius: 8 },
+  commentInput: { backgroundColor: '#rgb(160, 160, 160)', color: 'white', borderRadius: 8, padding: 10, marginBottom: 10 },
   starSelection: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  submitButton: { alignSelf: 'flex-end', backgroundColor: '#4CAF50', paddingVertical: 5, paddingHorizontal: 20, borderRadius: 5 },
+  submitButton: { alignSelf: 'flex-end', backgroundColor: '#34495e', paddingVertical: 5, paddingHorizontal: 20, borderRadius: 5 },
   submitButtonText: { color: 'white', fontSize: 16 },
-  buttonRow: { flexDirection: 'row', justifyContent: "flex-start", marginTop: 50, backgroundColor: 'black', bottom: 40 },
-  startButton: { backgroundColor: '#4CAF50', paddingVertical: 10, paddingHorizontal: 20, borderRadius: 5 },
+  buttonRow: { flexDirection: 'row', justifyContent: "space-between", marginTop: 45, bottom: 40 },
+  startButton: { backgroundColor: '#34495e', paddingVertical: 10, paddingHorizontal: 20, borderRadius: 5 },
   buttonText: { color: 'white', fontSize: 16 },
 });
 
