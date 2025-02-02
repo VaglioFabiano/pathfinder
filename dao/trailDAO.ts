@@ -105,7 +105,35 @@ const createTrail = async (trail: Trail) => {
     }
 }
 
-export {getTrails, getTrail, createTrail};
+const getTrailsCreatedByUsers = async (id_user: number): Promise<Trail[]> => {
+    try {
+      const db = await getDatabase();
+      const sql = "SELECT id, name, length, duration, startpoint, difficulty, activity FROM Trail WHERE id_user = ?";
+      const res = await db.getAllAsync(sql, [id_user]);
+  
+      if (!res || res.length === 0) {
+        console.warn("Nessun trail trovato per l'utente:", id_user);
+        return [];
+      }
+  
+      return res.map((trail: any) => ({
+        id: trail.id,
+        name: trail.name,
+        length: trail.length,
+        duration: trail.duration,
+        startpoint: JSON.parse(trail.startpoint), 
+        difficulty: trail.difficulty,
+        activity: trail.activity,
+      }));
+    } catch (error) {
+      console.error("Errore in getTrailsUsers:", error);
+      return [];
+    }
+  };
+  
+  
+
+export {getTrails, getTrail, createTrail, getTrailsCreatedByUsers};
 
 
 

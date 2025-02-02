@@ -144,7 +144,7 @@ const TrailInfoModal: React.FC<PopupProps> = ({ selectedTrail, startTrail, close
                 <Text style={[styles.difficultyLabel, {color: selectedTrail?.difficulty === 'Intermediate' ? '#000' : '#fff'}]}>{selectedTrail?.difficulty}</Text>
               </View>
             </View>
-            <View style={styles.separator} />
+          <View style={styles.separator} />
 
             {/* Descrizione del Trail */}
             <View style={styles.descriptionContainer}>

@@ -25,25 +25,24 @@ const getUser = async (id: number = 3): Promise<string | null> => {
         console.error("Errore in getUser:", error);
         return null;
     }
-};
+}
 
-const getUsers = async (): Promise<string[] | null> => {
+const getUsers = async (): Promise<{ id: number; name: string; surname: string }[] | null> => {
     try {
         const db = await getDatabase();
-        console.log("Database Object:", db); // Debug per verificare cosa viene restituito
+        console.log("Database Object:", db);
 
-        const sql = "SELECT name, surname FROM User";
-
-        // Usa getAllAsync per ottenere tutti gli utenti
+        const sql = "SELECT id, name, surname FROM User";
         const results = await db.getAllAsync(sql);
 
         console.log("Risultati da DB:", results);
 
         if (results && results.length > 0) {
-            // Mappa i risultati in un array di stringhe "Nome Cognome"
-            return results.map((user: { name: string; surname: string }) => 
-                `${user.name} ${user.surname}`
-            );
+            return results.map((user: { id: number; name: string; surname: string }) => ({
+                id: user.id,
+                name: user.name,
+                surname: user.surname
+            }));
         } else {
             console.warn("Nessun utente trovato nel database.");
             return null;
@@ -53,7 +52,8 @@ const getUsers = async (): Promise<string[] | null> => {
         console.error("Errore in getUsers:", error);
         return null;
     }
-};
+}
+
 
 
 
