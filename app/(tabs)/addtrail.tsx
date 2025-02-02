@@ -155,6 +155,8 @@ const AddTrail = () => {
         {/* Overlay per mappe topografiche */}
         <UrlTile urlTemplate="http://c.tile.openstreetmap.org/{z}/{x}/{y}.png"/>
 
+        
+
         {/* Marker per la posizione corrente */}
         {location && (
           <Marker coordinate={location}>

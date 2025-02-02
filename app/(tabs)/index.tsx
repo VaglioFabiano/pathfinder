@@ -6,6 +6,8 @@ import {  Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import SearchBar from '@/components/Searchbar';
 import ReviewModal from '@/components/ReviewModal';
 
+
+
 import Popup from '@/components/Popup';
 import BottomSheet from '@/components/BottomSheet';
 
@@ -250,6 +252,7 @@ const MapWithTopoMap = () => {
       <MapView showsCompass={false} ref={mapRef} style={styles.map} region={region} onRegionChangeComplete={(region) => setRegion(region)} mapType="terrain" >
         <UrlTile urlTemplate="http://c.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         
+
         
         {location && (
           <Marker coordinate={simulatedPosition ?? location}>
