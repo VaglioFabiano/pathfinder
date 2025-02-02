@@ -4,11 +4,15 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import * as UserDAO from '@/dao/userDAO';
 import * as TrailDAO from '@/dao/trailDAO';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { KeyboardAvoidingView, Platform } from 'react-native';
+import { KeyboardAvoidingView, Platform,Image } from 'react-native';
 import TrailInfoModal from '@/components/DetailTrail';
+
+
 
 export default function ProfileScreen() {
   const [userName, setUserName] = useState<string | null>(null);
+  const [userImage, setUserImage] = useState<string | null>(null);
+  const [profileSource, setProfileSource] = useState<any>(null);
   const [userId, setUserId] = useState<number | null>(null);
   const [trailsCreated, setTrailsCreated] = useState<any[]>([]);
   const [users, setUsers] = useState<{ id: number; name: string; surname: string }[]>([]);
@@ -23,6 +27,12 @@ export default function ProfileScreen() {
   const rotateAnimationTC = useState(new Animated.Value(0))[0];
   const rotateAnimationS = useState(new Animated.Value(0))[0];
 
+  const userImages: { [key: string]: any } = {
+    "FabiVaglio.png": require("../../assets/images/FabiVaglio.png"),
+    "MarcoSporty.png": require("../../assets/images/MarcoSporty.png"),
+  };
+  
+
   const openModal = (trail) => {
     setSelectedTrail(trail);
     setIsModalDetailVisible(true);
@@ -33,22 +43,42 @@ export default function ProfileScreen() {
     setSelectedTrail(null);
   };
 
-
+  useEffect(() => {
+    console.log("🔄 Aggiornamento userImage:", userImage);
+    
+    if (userImage) {
+      const imageSource = userImages[userImage] || null;
+      console.log("🎯 Immagine caricata:", imageSource);
+      setProfileSource(imageSource);
+    } else {
+      setProfileSource(null);
+    }
+  }, [userImage]); 
+  
+  
+  
   useEffect(() => {
     const fetchUserAndTrails = async () => {
-      const user = await UserDAO.getUser();
-      if (user) {
-        setUserName(user);
+      const userData = await UserDAO.getUser();
+      
+      if (userData && userData.fullName) {
+        setUserName(userData.fullName);
+        setUserImage(userData.image); 
+
         const fetchedUsers = await UserDAO.getUsers();
-        const userFound = fetchedUsers?.find((u) => `${u.name} ${u.surname}` === user);
+        const userFound = fetchedUsers?.find((u) => `${u.name} ${u.surname}` === userData.fullName);
+        
         if (userFound) {
           setUserId(userFound.id);
           fetchTrails(userFound.id);
         }
       }
     };
+
     fetchUserAndTrails();
   }, []);
+
+
 
   const fetchTrails = async (id: number) => {
     const trails = await TrailDAO.getTrailsCreatedByUsers(id);
@@ -75,12 +105,25 @@ export default function ProfileScreen() {
     }
   };
 
-  const handleUserSelect = (user: { id: number; name: string; surname: string }) => {
+  const handleUserSelect = (user: { id: number; name: string; surname: string, image?: string }) => {
+    console.log("👤 Utente selezionato:", user);
+  
     setUserName(`${user.name} ${user.surname}`);
     setUserId(user.id);
     fetchTrails(user.id);
+  
+    if (user.image && userImages[user.image]) {
+      console.log("✅ Immagine trovata:", user.image);
+      setUserImage(user.image);
+    } else {
+      console.log("⚠️ Nessuna immagine trovata, uso il default.");
+      setUserImage(null);
+    }
+  
     setIsUserModalVisible(false);
   };
+  
+ 
 
   return (
     <KeyboardAvoidingView 
@@ -93,9 +136,19 @@ export default function ProfileScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.header}>
-          <Ionicons name="person-circle-outline" size={80} color="white" />
+          {profileSource ? (
+            <Image 
+              key={profileSource} 
+              source={profileSource} 
+              style={styles.profileImage} 
+            />
+          ) : (
+            <Ionicons name="person-circle-outline" size={80} color="white" />
+          )}
           <Text style={styles.greeting}>{userName ? userName : "Caricamento..."}</Text>
         </View>
+
+
   
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>CONTENTS</Text>
@@ -322,6 +375,11 @@ const styles = StyleSheet.create({
     buttonRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 10 },
     startButton: { backgroundColor: '#34495e', paddingVertical: 10, paddingHorizontal: 20, borderRadius: 5 },
     buttonText: { color: 'white', fontSize: 16, fontWeight: 'bold' },
+    profileImage: {
+      width: 80,
+      height: 80,
+      borderRadius: 40, // Per renderla circolare
+    }
 });
 
 
