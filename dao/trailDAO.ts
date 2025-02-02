@@ -108,7 +108,7 @@ const createTrail = async (trail: Trail) => {
 const getTrailsCreatedByUsers = async (id_user: number): Promise<Trail[]> => {
     try {
       const db = await getDatabase();
-      const sql = "SELECT id, name, length, duration, startpoint, difficulty, activity FROM Trail WHERE id_user = ?";
+      const sql = "SELECT * FROM Trail WHERE id_user = ?";
       const res = await db.getAllAsync(sql, [id_user]);
   
       if (!res || res.length === 0) {
@@ -121,7 +121,8 @@ const getTrailsCreatedByUsers = async (id_user: number): Promise<Trail[]> => {
         name: trail.name,
         length: trail.length,
         duration: trail.duration,
-        startpoint: JSON.parse(trail.startpoint), 
+        description: trail.description,
+        elevation: trail.elevation,
         difficulty: trail.difficulty,
         activity: trail.activity,
       }));

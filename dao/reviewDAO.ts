@@ -11,7 +11,15 @@ const getReviews = async (id:number) => {
     try {
         const db = await getDatabase();
         const sql = "SELECT * FROM Review WHERE trail_id = ?";
-        const result = await db.getAllAsync(sql,[id]);
+        const res = await db.getAllAsync(sql,[id]);
+        const result = res.map((review: any) => ({
+            id: review.id,
+            trail_id: review.trail_id,
+            user_id: review.user_id,
+            rating: review.rating,
+            comment: review.comment
+        }));
+        console.log(result);
         return result;
     } 
     catch (error) { console.log(error); }

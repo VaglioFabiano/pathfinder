@@ -55,18 +55,21 @@ const TrailInfoModal: React.FC<PopupProps> = ({ selectedTrail, startTrail, close
   }, [isVisible]);
 
   const handleAddComment = async () => {
-    if (newComment.trim() === '' || newRating === 0) {
+    if (newComment.trim() === '') {
       alert('Inserisci un commento e seleziona una valutazione.');
       return;
     }
+    const newId = reviews.length > 0 ? reviews[reviews.length - 1].id + 1 : 1;
 
     const newReview: Review = {
-      id: reviews.length + 1,
+      id:  newId,
       trail_id: selectedTrail.id,
       user_id: Math.floor(Math.random() * 1000), // Mock user ID, da sostituire con l'utente attuale
       rating: newRating,
       comment: newComment,
     };
+
+    console.log(newReview);
 
     try {
       await ReviewDAO.addReview(newReview);
@@ -108,111 +111,86 @@ const TrailInfoModal: React.FC<PopupProps> = ({ selectedTrail, startTrail, close
 
 
   return (
-    <Modal
-      visible={isVisible}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={() => closeModal(true)}
-    >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          keyboardVerticalOffset={0}
-          style={styles.modalContainer}
-        >
-        <Pressable
-          style={styles.backdrop}
-          onPress={() => closeModal(true)}
-        />
-        <View style={styles.bottomSheet}>
-          
-          <View style={styles.separator} />
-          <ScrollView contentContainerStyle={styles.scrollView}>
-            <Text style={styles.trailName}>{selectedTrail?.name}</Text>
-
-            {/* Informazioni principali */}
-            <View style={styles.infoRow}>
-              <Text style={styles.infoText}>
-                <MaterialIcons name="timeline" size={16} color="#fff" /> {selectedTrail?.length} km
-              </Text>
-              <Text style={styles.infoText}>
-                <MaterialIcons name="schedule" size={16} color="#fff" /> {selectedTrail?.duration} ore
-              </Text>
-              <Text style={styles.infoText}>
-                <MaterialIcons name="landscape" size={16} color="#fff" /> {selectedTrail?.elevation} m
-              </Text>
-              <View style={[styles.difficultyContainer, { backgroundColor: selectedTrail?.difficulty === 'Beginner' ? '#4CAF50' : selectedTrail?.difficulty === 'Intermediate' ? '#FFD700' : '#FF3B30' }]}>
-                <Text style={[styles.difficultyLabel, {color: selectedTrail?.difficulty === 'Intermediate' ? '#000' : '#fff'}]}>{selectedTrail?.difficulty}</Text>
-              </View>
-            </View>
-          <View style={styles.separator} />
-
-            {/* Descrizione del Trail */}
-            <View style={styles.descriptionContainer}>
-              <Text style={styles.descriptionTitle}>Description:</Text>
-              <Text style={styles.descriptionText}>{selectedTrail?.description}</Text>
-            </View>
+    <Modal visible={isVisible} animationType="slide" transparent={true} onRequestClose={() => closeModal(true)} >
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={0} style={styles.modalContainer} >
+          <Pressable style={styles.backdrop} onPress={() => closeModal(true)}/>
+          <View style={styles.bottomSheet}>
             <View style={styles.separator} />
-
-            {/* Commenti */}
-            <View style={styles.commentSection}>
-              <Text style={styles.commentTitle}>Comments({reviews.length}):</Text>
-              {reviews.length > 0 ? (
-                reviews.map((review) => (
-                  <View key={review.id} style={styles.commentContainer}>
-                    <Text style={styles.commentText}>
-                      <MaterialIcons name="person" size={16} color="#fff" />{" "}
-                      Utente {review.user_id}: {review.comment}
-                    </Text>
-                    <View style={styles.ratingContainer}>
-                      {renderstaticStars(review.rating)}
-                    </View>
-                  </View>
-                ))
-              ) : (
-                <Text style={styles.noCommentsText}>No comment</Text>
-              )}
-            </View>
-
-            {/* Form Aggiunta Commento */}
-            <View style={styles.addCommentSection}>
-              <Text style={styles.commentTitle}>Submit a comment:</Text>
-              <View style={styles.commentForm}>
-                <TextInput
-                  style={styles.commentInput}
-                  placeholder="Write your comment..."
-                  placeholderTextColor="#fff"
-                  value={newComment}
-                  onChangeText={setNewComment}
-                />
-                <View style={{justifyContent: 'space-between', flexDirection: 'row'}}>
-                  <View style={styles.starSelection}>
-                    {renderStars(newRating)}
-                  </View>
-                  <TouchableOpacity style={styles.submitButton} onPress={handleAddComment}>
-                    <Text style={styles.submitButtonText}>Send</Text>
-                  </TouchableOpacity>
-                  
+            <ScrollView contentContainerStyle={styles.scrollView}>
+              <Text style={styles.trailName}>{selectedTrail?.name}</Text>
+              <View style={styles.infoRow}>
+                <Text style={styles.infoText}>
+                  <MaterialIcons name="timeline" size={16} color="#fff" /> {selectedTrail?.length} km
+                </Text>
+                <Text style={styles.infoText}>
+                  <MaterialIcons name="schedule" size={16} color="#fff" /> {selectedTrail?.duration} ore
+                </Text>
+                <Text style={styles.infoText}>
+                  <MaterialIcons name="landscape" size={16} color="#fff" /> {selectedTrail?.elevation} m
+                </Text>
+                <View style={[styles.difficultyContainer, { backgroundColor: selectedTrail?.difficulty === 'Beginner' ? '#4CAF50' : selectedTrail?.difficulty === 'Intermediate' ? '#FFD700' : '#FF3B30' }]}>
+                  <Text style={[styles.difficultyLabel, {color: selectedTrail?.difficulty === 'Intermediate' ? '#000' : '#fff'}]}>{selectedTrail?.difficulty}</Text>
                 </View>
               </View>
-            </View>
-          </ScrollView>
-
-          {/* Pulsante Inizia */}
-          <View>
-            <View style={styles.separator} />
-              <View style={styles.buttonRow}>
-                <TouchableOpacity style={styles.startButton} onPress={startTrail}>
-                  <Text style={styles.buttonText}>Inizia</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.closeButtonContainer}
-                  onPress={() => closeModal(true)}
-                >
-                  <Text style={styles.closeButtonText}>Chiudi</Text>
-                </TouchableOpacity>
+              
+              <View style={styles.separator} />
+              
+              {/* Descrizione del Trail */}
+              <View style={styles.descriptionContainer}>
+                <Text style={styles.descriptionTitle}>Description:</Text>
+                <Text style={styles.descriptionText}>{selectedTrail?.description}</Text>
               </View>
-            </View>
-        </View>
+              
+              <View style={styles.separator} />
+              
+              {/* Commenti */}
+              <View style={styles.commentSection}>
+                <Text style={styles.commentTitle}>Comments({reviews.length}):</Text>
+                {reviews.length > 0 ? (
+                  reviews.map((review) => (
+                    <View key={review.id} style={styles.commentContainer}>
+                      <Text style={styles.commentText}>
+                        <MaterialIcons name="person" size={16} color="#fff" />{" "}
+                        Utente {review.user_id}: {review.comment}
+                      </Text>
+                      <View style={styles.ratingContainer}>
+                        {renderstaticStars(review.rating)}
+                      </View>
+                    </View>
+                  ))) : ( <Text style={styles.noCommentsText}>No comment</Text> )}
+              </View>
+
+              {/* Form Aggiunta Commento */}
+              <View style={styles.addCommentSection}>
+                <Text style={styles.commentTitle}>Submit a comment:</Text>
+                <View style={styles.commentForm}>
+                  <TextInput style={styles.commentInput} placeholder="Write your comment..." placeholderTextColor="#fff" value={newComment} onChangeText={setNewComment} />
+                  <View style={{justifyContent: 'space-between', flexDirection: 'row'}}>
+                    <View style={styles.starSelection}>{renderStars(newRating)}</View>
+                    <TouchableOpacity style={styles.submitButton} onPress={handleAddComment}>
+                      <Text style={styles.submitButtonText}>Send</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+            </ScrollView>
+
+            {/* Pulsante Inizia */}
+            <View>
+              <View style={styles.separator} />
+                <View style={styles.buttonRow}>
+                  <TouchableOpacity style={styles.startButton} onPress={startTrail}>
+                    <Text style={styles.buttonText}>Inizia</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.closeButtonContainer}
+                    onPress={() => closeModal(true)}
+                  >
+                    <Text style={styles.closeButtonText}>Chiudi</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+          </View>
       </KeyboardAvoidingView>
     </Modal>
   );

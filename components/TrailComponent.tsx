@@ -32,7 +32,6 @@ const TrailComponent: React.FC<TrailComponentProps> = ({
   elevation,
   calculateAverageSpeed,
   resetTrail,
-  positions,
   activityType,
 }) => {
   return (

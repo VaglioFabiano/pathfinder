@@ -17,6 +17,7 @@
   "dependencies": {
     "@expo/vector-icons": "^14.0.4",
     "@gorhom/bottom-sheet": "^5.0.6",
+    "@mapbox/polyline": "^1.2.1",
     "@react-native-async-storage/async-storage": "^1.23.1",
     "@react-native-community/geolocation": "^3.4.0",
     "@react-native-picker/picker": "^2.9.0",
@@ -68,6 +69,7 @@
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@types/jest": "^29.5.12",
+    "@types/mapbox__polyline": "^1.0.5",
     "@types/react": "~18.3.12",
     "@types/react-native-vector-icons": "^6.4.18",
     "@types/react-test-renderer": "^18.3.0",

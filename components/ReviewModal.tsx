@@ -66,12 +66,7 @@ const styles = StyleSheet.create({
   
   separator: { height: 1, backgroundColor: 'black', marginVertical: 5, opacity: 0.2, alignItems: 'center', justifyContent: 'center' },
   backdrop: { flex: 1 },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
+  modalOverlay: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)'},
   modalContainer: {
     backgroundColor: 'rgb(141, 141, 141)',
     borderRadius: 10,
@@ -103,7 +98,6 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   button: {
-  
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
