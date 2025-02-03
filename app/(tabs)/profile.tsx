@@ -15,6 +15,7 @@ export default function ProfileScreen() {
   const [profileSource, setProfileSource] = useState<any>(null);
   const [userId, setUserId] = useState<number | null>(null);
   const [trailsCreated, setTrailsCreated] = useState<any[]>([]);
+  const [trailsDone, setTrailsDone] = useState<any[]>([]);
   const [users, setUsers] = useState<{ id: number; name: string; surname: string }[]>([]);
   const [isTrailExpandedTD, setIsTrailExpandedTD] = useState(false);
   const [isTrailExpandedTC, setIsTrailExpandedTC] = useState(false);
@@ -28,101 +29,99 @@ export default function ProfileScreen() {
   const rotateAnimationS = useState(new Animated.Value(0))[0];
 
   const userImages: { [key: string]: any } = {
-    "FabiVaglio.png": require("../../assets/images/FabiVaglio.png"),
-    "MarcoSporty.png": require("../../assets/images/MarcoSporty.png"),
+      "FabiVaglio.png": require("../../assets/images/FabiVaglio.png"),
+      "MarcoSporty.png": require("../../assets/images/MarcoSporty.png"),
   };
-  
 
   const openModal = (trail) => {
-    setSelectedTrail(trail);
-    setIsModalDetailVisible(true);
+      setSelectedTrail(trail);
+      setIsModalDetailVisible(true);
   };
 
   const closeModal = () => {
-    setIsModalDetailVisible(false);
-    setSelectedTrail(null);
+      setIsModalDetailVisible(false);
+      setSelectedTrail(null);
   };
 
   useEffect(() => {
-    console.log("🔄 Aggiornamento userImage:", userImage);
-    
-    if (userImage) {
-      const imageSource = userImages[userImage] || null;
-      console.log("🎯 Immagine caricata:", imageSource);
-      setProfileSource(imageSource);
-    } else {
-      setProfileSource(null);
-    }
-  }, [userImage]); 
-  
-  
-  
-  useEffect(() => {
-    const fetchUserAndTrails = async () => {
-      const userData = await UserDAO.getUser();
-      
-      if (userData && userData.fullName) {
-        setUserName(userData.fullName);
-        setUserImage(userData.image); 
+      console.log("🔄 Aggiornamento userImage:", userImage);
 
-        const fetchedUsers = await UserDAO.getUsers();
-        const userFound = fetchedUsers?.find((u) => `${u.name} ${u.surname}` === userData.fullName);
-        
-        if (userFound) {
-          setUserId(userFound.id);
-          fetchTrails(userFound.id);
-        }
+      if (userImage) {
+          const imageSource = userImages[userImage] || null;
+          console.log("🎯 Immagine caricata:", imageSource);
+          setProfileSource(imageSource);
+      } else {
+          setProfileSource(null);
       }
-    };
+  }, [userImage]);
 
-    fetchUserAndTrails();
+  useEffect(() => {
+      const fetchUserAndTrails = async () => {
+          const userData = await UserDAO.getUser();
+
+          if (userData && userData.fullName) {
+              setUserName(userData.fullName);
+              setUserImage(userData.image);
+
+              const fetchedUsers = await UserDAO.getUsers();
+              const userFound = fetchedUsers?.find((u) => `${u.name} ${u.surname}` === userData.fullName);
+
+              if (userFound) {
+                  setUserId(userFound.id);
+                  fetchTrails(userFound.id);  // Carica sia i trail creati che quelli completati
+              }
+          }
+      };
+
+      fetchUserAndTrails();
   }, []);
 
-
-
+  // Funzione che ora carica sia i trail creati che quelli completati
   const fetchTrails = async (id: number) => {
-    const trails = await TrailDAO.getTrailsCreatedByUsers(id);
-    setTrailsCreated(trails);
+      const createdTrails = await TrailDAO.getTrailsCreatedByUsers(id);
+      setTrailsCreated(createdTrails);
+
+      const doneTrails = await TrailDAO.getTrailsDoneByUsers(id);
+      setTrailsDone(doneTrails);
   };
 
   const toggleSection = (setter: React.Dispatch<React.SetStateAction<boolean>>, animation: Animated.Value) => {
-    setter((prev) => {
-      const newState = !prev;
-      Animated.timing(animation, {
-        toValue: newState ? 90 : 0,
-        duration: 200,
-        useNativeDriver: true,
-      }).start();
-      return newState;
-    });
+      setter((prev) => {
+          const newState = !prev;
+          Animated.timing(animation, {
+              toValue: newState ? 90 : 0,
+              duration: 200,
+              useNativeDriver: true,
+          }).start();
+          return newState;
+      });
   };
 
   const openUserSelection = async () => {
-    const fetchedUsers = await UserDAO.getUsers();
-    if (fetchedUsers) {
-      setUsers(fetchedUsers);
-      setIsUserModalVisible(true);
-    }
+      const fetchedUsers = await UserDAO.getUsers();
+      if (fetchedUsers) {
+          setUsers(fetchedUsers);
+          setIsUserModalVisible(true);
+      }
   };
 
   const handleUserSelect = (user: { id: number; name: string; surname: string, image?: string }) => {
-    console.log("👤 Utente selezionato:", user);
-  
-    setUserName(`${user.name} ${user.surname}`);
-    setUserId(user.id);
-    fetchTrails(user.id);
-  
-    if (user.image && userImages[user.image]) {
-      console.log("✅ Immagine trovata:", user.image);
-      setUserImage(user.image);
-    } else {
-      console.log("⚠️ Nessuna immagine trovata, uso il default.");
-      setUserImage(null);
-    }
-  
-    setIsUserModalVisible(false);
+      console.log("👤 Utente selezionato:", user);
+
+      setUserName(`${user.name} ${user.surname}`);
+      setUserId(user.id);
+      fetchTrails(user.id);
+
+      if (user.image && userImages[user.image]) {
+          console.log("✅ Immagine trovata:", user.image);
+          setUserImage(user.image);
+      } else {
+          console.log("⚠️ Nessuna immagine trovata, uso il default.");
+          setUserImage(null);
+      }
+
+      setIsUserModalVisible(false);
   };
-  
  
 
   return (
@@ -154,20 +153,50 @@ export default function ProfileScreen() {
           <Text style={styles.sectionTitle}>CONTENTS</Text>
   
           <TouchableOpacity style={styles.listItem} onPress={() => toggleSection(setIsTrailExpandedTD, rotateAnimationTD)}>
-            <Ionicons name="trail-sign-outline" size={24} color="white" />
-            <Text style={styles.listItemText}>Trails Done</Text>
-            <Animated.View style={{ transform: [{ rotate: rotateAnimationTD.interpolate({ inputRange: [0, 90], outputRange: ['0deg', '90deg'] }) }] }}>
-              <Ionicons name="chevron-forward" size={20} color="gray" />
-            </Animated.View>
-          </TouchableOpacity>
-  
-          {isTrailExpandedTD && (
-            <View style={styles.dropdown}>
-              <Text style={styles.dropdownText}>- Trail 1 completato</Text>
-              <Text style={styles.dropdownText}>- Trail 2 completato</Text>
-              <Text style={styles.dropdownText}>- Trail 3 completato</Text>
-            </View>
-          )}
+                <Ionicons name="trail-sign-outline" size={24} color="white" />
+                <Text style={styles.listItemText}>Trails Done</Text>
+                <Animated.View style={{ transform: [{ rotate: rotateAnimationTD.interpolate({ inputRange: [0, 90], outputRange: ['0deg', '90deg'] }) }] }}>
+                    <Ionicons name="chevron-forward" size={20} color="gray" />
+                </Animated.View>
+            </TouchableOpacity>
+
+            {isTrailExpandedTD && (
+                <View style={styles.dropdown}>
+                    {trailsDone.length > 0 ? (
+                        trailsDone.map((trail) => (
+                            <TouchableOpacity key={trail.id} style={styles.trailCard} onPress={() => openModal(trail)}>
+                                <Text style={styles.trailName}>{trail.name}</Text>
+                                <View style={styles.infoRow}>
+                                    <Text style={styles.infoText}>
+                                        <MaterialCommunityIcons name="timeline" size={16} color="#fff" /> {trail.length} km
+                                    </Text>
+                                    <Text style={styles.infoText}>
+                                        <MaterialCommunityIcons name="clock-time-five-outline" size={16} color="#fff" /> {trail.duration} ore
+                                    </Text>
+                                    <Text style={styles.infoText}>
+                                        <MaterialCommunityIcons name="terrain" size={16} color="#fff" /> {trail.elevation ? `${trail.elevation} m` : "N/A"}
+                                    </Text>
+                                    <View style={[
+                                        styles.difficultyContainer,
+                                        { backgroundColor: trail.difficulty === 'Beginner' ? '#4CAF50' : 
+                                                        trail.difficulty === 'Intermediate' ? '#FFD700' : 
+                                                        '#FF3B30' }
+                                    ]}>
+                                        <Text style={[
+                                            styles.difficultyLabel, 
+                                            { color: trail.difficulty === 'Intermediate' ? '#000' : '#fff' }
+                                        ]}>
+                                            {trail.difficulty}
+                                        </Text>
+                                    </View>
+                                </View>
+                            </TouchableOpacity>
+                        ))
+                    ) : (
+                        <Text style={styles.dropdownText}>Nessun trail completato</Text>
+                    )}
+                </View>
+            )}
   
           <TouchableOpacity style={styles.listItem} onPress={() => toggleSection(setIsTrailExpandedTC, rotateAnimationTC)}>
             <MaterialCommunityIcons name="map-marker-plus" size={24} color="white" />
@@ -188,7 +217,6 @@ export default function ProfileScreen() {
                   >
                     <Text style={styles.trailName}>{trail.name}</Text>
 
-                    {/* Informazioni principali */}
                     <View style={styles.infoRow}>
                       <Text style={styles.infoText}>
                         <MaterialCommunityIcons name="timeline" size={16} color="#fff" /> {trail.length} km
@@ -200,7 +228,6 @@ export default function ProfileScreen() {
                         <MaterialCommunityIcons name="terrain" size={16} color="#fff" /> {trail.elevation ? `${trail.elevation} m` : "N/A"}
                       </Text>
 
-                      {/* Difficoltà colorata */}
                       <View style={[
                         styles.difficultyContainer,
                         { backgroundColor: trail.difficulty === 'Beginner' ? '#4CAF50' : 
@@ -362,23 +389,68 @@ const styles = StyleSheet.create({
     color: 'white', 
     fontSize: 16, 
     fontWeight: 'bold' },
-    trailItem: { marginTop: 5, padding: 8, borderBottomWidth: 1, borderBottomColor: '#444' },
-    trailText: { color: 'white', fontSize: 16, fontWeight: 'bold' },
-    trailDetails: { color: '#bbb', fontSize: 14 },
-    trailCard: { backgroundColor: 'gray', padding: 20, borderRadius: 10, marginBottom: 10 },
-    trailName: { fontSize: 20, fontWeight: 'bold', color: 'white', marginBottom: 10 },
-    infoRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginTop: 5, marginBottom: 10 },
-    infoText: { fontSize: 16, color: 'white', marginRight: 10 },
-    difficultyContainer: { paddingVertical: 3, paddingHorizontal: 8, borderRadius: 5 },
-    difficultyLabel: { fontSize: 14, fontWeight: 'bold' },
-    separator: { height: 1, backgroundColor: 'black', opacity: 0.2, marginVertical: 10 },
-    buttonRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 10 },
-    startButton: { backgroundColor: '#34495e', paddingVertical: 10, paddingHorizontal: 20, borderRadius: 5 },
-    buttonText: { color: 'white', fontSize: 16, fontWeight: 'bold' },
+    trailItem: { 
+      marginTop: 5, 
+      padding: 8, 
+      borderBottomWidth: 1, 
+      borderBottomColor: '#444' },
+    trailText: { 
+      color: 'white', 
+      fontSize: 16, 
+      fontWeight: 'bold' },
+    trailDetails: { 
+      color: '#bbb', 
+      fontSize: 14 },
+    trailCard: { 
+      backgroundColor: 'gray', 
+      padding: 20, 
+      borderRadius: 10, 
+      marginBottom: 10 },
+    trailName: { 
+      fontSize: 20, 
+      fontWeight: 'bold', 
+      color: 'white', 
+      marginBottom: 10 },
+    infoRow: { 
+      flexDirection: 'row', 
+      flexWrap: 'wrap', 
+      justifyContent: 'space-between', 
+      marginTop: 5, 
+      marginBottom: 10 },
+    infoText: { 
+      fontSize: 16, 
+      color: 'white', 
+      marginRight: 10 },
+    difficultyContainer: { 
+      paddingVertical: 3, 
+      paddingHorizontal: 8, 
+      borderRadius: 5 },
+    difficultyLabel: { 
+      fontSize: 14, 
+      fontWeight: 'bold' },
+    separator: { 
+      height: 1, 
+      backgroundColor: 'black', 
+      opacity: 0.2, 
+      marginVertical: 10 },
+    buttonRow: { 
+      flexDirection: 'row', 
+      justifyContent: 'space-between', 
+      alignItems: 'center', 
+      marginTop: 10 },
+    startButton: { 
+      backgroundColor: '#34495e', 
+      paddingVertical: 10, 
+      paddingHorizontal: 20, 
+      borderRadius: 5 },
+    buttonText: { 
+      color: 'white', 
+      fontSize: 16, 
+      fontWeight: 'bold' },
     profileImage: {
-      width: 80,
-      height: 80,
-      borderRadius: 40, // Per renderla circolare
+      width: 150,
+      height: 150,
+      borderRadius: 80, // Per renderla circolare
     }
 });
 

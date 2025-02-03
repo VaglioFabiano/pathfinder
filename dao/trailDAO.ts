@@ -130,11 +130,47 @@ const getTrailsCreatedByUsers = async (id_user: number): Promise<Trail[]> => {
       console.error("Errore in getTrailsUsers:", error);
       return [];
     }
-  };
+}
+
+const getTrailsDoneByUsers = async (id_user: number): Promise<Trail[]> => {
+    try {
+        const db = await getDatabase();
+        const sql = "SELECT id_trail FROM TrailDone WHERE id_user = ?";
+        const res = await db.getAllAsync(sql, [id_user]);
+
+        if (!res || res.length === 0) {
+            console.warn("Nessun trail trovato per l'utente:", id_user);
+            return [];
+        }
+
+        const trailIds = res.map((row: any) => row.id_trail);
+        
+        if (trailIds.length === 0) return [];
+
+        const sql2 = `SELECT * FROM Trail WHERE id IN (${trailIds.map(() => '?').join(', ')})`;
+        const trails = await db.getAllAsync(sql2, trailIds);
+
+        return trails.map((trail: any) => ({
+            id: trail.id,
+            name: trail.name,
+            length: trail.length,
+            duration: trail.duration,
+            description: trail.description,
+            elevation: trail.elevation,
+            difficulty: trail.difficulty,
+            activity: trail.activity,
+        }));
+        
+    } catch (error) {
+        console.error("Errore in getTrailsDoneByUsers:", error);
+        return [];
+    }
+};
+
   
   
 
-export {getTrails, getTrail, createTrail, getTrailsCreatedByUsers};
+export {getTrails, getTrail, createTrail, getTrailsCreatedByUsers, getTrailsDoneByUsers};
 
 
 
