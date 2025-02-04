@@ -45,6 +45,7 @@ const TrailInfoModal: React.FC<PopupProps> = ({ selectedTrail, startTrail, close
     const fetchReviews = async () => {
       try {
         const fetchedReviews = await ReviewDAO.getReviews(selectedTrail.id);
+        console.log(fetchedReviews);
         setReviews(fetchedReviews);
       } catch (error) {
         console.error("Errore durante il recupero delle recensioni:", error);
@@ -80,7 +81,7 @@ const TrailInfoModal: React.FC<PopupProps> = ({ selectedTrail, startTrail, close
       console.error('Errore durante l\'aggiunta della recensione:', error);
     }
   };
-
+  
   const renderStars = (rating: number) => {
     const maxStars = 5;
     return Array.from({ length: maxStars }, (_, index) => (
@@ -147,11 +148,11 @@ const TrailInfoModal: React.FC<PopupProps> = ({ selectedTrail, startTrail, close
               <View style={styles.commentSection}>
                 <Text style={styles.commentTitle}>Comments({reviews.length}):</Text>
                 {reviews.length > 0 ? (
-                  reviews.map((review) => (
+                  reviews.map((review: Review) => (
                     <View key={review.id} style={styles.commentContainer}>
                       <Text style={styles.commentText}>
                         <MaterialIcons name="person" size={16} color="#fff" />{" "}
-                        Utente {review.user_id}: {review.comment}
+                        User {review.user_id}: {review.comment}
                       </Text>
                       <View style={styles.ratingContainer}>
                         {renderstaticStars(review.rating)}

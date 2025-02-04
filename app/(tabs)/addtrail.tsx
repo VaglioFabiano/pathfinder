@@ -5,25 +5,51 @@ import * as Location from 'expo-location';
 import RecenterButton from '@/components/recenterBotton';
 import Tutorial from '@/components/Tutorial';
 import TrailComponent from '@/components/TrailComponent';
-import MapViewDirections from 'react-native-maps-directions';
 import polyline from '@mapbox/polyline';
-
+import * as TrailDAO from '@/dao/trailDAO';
 
 const GOOGLE_MAPS_APIKEY = 'AIzaSyDBHi_Rgdp1Va1KgknCyzJ4prT-hNTdevQ';
 
-const WALK_SPEED_MS = 1.11; // Velocità in metri al secondo (4 km/h)
+interface Trail {
+  name: string;
+  downhill: number;
+  difficulty: string;
+  length: number;
+  duration: number;
+  elevation : number;
+  
+  startpoint: [number, number];
+  trail: [[number, number]];
+  endpoint: [number, number];
 
+  description: string;
+  image: string;
 
+  city: string;
+  region: string;
+  state: string;
+  province: string;
+
+  activity: string;
+
+}
 const AddTrail = () => {
   const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [region, setRegion] = useState<{ latitude: number; longitude: number; latitudeDelta: number; longitudeDelta: number } | null>(null);
   const [trailStarted, setTrailStarted] = useState(false);
   const [pathCoordinates, setPathCoordinates] = useState<{ latitude: number; longitude: number }[]>([]);
-  const [currentPositionIndex, setCurrentPositionIndex] = useState(0);
   const [refresh, setRefresh] = useState(false);
   const mapRef = useRef<MapView>(null);
 
   const [trailData, setTrailData] = useState({
+    name: '',
+    difficulty: '',    
+    description: '',
+    image: '',
+    city: '',
+    region: '',
+    state: '',
+    province: '',
     isActive: false,
     time: 0,
     distance: 0,
@@ -52,8 +78,8 @@ const AddTrail = () => {
     })();
   }, [refresh]);
 
-  // Funzione per avviare il trail
-  const startTrail = (position: { latitude: number; longitude: number }, selectedActivity: any) => {
+  const startTrail = async (position: { latitude: number; longitude: number }, selectedActivity: any) => {
+
     setTrailData({
       isActive: true,
       time: 0,
@@ -62,10 +88,51 @@ const AddTrail = () => {
       elevation: 0,
       positions: [position],
       activityType: selectedActivity,
+      name: '',
+      difficulty: '',
+      description: '',
+      image: '',
+      city: "",
+      region: "",
+      state: "",
+      province: "",  
     });
+    console.log("Trail started!", trailData);
     setTrailStarted(true);
     setLocation(position);
     fetchRoute(position, { latitude: 45.464664, longitude: 9.188540 });
+  };
+
+  const endTrail = async () => {
+
+    setTrailData((prevData) => ({
+      ...prevData,
+      isActive: false,
+    }));
+    setTrailStarted(false);
+  };
+
+  const resetTrail = () => {
+    console.log(trailData);
+    setTrailData({
+      isActive: false,
+      time: 0,
+      distance: 0,
+      downhill: 0,
+      elevation: 0,
+      positions: [],
+      activityType: '',
+      name: '',
+      difficulty: '',    
+      description: '',
+      image: '',
+      city: '',
+      region: '',
+      state: '',
+      province: '',
+    });
+    setRefresh((prev) => !prev);
+    setTrailStarted(false);
   };
 
   const fetchRoute = async (origin: { latitude: number; longitude: number }, destination: { latitude: number; longitude: number }) => {
@@ -81,103 +148,98 @@ const AddTrail = () => {
 
         const pathCoords = decodedPath.map(([latitude, longitude]) => ({ latitude, longitude }));
         setPathCoordinates(pathCoords);
-        setCurrentPositionIndex(0);
       }
     } catch (error) {
       console.error('Errore nel recupero del percorso:', error);
     }
   };
 
-  // Aggiornamento passo passo del trail
   useEffect(() => {
+    let timerId = null;
+  
     if (trailData.isActive && pathCoordinates.length > 0) {
-      const interval = setInterval(() => {
-        setCurrentPositionIndex((prevIndex) => {
-          if (prevIndex < pathCoordinates.length - 1) {
-            const currentPosition = pathCoordinates[prevIndex];
-            const nextPosition = pathCoordinates[prevIndex + 1];
-            console.log(nextPosition);
-            const distance = haversineDistance(currentPosition, nextPosition);
-            
-            let newPosition = currentPosition;
-            let nextIndex = prevIndex;
-            
-
-
-            if (distance > WALK_SPEED_MS) {
-              const fraction = WALK_SPEED_MS / distance;
-              newPosition = interpolatePosition(currentPosition, nextPosition, fraction);
-            } else {
-              newPosition = nextPosition;
-              nextIndex++;
-            }
-
-            setLocation(newPosition);
-            setTrailData((prevData) => ({
-              ...prevData,
-              time: prevData.time + 1,
-              distance: prevData.distance + WALK_SPEED_MS / 1000,
-              positions: [...prevData.positions, newPosition],
-            }));
-
-            return nextIndex;
+      let index = 0;
+      let accumulatedDistance = 0;
+  
+      const speedMetersPerSecond = 10 * 1000 / 3600; // Speed in meters per second
+  
+      const moveToNextPoint = () => {
+        if (index < pathCoordinates.length - 1) {
+          const currentPosition = pathCoordinates[index];
+          const nextPosition = pathCoordinates[index + 1];
+  
+          // Calculate the total distance between the current and next points
+          const totalDistance = haversineDistance(currentPosition, nextPosition);
+  
+          // Determine the distance to cover in the current second
+          const distanceToCover = speedMetersPerSecond;
+          accumulatedDistance += distanceToCover;
+  
+          let newPosition = currentPosition;
+          let nextIndex = index;
+  
+          // Move to the next point if the accumulated distance exceeds the segment distance
+          if (accumulatedDistance >= totalDistance) {
+            accumulatedDistance -= totalDistance;
+            newPosition = nextPosition;
+            nextIndex++;
           } else {
-            clearInterval(interval);
-            setTrailStarted(false);
-            setTrailData((prevData) => ({
-              ...prevData,
-              isActive: false,
-            }));
-            return prevIndex;
+            // Interpolate position within the current segment
+            const fraction = accumulatedDistance / totalDistance;
+            newPosition = interpolatePosition(currentPosition, nextPosition, fraction);
           }
-        });
-      }, 1000);
-
-      return () => clearInterval(interval);
+  
+          setLocation(newPosition); // Update the user's position
+  
+          setTrailData((prevData) => ({
+            ...prevData,
+            time: prevData.time + 1, // Increment time by one second per update
+            distance: prevData.distance + distanceToCover / 1000,
+            positions: [...prevData.positions, newPosition],
+          }));
+  
+          index = nextIndex;
+  
+          timerId = setTimeout(moveToNextPoint, 1000); // Schedule next update every second
+        } else {
+          console.log("Raggiunto l'endpoint!");
+          setTrailStarted(false);
+          setTrailData((prevData) => ({
+            ...prevData,
+            isActive: false,
+          }));
+        }
+      };
+  
+      moveToNextPoint();
+  
+      return () => clearTimeout(timerId); // Cleanup
     }
   }, [trailData.isActive, pathCoordinates]);
   
-  const endTrail = () => {
-    setTrailData((prevData) => ({
-      ...prevData,
-      isActive: false,
-    }));
-    setTrailStarted(false);
-  };
-
-  const resetTrail = () => {
-    setTrailData({
-      isActive: false,
-      time: 0,
-      distance: 0,
-      downhill: 0,
-      elevation: 0,
-      positions: [],
-      activityType: '',
-    });
-    setRefresh((prev) => !prev);
-    setTrailStarted(false);
-  };
-  const haversineDistance = (coord1: { latitude: number; longitude: number }, coord2: { latitude: number; longitude: number }) => {
+  const haversineDistance = (coord1, coord2) => {
     const R = 6371000; // Radius of Earth in meters
     const lat1 = (coord1.latitude * Math.PI) / 180;
     const lat2 = (coord2.latitude * Math.PI) / 180;
     const deltaLat = ((coord2.latitude - coord1.latitude) * Math.PI) / 180;
     const deltaLon = ((coord2.longitude - coord1.longitude) * Math.PI) / 180;
-
-    const a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
-              Math.cos(lat1) * Math.cos(lat2) *
-              Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2);
+  
+    const a =
+      Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+      Math.cos(lat1) * Math.cos(lat2) *
+      Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
+  
     return R * c; // Distance in meters
   };
-  const interpolatePosition = (start: { latitude: number; longitude: number }, end: { latitude: number; longitude: number }, fraction: number) => {
+  
+  const interpolatePosition = (start, end, fraction) => {
     return {
       latitude: start.latitude + (end.latitude - start.latitude) * fraction,
       longitude: start.longitude + (end.longitude - start.longitude) * fraction,
     };
   };
+  
   const calculateAverageSpeed = () => {
     return trailData.time > 0 ? parseFloat((trailData.distance / (trailData.time / 3600)).toFixed(2)) : 0;
   };
@@ -217,13 +279,17 @@ const AddTrail = () => {
         distance={trailData.distance}
         downhill={trailData.downhill}
         elevation={trailData.elevation}
+        setTrailData={setTrailData}
+        city={trailData.city}
+        region={trailData.region}
+        state={trailData.state}
+        province={trailData.province}
         resetTrail={resetTrail}
         calculateAverageSpeed={calculateAverageSpeed}
       />
 
       <View style={styles.buttonGroup}>
-        <View style={styles.leftButtonContainer}></View>
-
+        <View style={styles.leftButtonContainer}/>
         <View style={styles.rightButtonContainer}>
           <RecenterButton mapRef={mapRef} location={location} setRegion={setRegion} />
           <Tutorial />

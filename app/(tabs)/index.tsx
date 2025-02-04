@@ -180,7 +180,17 @@ const MapWithTopoMap = () => {
     setSimulatedPosition(null);
     setRefresh((r) => !r);
   };
+  const closeModal = (flag:boolean) => {
+    setModalVisible(false);
+    if (flag){
+      setIsModalDetailVisible(false);
+      setTrailActive(false);
+      setSelectedTrail(null);
+      setSimulatedPosition(null);
+    }
+  };
 
+  
   useEffect(() => {
     let timerId: string | number | NodeJS.Timeout | null | undefined = null;
   
@@ -188,8 +198,8 @@ const MapWithTopoMap = () => {
       const path = selectedTrail.trail;
       let index = 0;
   
-      const speedMetersPerSecond = 10 * 1000 / 3600; // 4 km/h in metri al secondo
-  
+      const speedMetersPerSecond = 10 * 1000 / 3600; 
+
       const moveToNextPoint = () => {
         if (index < path.length - 1) {
           const currentPosition = path[index];
@@ -198,7 +208,8 @@ const MapWithTopoMap = () => {
           // Calcola la distanza tra i due punti
           const distance = calculateDistance(currentPosition, nextPosition);
           const travelTime = (distance / speedMetersPerSecond) * 1000; // Tempo necessario in millisecondi
-  
+          
+
           setSimulatedPosition(nextPosition); // Aggiorna la posizione dell'utente
   
           index++;
@@ -217,16 +228,7 @@ const MapWithTopoMap = () => {
     }
   }, [trailActive, selectedTrail]);
 
-  const closeModal = (flag:boolean) => {
-    setModalVisible(false);
-    if (flag){
-      setIsModalDetailVisible(false);
-      setTrailActive(false);
-      setSelectedTrail(null);
-      setSimulatedPosition(null);
-    }
-  };
-
+  
   const calculateDistance = (pointA: { latitude: any; longitude: any; }, pointB: { latitude: any; longitude: any; }) => {
     const toRadians = (degrees: number) => (degrees * Math.PI) / 180;
     const R = 6371e3;

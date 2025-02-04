@@ -14,6 +14,11 @@ interface TrailComponentProps {
   distance: number;
   downhill: number;
   elevation: number;
+  setTrailData: (trail: any) => void;
+  city: string;
+  region: string;
+  state: string;
+  province: string;
   calculateAverageSpeed: () => number;
   resetTrail: () => void;
   positions: any[];
@@ -30,6 +35,11 @@ const TrailComponent: React.FC<TrailComponentProps> = ({
   distance,
   downhill,
   elevation,
+  setTrailData,
+  city,
+  region,
+  state,
+  province,
   calculateAverageSpeed,
   resetTrail,
   activityType,
@@ -45,7 +55,7 @@ const TrailComponent: React.FC<TrailComponentProps> = ({
       )}
 
       {/* Recap del percorso */}
-      {isRecap && ( <TrailForm time={time} distance={distance} downhill={downhill} elevation={elevation} calculateAverageSpeed={calculateAverageSpeed} activityType={activityType} resetTrail={resetTrail}/> )}
+      {isRecap && ( <TrailForm  time={time} distance={distance} downhill={downhill} elevation={elevation} setTrailData={setTrailData} activityType={activityType} city={city} region ={region} state={state} province={province} resetTrail={resetTrail}/> )}
       </>
   );
 };

@@ -8,16 +8,21 @@ interface TrailFormProps {
     downhill: number;
     elevation: number;
     activityType: string;
-    calculateAverageSpeed: () => number;
+    city: string;
+    region: string;
+    state: string;
+    province: string;
+    setTrailData: (trail: any) => void;
     resetTrail: () => void;
 }
 
-const TrailForm: React.FC<TrailFormProps> = ({time, distance, downhill, elevation, activityType, calculateAverageSpeed, resetTrail }) => {
+const TrailForm: React.FC<TrailFormProps> = ({time, distance, downhill, elevation, activityType,setTrailData, city, province, state, region, resetTrail }) => {
   const [name, setName] = useState('');
   const [difficulty, setDifficulty] = useState('Beginner');
   const [description, setDescription] = useState('');
   const [images, setImages] = useState<string[]>([]);
 
+  
   const handleSubmit = () => {
     if (!name.trim()) {
       Alert.alert('Errore', 'Il nome del Trail è obbligatorio.');
@@ -25,6 +30,15 @@ const TrailForm: React.FC<TrailFormProps> = ({time, distance, downhill, elevatio
     }
     // Puoi aggiungere qui la logica per salvare il trail
     Alert.alert('Successo', `Trail "${name}" salvato con successo!`);
+    setTrailData((prevTrail) => ({
+      ...prevTrail,
+      name: name,
+      difficulty: difficulty,
+      description: description,
+      images: images,
+    }));
+
+
     resetTrail();
   };
 
@@ -112,7 +126,11 @@ const TrailForm: React.FC<TrailFormProps> = ({time, distance, downhill, elevatio
                   placeholderTextColor="#fff"  
                 />
               </View>
-
+              {/* Visualizzazione della posizione del trail */}
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Location:</Text>
+                <Text style={styles.label2}>{city}, {province}, {state}, {region}</Text>
+              </View>
               {/* Visualizzazione dei dati del trail */}
               <View style={styles.inputContainer}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
