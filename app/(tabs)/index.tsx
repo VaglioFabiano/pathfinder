@@ -305,12 +305,7 @@ const MapWithTopoMap = () => {
       </MapView>
       
       <SearchBar mapRef={mapRef} />
-      {/* Bottone per terminare il trail */}
-      {trailActive && (
-        <TouchableOpacity style={styles.endTrailButton} onPress={endTrail}>
-          <Ionicons name="stop" size={24} color="white" />
-        </TouchableOpacity>
-      )}
+      
       
       {/* Modal per inserire la review */}
       {reviewModalVisible && <ReviewModal reviewModalVisible={reviewModalVisible} reviewText={reviewText} setReviewText={setReviewText} submitReview={submitReview} rating={rating} setRating={setRating} />}
@@ -321,7 +316,7 @@ const MapWithTopoMap = () => {
       {/* Bottom sheet modal */}
       {modalVisible && ( <Popup selectedTrail={selectedTrail} startTrail={startTrail} closeModal={closeModal} setIsModalDetailVisible={setIsModalDetailVisible}/> )}
 
-      {!modalVisible && ( <BottomSheet mapRef={mapRef} location={location} setRegion={setRegion} />)} 
+      {!modalVisible && ( <BottomSheet endTrail={endTrail} trailActive={trailActive} mapRef={mapRef} location={location} setRegion={setRegion} />)} 
       
       {/* Modal per la selezione del trail */}
       {trailOptionsVisible && visibileOptions && <TrailDropdown visible={visibileOptions}  setVisible={setVisibleOptions} trails={trailOptionsVisible} setTrail={setTrailOptionsVisible} onSelect={fetchTrail} />}
@@ -354,18 +349,7 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 4,
     backgroundColor: 'white',
-  },
- 
-
-  endTrailButton: {
-    position: 'absolute',
-    bottom: 200,
-    left: 30,
-    backgroundColor: 'red',
-    borderRadius: 50,
-    padding: 10,
-  },
-
+  }, 
 });
 
 

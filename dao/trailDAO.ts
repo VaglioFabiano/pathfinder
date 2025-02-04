@@ -6,7 +6,6 @@ interface Coordinate {
 }
 
 interface Trail {
-    id: number;
     name: string;
     downhill: number;
     difficulty: string;
@@ -14,7 +13,6 @@ interface Trail {
     duration: number;
     elevation: number;
 
-    // Geographical points for the trail
     startpoint: Coordinate;
     trail: Coordinate[];
     endpoint: Coordinate;
@@ -87,8 +85,6 @@ const getTrail = async (id: number) => {
             longitude: result.endpoint[1]
         };
 
-
-
         return result;
     } catch (error) {
         console.log(error);
@@ -98,8 +94,36 @@ const getTrail = async (id: number) => {
 const createTrail = async (trail: Trail) => {
     try {
         const db = await getDatabase();
-        const sql = "INSERT INTO Trail (name, downhill, difficulty, length, duration, elevation, startpoint, trail, endpoint, description, image, city, region, state, province, activity) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-        const [result] = await db.runAsync(sql, [trail.name, trail.downhill, trail.difficulty, trail.length, trail.duration, trail.elevation, trail.startpoint, trail.trail, trail.endpoint, trail.description, trail.image, trail.city, trail.region, trail.state, trail.province, trail.activity]);
+
+        console.log(JSON.stringify(trail.startpoint));
+        console.log(JSON.stringify(trail.trail));
+        console.log(JSON.stringify(trail.endpoint));
+
+
+        const sql = `INSERT INTO Trail 
+        (name, downhill, difficulty, length, duration, elevation, startpoint, trails, endpoint, description, image, city, region, state, province, activity, id_user) 
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+        
+        
+        await db.runAsync(sql, [
+          trail.name,
+          trail.downhill,
+          trail.difficulty,
+          trail.length,
+          trail.duration,
+          trail.elevation,
+          JSON.stringify(trail.startpoint),
+          JSON.stringify(trail.trail),  
+          JSON.stringify(trail.endpoint),
+          trail.description,
+          trail.image,
+          trail.city,
+          trail.region,
+          trail.state,
+          trail.province,
+          trail.activity,
+          1
+        ]);
     } catch (error) {
         console.log(error);
     }

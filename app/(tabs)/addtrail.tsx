@@ -79,23 +79,24 @@ const AddTrail = () => {
   }, [refresh]);
 
   const startTrail = async (position: { latitude: number; longitude: number }, selectedActivity: any) => {
-
+    const currentInfo = await Location.reverseGeocodeAsync(position);  
+    const startpoint = { latitude: position.latitude, longitude: position.longitude };
     setTrailData({
       isActive: true,
       time: 0,
       distance: 0,
       downhill: 0,
       elevation: 0,
-      positions: [position],
+      positions: [startpoint],
       activityType: selectedActivity,
       name: '',
       difficulty: '',
       description: '',
       image: '',
-      city: "",
-      region: "",
-      state: "",
-      province: "",  
+      city: currentInfo[0].city ? currentInfo[0].city : '', 
+      region: currentInfo[0].region ? currentInfo[0].region : '',
+      state: currentInfo[0].country ? currentInfo[0].country : '',
+      province: currentInfo[0].subregion ? currentInfo[0].subregion : '',  
     });
     console.log("Trail started!", trailData);
     setTrailStarted(true);
@@ -107,13 +108,12 @@ const AddTrail = () => {
 
     setTrailData((prevData) => ({
       ...prevData,
+
       isActive: false,
     }));
     setTrailStarted(false);
   };
-
   const resetTrail = () => {
-    console.log(trailData);
     setTrailData({
       isActive: false,
       time: 0,
@@ -134,7 +134,6 @@ const AddTrail = () => {
     setRefresh((prev) => !prev);
     setTrailStarted(false);
   };
-
   const fetchRoute = async (origin: { latitude: number; longitude: number }, destination: { latitude: number; longitude: number }) => {
     const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&key=${GOOGLE_MAPS_APIKEY}&mode=walking`;
 
@@ -144,16 +143,17 @@ const AddTrail = () => {
 
       if (data.routes.length > 0) {
         const route = data.routes[0];
+        
         const decodedPath = polyline.decode(route.overview_polyline.points);
-
+        
         const pathCoords = decodedPath.map(([latitude, longitude]) => ({ latitude, longitude }));
+        
         setPathCoordinates(pathCoords);
       }
     } catch (error) {
       console.error('Errore nel recupero del percorso:', error);
     }
   };
-
   useEffect(() => {
     let timerId = null;
   
@@ -161,13 +161,12 @@ const AddTrail = () => {
       let index = 0;
       let accumulatedDistance = 0;
   
-      const speedMetersPerSecond = 10 * 1000 / 3600; // Speed in meters per second
+      const speedMetersPerSecond = 70 * 1000 / 3600; // Speed in meters per second
   
-      const moveToNextPoint = () => {
+      const moveToNextPoint = async () => {
         if (index < pathCoordinates.length - 1) {
           const currentPosition = pathCoordinates[index];
           const nextPosition = pathCoordinates[index + 1];
-  
           // Calculate the total distance between the current and next points
           const totalDistance = haversineDistance(currentPosition, nextPosition);
   
@@ -188,16 +187,20 @@ const AddTrail = () => {
             const fraction = accumulatedDistance / totalDistance;
             newPosition = interpolatePosition(currentPosition, nextPosition, fraction);
           }
-  
+          
+          // Update the elevation and downhill values
+            
           setLocation(newPosition); // Update the user's position
-  
+          
           setTrailData((prevData) => ({
             ...prevData,
             time: prevData.time + 1, // Increment time by one second per update
             distance: prevData.distance + distanceToCover / 1000,
+            downhill: prevData.downhill + (Math.random() * 0.005),
+            elevation: prevData.elevation + (Math.random() * 0.01),
             positions: [...prevData.positions, newPosition],
           }));
-  
+
           index = nextIndex;
   
           timerId = setTimeout(moveToNextPoint, 1000); // Schedule next update every second
@@ -216,7 +219,6 @@ const AddTrail = () => {
       return () => clearTimeout(timerId); // Cleanup
     }
   }, [trailData.isActive, pathCoordinates]);
-  
   const haversineDistance = (coord1, coord2) => {
     const R = 6371000; // Radius of Earth in meters
     const lat1 = (coord1.latitude * Math.PI) / 180;
@@ -232,19 +234,15 @@ const AddTrail = () => {
   
     return R * c; // Distance in meters
   };
-  
   const interpolatePosition = (start, end, fraction) => {
     return {
       latitude: start.latitude + (end.latitude - start.latitude) * fraction,
       longitude: start.longitude + (end.longitude - start.longitude) * fraction,
     };
   };
-  
   const calculateAverageSpeed = () => {
     return trailData.time > 0 ? parseFloat((trailData.distance / (trailData.time / 3600)).toFixed(2)) : 0;
   };
-
-
   if (!region || !location) {
     return <View style={styles.container} />;
   }
@@ -269,21 +267,11 @@ const AddTrail = () => {
 
       {/* Componenti Trail */}
       <TrailComponent
-        isActive={trailData.isActive}
         isRecap={!trailData.isActive && trailData.time > 0}
-        activityType={trailData.activityType}
         startTrail={startTrail}
         endTrail={endTrail}
         currentPosition={location}
-        time={trailData.time}
-        distance={trailData.distance}
-        downhill={trailData.downhill}
-        elevation={trailData.elevation}
-        setTrailData={setTrailData}
-        city={trailData.city}
-        region={trailData.region}
-        state={trailData.state}
-        province={trailData.province}
+        trailData={trailData}
         resetTrail={resetTrail}
         calculateAverageSpeed={calculateAverageSpeed}
       />
