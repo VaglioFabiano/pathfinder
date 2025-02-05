@@ -116,6 +116,7 @@ const TrailInfoModal: React.FC<PopupProps> = ({ selectedTrail, startTrail, close
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={0} style={styles.modalContainer} >
           <Pressable style={styles.backdrop} onPress={() => closeModal(true)}/>
           <View style={styles.bottomSheet}>
+          <Text style={styles.descriptionTitle}>qui dovresti mettere l'immagine</Text>
             <View style={styles.separator} />
             <ScrollView contentContainerStyle={styles.scrollView}>
               <Text style={styles.trailName}>{selectedTrail?.name}</Text>
