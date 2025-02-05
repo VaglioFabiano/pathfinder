@@ -1,44 +1,72 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Image, ScrollView, Alert, Modal, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import * as TrailDAO from '@/dao/trailDAO';
+
 
 interface TrailFormProps {
-    time: number;
-    distance: number;
-    downhill: number;
-    elevation: number;
-    activityType: string;
-    city: string;
-    region: string;
-    state: string;
-    province: string;
-    setTrailData: (trail: any) => void;
+    trailData: any;
     resetTrail: () => void;
 }
+interface Trail {
+  name: string;
+  downhill: number;
+  difficulty: string;
+  length: number;
+  duration: number;
+  elevation : number;
+  
+  startpoint: [number, number];
+  trail: [[number, number]];
+  endpoint: [number, number];
 
-const TrailForm: React.FC<TrailFormProps> = ({time, distance, downhill, elevation, activityType,setTrailData, city, province, state, region, resetTrail }) => {
+  description: string;
+  image: string;
+
+  city: string;
+  region: string;
+  state: string;
+  province: string;
+
+  activity: string;
+
+}
+const TrailForm: React.FC<TrailFormProps> = ({trailData, resetTrail }) => {
   const [name, setName] = useState('');
   const [difficulty, setDifficulty] = useState('Beginner');
   const [description, setDescription] = useState('');
   const [images, setImages] = useState<string[]>([]);
 
   
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!name.trim()) {
       Alert.alert('Errore', 'Il nome del Trail è obbligatorio.');
       return;
     }
     // Puoi aggiungere qui la logica per salvare il trail
+    
+    const trail: Trail = {
+      name,
+      downhill: trailData.downhill,
+      difficulty,
+      length: trailData.distance.toFixed(2),
+      duration: trailData.time,
+      elevation: trailData.elevation.toFixed(2),
+      startpoint: [trailData.positions[0].latitude, trailData.positions[0].longitude],
+      trail: trailData.positions.map((position: any) => [position.latitude, position.longitude]),
+      endpoint: [trailData.positions[trailData.positions.length - 1].latitude, trailData.positions[trailData.positions.length - 1].longitude],
+      description,
+      image: images[0] || '',
+      city: trailData.city,
+      region: trailData.region,
+      state: trailData.state,
+      province: trailData.province,
+      activity: trailData.activityType,
+    };
+
+    await TrailDAO.createTrail(trail);
+
     Alert.alert('Successo', `Trail "${name}" salvato con successo!`);
-    setTrailData((prevTrail) => ({
-      ...prevTrail,
-      name: name,
-      difficulty: difficulty,
-      description: description,
-      images: images,
-    }));
-
-
     resetTrail();
   };
 
@@ -76,7 +104,7 @@ const TrailForm: React.FC<TrailFormProps> = ({time, distance, downhill, elevatio
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <ScrollView style={styles.formContainer}>
-            <Text style={[styles.label, {fontSize:28}]}>Activity:<Text style={styles.label2}> {activityType} </Text></Text>
+            <Text style={[styles.label, {fontSize:28}]}>Activity:<Text style={styles.label2}> {trailData.activityType} </Text></Text>
 
               {/* Campo Nome del Trail */}
               <View style={styles.inputContainer}>
@@ -129,21 +157,21 @@ const TrailForm: React.FC<TrailFormProps> = ({time, distance, downhill, elevatio
               {/* Visualizzazione della posizione del trail */}
               <View style={styles.inputContainer}>
                 <Text style={styles.label}>Location:</Text>
-                <Text style={styles.label2}>{city}, {province}, {state}, {region}</Text>
+                <Text style={styles.label2}>{trailData.city}, {trailData.province}, {trailData.state}, {trailData.region}</Text>
               </View>
               {/* Visualizzazione dei dati del trail */}
               <View style={styles.inputContainer}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                   <Text style={styles.label}>Time: 
-                  <Text style={styles.label2}> {formatTime(time)} h</Text>
+                  <Text style={styles.label2}> {formatTime(trailData.time)} h</Text>
                    </Text>
-                  <Text style={styles.label}>Distance:<Text style={styles.label2}> {distance.toFixed(2)} km</Text></Text>
+                  <Text style={styles.label}>Distance:<Text style={styles.label2}> {trailData.distance.toFixed(2)} km</Text></Text>
                 </View> 
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                   <Text style={styles.label}>Discesa:
-                    <Text style={styles.label2}> {downhill.toFixed(2)} m</Text> 
+                    <Text style={styles.label2}> {trailData.downhill.toFixed(2)} m</Text> 
                     </Text>
-                  <Text style={styles.label}>Elevazione: <Text style={styles.label2}>{elevation.toFixed(2)} m</Text></Text>
+                  <Text style={styles.label}>Elevazione: <Text style={styles.label2}>{trailData.elevation.toFixed(2)} m</Text></Text>
                 </View>
               </View>
 
