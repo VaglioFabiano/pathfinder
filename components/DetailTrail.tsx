@@ -57,7 +57,7 @@ const TrailInfoModal: React.FC<PopupProps> = ({ selectedTrail, startTrail, close
 
   const handleAddComment = async () => {
     if (newComment.trim() === '') {
-      alert('Inserisci un commento e seleziona una valutazione.');
+      alert('Insert a comment before sending');
       return;
     }
     const newId = reviews.length > 0 ? reviews[reviews.length - 1].id + 1 : 1;
@@ -124,12 +124,12 @@ const TrailInfoModal: React.FC<PopupProps> = ({ selectedTrail, startTrail, close
                   <MaterialIcons name="timeline" size={16} color="#fff" /> {selectedTrail?.length} km
                 </Text>
                 <Text style={styles.infoText}>
-                  <MaterialIcons name="schedule" size={16} color="#fff" /> {selectedTrail?.duration} ore
+                  <MaterialIcons name="schedule" size={16} color="#fff" /> {selectedTrail?.duration} h
                 </Text>
                 <Text style={styles.infoText}>
                   <MaterialIcons name="landscape" size={16} color="#fff" /> {selectedTrail?.elevation} m
                 </Text>
-                <View style={[styles.difficultyContainer, { backgroundColor: selectedTrail?.difficulty === 'Beginner' ? '#4CAF50' : selectedTrail?.difficulty === 'Intermediate' ? '#FFD700' : '#FF3B30' }]}>
+                <View style={[styles.difficultyContainer, { backgroundColor: selectedTrail?.difficulty === 'Beginner' ? '#28a745' : selectedTrail?.difficulty === 'Intermediate' ? '#ffc107' : '#dc3545' }]}>
                   <Text style={[styles.difficultyLabel, {color: selectedTrail?.difficulty === 'Intermediate' ? '#000' : '#fff'}]}>{selectedTrail?.difficulty}</Text>
                 </View>
               </View>
@@ -176,18 +176,17 @@ const TrailInfoModal: React.FC<PopupProps> = ({ selectedTrail, startTrail, close
               </View>
             </ScrollView>
 
-            {/* Pulsante Inizia */}
             <View>
               <View style={styles.separator} />
                 <View style={styles.buttonRow}>
                   <TouchableOpacity style={styles.startButton} onPress={startTrail}>
-                    <Text style={styles.buttonText}>Inizia</Text>
+                    <Text style={styles.buttonText}>Start</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.closeButtonContainer}
                     onPress={() => closeModal(true)}
                   >
-                    <Text style={styles.closeButtonText}>Chiudi</Text>
+                    <Text style={styles.closeButtonText}>Close</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -226,8 +225,8 @@ const styles = StyleSheet.create({
   submitButton: { alignSelf: 'flex-end', backgroundColor: '#34495e', paddingVertical: 5, paddingHorizontal: 20, borderRadius: 5 },
   submitButtonText: { color: 'white', fontSize: 16 },
   buttonRow: { flexDirection: 'row', justifyContent: "space-between", marginTop: 45, bottom: 40 },
-  startButton: { backgroundColor: '#34495e', paddingVertical: 10, paddingHorizontal: 20, borderRadius: 5 },
-  buttonText: { color: 'white', fontSize: 16 },
+  startButton: { backgroundColor: '#34495e',padding: 10, borderRadius: 5 },
+  buttonText: { color: 'white', fontWeight: 'bold', marginHorizontal: 10, marginVertical: 5, fontSize: 16, },
 });
 
 export default TrailInfoModal;

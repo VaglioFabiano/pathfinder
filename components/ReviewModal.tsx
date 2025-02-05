@@ -30,10 +30,10 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ reviewModalVisible, reviewTex
        
       <View style={styles.modalOverlay}>
         <View style={styles.modalContainer}>
-          <Text style={styles.modalTitle}>Lascia una recensione</Text>
+          <Text style={styles.modalTitle}>Leave a review</Text>
           <TextInput
             style={styles.input}
-            placeholder="Scrivi la tua recensione qui..."
+            placeholder="Write a review..."
             value={reviewText}
             placeholderTextColor={'white'}  
             onChangeText={setReviewText}
@@ -47,13 +47,13 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ reviewModalVisible, reviewTex
           
           <View style={styles.buttonRow}>
             <TouchableOpacity style={[styles.button,{backgroundColor: '#34495e'}]} onPress={()=>submitReview(true)}>
-              <Text style={styles.buttonText}>Invia</Text>
+              <Text style={styles.buttonText}>Send</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.button}
               onPress={() => submitReview(false)}
             >
-              <Text style={[styles.buttonText, {textDecorationLine: 'underline'}]}>Annulla</Text>
+              <Text style={[styles.buttonText, {textDecorationLine: 'underline'}]}>Cancel</Text>
             </TouchableOpacity>
           </View>
         </View>

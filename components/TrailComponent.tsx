@@ -14,27 +14,15 @@ interface TrailComponentProps {
  
 }
 
-const TrailComponent: React.FC<TrailComponentProps> = ({
-  startTrail,
-  endTrail,
-  currentPosition,
-  trailData,
-  isRecap,
-  calculateAverageSpeed,
-  resetTrail,
- 
-}) => {
+const TrailComponent: React.FC<TrailComponentProps> = ({ startTrail, endTrail, currentPosition, trailData, isRecap, calculateAverageSpeed, resetTrail,}) => {
   return (
     <>
-      {/* Bottone "Inizia Percorso" */}
       {!trailData.isActive && !isRecap && ( <StartTrailButton startTrail={startTrail} currentPosition={currentPosition} /> )}
 
-      {/* Contenitore attivo del percorso */}
       {trailData.isActive && (
         <TrailInfoPanel time={trailData.time} distance={trailData.distance} downhill={trailData.downhill} elevation={trailData.elevation} calculateAverageSpeed={calculateAverageSpeed} endTrail={endTrail} />
       )}
 
-      {/* Recap del percorso */}
       {isRecap && ( <TrailForm trailData = {trailData} resetTrail={resetTrail}/> )}
       </>
   );

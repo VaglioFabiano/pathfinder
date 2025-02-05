@@ -42,10 +42,10 @@ const Popup: React.FC<PopupProps> = ({ selectedTrail, startTrail, closeModal, se
         {/* Pulsanti posizionati sotto */}
         <View style={styles.buttonRow}>
           <TouchableOpacity style={styles.startButton} onPress={startTrail}>
-            <Text style={styles.buttonText}>Inizia</Text>
+            <Text style={styles.buttonText}>Start</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.cancelButton} onPress={() => closeModal(true)}>
-            <Text style={[styles.buttonText, {textDecorationLine:"underline"}]}>Chiudi</Text>
+            <Text style={[styles.buttonText, {textDecorationLine:"underline"}]}>Close</Text>
           </TouchableOpacity>
         </View>
       </TouchableOpacity>

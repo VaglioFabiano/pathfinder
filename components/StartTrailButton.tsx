@@ -1,45 +1,91 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Modal, FlatList } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
+import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 
 interface StartTrailButtonProps {
   startTrail: (position: any, activity: string) => void;
   currentPosition: any;
 }
 
+const activityIcons: { [key: string]: string } = {
+  Walk: 'walk',
+  Hiking: 'hiking',
+  Bike: 'bike',
+};
+
 const StartTrailButton = ({ startTrail, currentPosition }: StartTrailButtonProps) => {
   const [selectedActivity, setSelectedActivity] = useState('Walk');
-  const [modalVisible, setModalVisible] = useState(false);
+  const [dropdownVisible, setDropdownVisible] = useState(false);
 
   const activities = ['Walk', 'Hiking', 'Bike'];
 
   const handleActivitySelect = (activity: string) => {
     setSelectedActivity(activity);
-    setModalVisible(false); // Chiudi il modal dopo la selezione
+    setDropdownVisible(false);
   };
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.activityButton} onPress={() => setModalVisible(true)}>
-        <Text style={[styles.buttonText, {textDecorationLine: 'underline'}]}>{selectedActivity}</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.startButton} onPress={() => startTrail(currentPosition, selectedActivity)}>
-        <Text style={styles.buttonText}>Start Trail</Text>
-      </TouchableOpacity>
-      <Modal transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
-        <View style={styles.modalBackground}>
-          <View style={styles.modalContainer}>
-            <FlatList
-              data={activities}
-              renderItem={({ item }) => (
-                <TouchableOpacity onPress={() => handleActivitySelect(item)}>
+      {/* Row with Icon, Activity Button, and Start */}
+      <View style={styles.row}>
+        {/* Activity Button */}
+        <TouchableOpacity
+          style={styles.activityRow}
+          onPress={() => setDropdownVisible(!dropdownVisible)}
+        >
+          <MaterialCommunityIcons
+            name={activityIcons[selectedActivity] || 'walk'}
+            size={20}
+            color="white"
+            style={styles.activityIcon}
+          />
+          <Text style={styles.buttonText}>
+            {selectedActivity}
+          </Text>
+          {/* Dropdown Icon */}
+          <MaterialIcons
+            name={dropdownVisible ? 'arrow-drop-up' : 'arrow-drop-down'}
+            size={24}
+            color="white"
+            style={styles.dropdownIcon}
+          />
+        </TouchableOpacity>
+
+        {/* Start Trail Button */}
+        <TouchableOpacity
+          style={styles.startButton}
+          onPress={() => startTrail(currentPosition, selectedActivity)}
+        >
+          <Text style={styles.buttonText}>Start Trail</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Dropdown List */}
+      {dropdownVisible && (
+        
+        <View style={styles.dropdown}>
+          <FlatList
+            data={activities}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                onPress={() => handleActivitySelect(item)}
+                style={styles.itemContainer}
+              >
+                <View style={styles.activityRow}>
+                  <MaterialCommunityIcons
+                    name={activityIcons[item] || 'walk'}
+                    size={18}
+                    color="white"
+                    style={styles.activityIcon}
+                  />
                   <Text style={styles.modalItem}>{item}</Text>
-                </TouchableOpacity>
-              )}
-              keyExtractor={(item) => item.toLowerCase()}
-            />
-          </View>
+                </View>
+              </TouchableOpacity>
+            )}
+            keyExtractor={(item) => item.toLowerCase()}
+          />
         </View>
-      </Modal>
+      )}
     </View>
   );
 };
@@ -55,42 +101,52 @@ const styles = StyleSheet.create({
     padding: 10,
     elevation: 5,
   },
-  activityButton: {
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    alignItems: 'center',
+  },
+  activityRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 15,
     borderRadius: 10,
-    alignItems: 'center',
-    width: '100%',
-    marginBottom: 10,
+    width: '40%',
+    justifyContent: 'center',
+  },
+  activityIcon: {
+    marginRight: 10,
+  },
+  dropdownIcon: {
+    marginLeft: 8,
   },
   startButton: {
     backgroundColor: '#34495e',
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
-    width: '100%',
+    width: '60%',
   },
   buttonText: {
     color: 'white',
     fontWeight: 'bold',
     fontSize: 16,
   },
-  modalBackground: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  dropdown: {
+    position: 'absolute',
+    bottom: 100,
+    width: '70%',
+    backgroundColor: 'gray',
+    borderRadius: 8,
+    left: 10,
   },
-  modalContainer: {
-    width: 300,
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 20,
+  itemContainer: {
+    paddingVertical: 10,
   },
   modalItem: {
-    padding: 10,
-    fontSize: 18,
-    borderBottomWidth: 1,
-    borderColor: '#ddd',
+    fontSize: 16,
+    color: 'white',
   },
 });
 

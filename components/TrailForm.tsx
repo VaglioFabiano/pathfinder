@@ -2,50 +2,34 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Image, ScrollView, Alert, Modal, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as TrailDAO from '@/dao/trailDAO';
-
-
+import { Ionicons } from '@expo/vector-icons';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 interface TrailFormProps {
-    trailData: any;
-    resetTrail: () => void;
+  trailData: any;
+  resetTrail: () => void;
 }
-interface Trail {
-  name: string;
-  downhill: number;
-  difficulty: string;
-  length: number;
-  duration: number;
-  elevation : number;
-  
-  startpoint: [number, number];
-  trail: [[number, number]];
-  endpoint: [number, number];
 
-  description: string;
-  image: string;
-
-  city: string;
-  region: string;
-  state: string;
-  province: string;
-
-  activity: string;
-
-}
-const TrailForm: React.FC<TrailFormProps> = ({trailData, resetTrail }) => {
+const TrailForm: React.FC<TrailFormProps> = ({ trailData, resetTrail }) => {
   const [name, setName] = useState('');
   const [difficulty, setDifficulty] = useState('Beginner');
   const [description, setDescription] = useState('');
   const [images, setImages] = useState<string[]>([]);
-
+  const [step, setStep] = useState(1); // Gestione dello step corrente
   
+  const handleCancellation = () => {  
+    Alert.alert('Are you sure?', 'Do you want to cancel the trail?', [
+      { text: 'No', style: 'cancel' },
+      { text: 'Yes', style: 'destructive', onPress: resetTrail },
+    ]);
+  };
+
   const handleSubmit = async () => {
     if (!name.trim()) {
-      Alert.alert('Errore', 'Il nome del Trail è obbligatorio.');
+      Alert.alert('Error', 'Trail name is required.');
       return;
     }
-    // Puoi aggiungere qui la logica per salvare il trail
-    
-    const trail: Trail = {
+
+    const trail = {
       name,
       downhill: trailData.downhill,
       difficulty,
@@ -61,23 +45,20 @@ const TrailForm: React.FC<TrailFormProps> = ({trailData, resetTrail }) => {
       region: trailData.region,
       state: trailData.state,
       province: trailData.province,
-      activity: trailData.activityType,
+      activity: trailData.activityType.toLowerCase(),
     };
 
     await TrailDAO.createTrail(trail);
-
-    Alert.alert('Successo', `Trail "${name}" salvato con successo!`);
+    Alert.alert('Success', `Trail "${name}" saved successfully!`);
     resetTrail();
   };
 
   const handleFileInputClick = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
     if (permissionResult.granted === false) {
-      Alert.alert('Permesso negato', 'È necessario il permesso per accedere alle foto.');
+      Alert.alert('Permission denied', 'You need permission to access photos.');
       return;
     }
-
     const pickerResult = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
@@ -90,183 +71,407 @@ const TrailForm: React.FC<TrailFormProps> = ({trailData, resetTrail }) => {
   };
 
   const formatTime = (timeInSeconds: number) => {
-    const hours = Math.floor(timeInSeconds / 3600); // Ottieni le ore
-    const minutes = Math.floor((timeInSeconds % 3600) / 60); // Ottieni i minuti rimanenti
-    const seconds = timeInSeconds % 60; // Ottieni i secondi rimanenti
-  
-    // Restituisce la stringa formattata come "hh:mm:ss"
+    const hours = Math.floor(timeInSeconds / 3600);
+    const minutes = Math.floor((timeInSeconds % 3600) / 60);
+    const seconds = timeInSeconds % 60;
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  return (
-    <Modal animationType="fade" transparent={true} onRequestClose={resetTrail} >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <ScrollView style={styles.formContainer}>
-            <Text style={[styles.label, {fontSize:28}]}>Activity:<Text style={styles.label2}> {trailData.activityType} </Text></Text>
+  const renderStepContent = () => {
+    switch (step) {
+      case 1:
+      return (
+        <View>
+          {/* Nome Trail */}
+          <View style={styles.inputContainer}>
+          
+            <View style={[{ flexDirection: 'row' }]}>
+              <Icon name="map-outline" size={20} color="#f39c12" />
+              <Text style={styles.label}>Trail Name:</Text>
+            </View>
+            <TextInput
+              style={[styles.input, { opacity: 0.5 , width: '100%'}]}
+              value={name}
+              onChangeText={setName}
+              placeholder="Insert Trail Name..."
+              placeholderTextColor="#fff"
+            />
+          </View>
 
-              {/* Campo Nome del Trail */}
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Trail Name:</Text>
-                <TextInput
-                  style={styles.input}
-                  value={name}
-                  onChangeText={setName}
-                  placeholder="Insert Trail Name..."
-                  placeholderTextColor="#fff"  
-                  
-                />
-              </View>
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Difficulty:</Text>
-                <View style={styles.difficultyContainer}>
-                  <TouchableOpacity
-                    style={[styles.difficultyButton, difficulty === 'Beginner' && { backgroundColor: '#28a745' }]}
-                    onPress={() => setDifficulty('Beginner')}
-                  >
-                    <Text style={styles.buttonText}>Beginner</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.difficultyButton, difficulty === 'Intermediate' && { backgroundColor: '#ffc107' }]}
-                    onPress={() => setDifficulty('Intermediate')}
-                  >
-                    <Text style={styles.buttonText}>Intermediate</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.difficultyButton, difficulty === 'Advanced' && { backgroundColor: '#dc3545' }]}
-                    onPress={() => setDifficulty('Advanced')}
-                  >
-                    <Text style={styles.buttonText}>Advanced</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
+          {/* Difficoltà */}
+          <View style={[{ flexDirection: 'row' }]}>
 
-              {/* Campo Descrizione */}
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Description:</Text>
-                <TextInput
-                  style={[styles.input, { height: 80, textAlignVertical: 'top' }]}
-                  value={description}
-                  onChangeText={setDescription}
-                  multiline
-                  placeholder="Insert a description..."
-                  placeholderTextColor="#fff"  
-                />
-              </View>
-              {/* Visualizzazione della posizione del trail */}
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Location:</Text>
-                <Text style={styles.label2}>{trailData.city}, {trailData.province}, {trailData.state}, {trailData.region}</Text>
-              </View>
-              {/* Visualizzazione dei dati del trail */}
-              <View style={styles.inputContainer}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                  <Text style={styles.label}>Time: 
-                  <Text style={styles.label2}> {formatTime(trailData.time)} h</Text>
-                   </Text>
-                  <Text style={styles.label}>Distance:<Text style={styles.label2}> {trailData.distance.toFixed(2)} km</Text></Text>
-                </View> 
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                  <Text style={styles.label}>Discesa:
-                    <Text style={styles.label2}> {trailData.downhill.toFixed(2)} m</Text> 
-                    </Text>
-                  <Text style={styles.label}>Elevazione: <Text style={styles.label2}>{trailData.elevation.toFixed(2)} m</Text></Text>
-                </View>
-              </View>
+          <Icon name="speedometer" size={20} color="#f39c12" />
 
-              {/* Caricamento delle foto */}
-              <View style={styles.inputContainer}>
-                 <View style={{ flexDirection: 'row'}}>
-                 <Text style={styles.label}>Photo:</Text>
-                <TouchableOpacity onPress={handleFileInputClick} style={[styles.uploadButton, {backgroundColor: 'gray', marginLeft: 10, padding:3, justifyContent:"center"}]} >
-                  <Text style={[styles.uploadButtonText,{textDecorationLine:"underline"}]}>Insert Photo</Text>
-                </TouchableOpacity>
-                </View>
-                <ScrollView horizontal style={styles.imagePreviewContainer}>
-                  {images.map((image, index) => (
+          <Text style={styles.label}>Difficulty:</Text>
+          </View>
+          <View style={styles.difficultyContainer}>
+            <TouchableOpacity
+              style={[styles.difficultyButton, difficulty === 'Beginner' && { backgroundColor: '#28a745' }]}
+              onPress={() => setDifficulty('Beginner')}
+            >
+              <Text style={styles.buttonText}>Beginner</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.difficultyButton, difficulty === 'Intermediate' && { backgroundColor: '#ffc107' }]}
+              onPress={() => setDifficulty('Intermediate')}
+            >
+              <Text style={styles.buttonText}>Intermediate</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.difficultyButton, difficulty === 'Advanced' && { backgroundColor: '#dc3545' }]}
+              onPress={() => setDifficulty('Advanced')}
+            >
+              <Text style={styles.buttonText}>Advanced</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      );
+      case 2:
+        return (
+          <View>
+            {/* Descrizione */}
+            <View style={styles.inputContainer}>
+            <View style={[{ flexDirection: 'row' }]}>
+              <Icon name="text-box-outline" size={20} color="#f39c12" />
+              <Text style={styles.label}>Description:</Text>
+              </View>
+            </View>
+            <TextInput
+              style={[styles.input, { height: 80, textAlignVertical: 'top', opacity: 0.5 }]}
+              value={description}
+              onChangeText={setDescription}
+              multiline
+              placeholder="Insert a description..."
+              placeholderTextColor="#fff"
+            />
+          </View>
+        );
+      case 3:
+        return (
+          <View>   
+            <View style={[ { flexDirection: 'row' , justifyContent: 'space-between', alignItems: 'center' }]}>
+                   
+            <View style={[styles.inputContainer, { flexDirection: 'row', marginTop: 10  }]}>
+              <Icon name="camera-outline" size={20} color="#f39c12" />
+              <Text style={styles.label}>Photo:</Text>
+              
+            </View>
+            <TouchableOpacity onPress={handleFileInputClick} style={[styles.uploadButton, { backgroundColor: 'rgb(141, 141, 141)' , width: '60%'}]}>
+                <Icon name="plus-circle-outline" size={18} color="white" />
+                <Text style={[styles.uploadButtonText]}>Insert Photo</Text>
+              </TouchableOpacity>
+              </View> 
+            <ScrollView horizontal style={styles.imagePreviewContainer}>
+              {images.map((image: string, index: number) => (
+                <Image key={index} source={{ uri: image }} style={styles.imagePreview} />
+              ))}
+            </ScrollView>
+          </View>
+        );
+      case 4:
+        return (
+          <View style={styles.recapContainer}> 
+            {/* Nome del trail */}
+            <View style={styles.recapSection}>
+              <Icon name="map-outline" size={20} color="#f39c12" />
+              <Text style={styles.recapLabel}>Trail Name:</Text>
+              <Text style={styles.recapValue}>{name || "N/A"}</Text>
+            </View>
+            {/* Difficoltà */}
+            <View style={styles.recapSection}>
+              <Icon name="speedometer" size={20} color="#f39c12" />
+              <Text style={styles.recapLabel}>Difficulty:</Text>
+              <Text style={[styles.recapValue, styles[difficulty.toLowerCase()]]}>{difficulty}</Text>
+            </View>
+            {/* Posizione */}
+            <View style={styles.recapSection}>
+              <Icon name="map-marker-outline" size={20} color="#f39c12" />
+              <Text style={styles.recapLabel}>Location:</Text>
+              <Text style={styles.recapValue}>
+                {`${trailData.city}, ${trailData.state}, ${trailData.region}`}
+              </Text>
+            </View>
+            {/* Attività */}
+            <View style={styles.recapSection}>
+              <Icon name="bike" size={20} color="#f39c12" />
+              <Text style={styles.recapLabel}>Activity:</Text>
+              <Text style={styles.recapValue}>{trailData.activityType}</Text>
+            </View>
+            {/* Tempo e Distanza */}
+            <View style={styles.recapStatsRow}>
+              <View style={styles.recapStatBox}>
+                <Icon name="timer-outline" size={20} color="#f39c12" />
+                <Text style={styles.statLabel}>Time</Text>
+                <Text style={styles.statValue}>{formatTime(trailData.time)} h</Text>
+              </View>
+              <View style={styles.recapStatBox}>
+                <Icon name="map-marker-distance" size={20} color="#f39c12" />
+                <Text style={styles.statLabel}>Distance</Text>
+                <Text style={styles.statValue}>{trailData.distance.toFixed(2)} km</Text>
+              </View>
+            </View>
+            {/* Dislivello */}
+            <View style={styles.recapStatsRow}>
+              <View style={styles.recapStatBox}>
+                <Icon name="arrow-down-bold-outline" size={20} color="#f39c12" />
+                <Text style={styles.statLabel}>Downhill</Text>
+                <Text style={styles.statValue}>{trailData.downhill.toFixed(2)} m</Text>
+              </View>
+              <View style={styles.recapStatBox}>
+                <Icon name="arrow-up-bold-outline" size={20} color="#f39c12" />
+                <Text style={styles.statLabel}>Elevation</Text>
+                <Text style={styles.statValue}>{trailData.elevation.toFixed(2)} m</Text>
+              </View>
+            </View>
+            {/* Foto */}
+            {images.length > 0 && (
+              <View style={styles.recapImages}>
+                <Icon name="camera-outline" size={20} color="#f39c12" />
+                <Text style={styles.recapLabel}>Photos:</Text>
+                <ScrollView horizontal>
+                  {images.map((image: string, index: number) => (
                     <Image key={index} source={{ uri: image }} style={styles.imagePreview} />
                   ))}
                 </ScrollView>
               </View>
+            )}
+          </View>
+        );
+      default:
+        return null;
+    }
+  };
 
-              {/* Bottone Salva */}
-              <TouchableOpacity onPress={handleSubmit} style={styles.uploadButton}>
-                  <Text style={styles.uploadButtonText}>Salva Trail</Text>
+  const getStepTitle = (step: number) => {
+    switch (step) {
+      case 1:
+        return "Step 1: Basic Info";
+      case 2:
+        return "Step 2: Trail Details";
+      case 3:
+        return "Step 3: Photos";
+      case 4:
+        return "Step 4: Recap";
+      default:
+        return "Step";
+    }
+  };
+
+  
+  return (
+    <Modal animationType="fade" transparent={true} onRequestClose={resetTrail}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <View style={styles.headerContainer}>
+              <Text style={[styles.label, { color: '#f39c12',fontSize: 28 }]}>{getStepTitle(step)}</Text>
+              <TouchableOpacity onPress={handleCancellation} style={styles.closeButton}>
+                <Ionicons name="close" size={30} color="white" />
               </TouchableOpacity>
+            </View>
+            <View style={styles.separator} />
+            <ScrollView style={{ width: '100%' }}>
+              {renderStepContent()}
             </ScrollView>
+            <View style={styles.separator} />
+            <View style={styles.navigationButtonsContainer}>
+              {step > 1 && (
+                <TouchableOpacity onPress={() => setStep(step - 1)} style={[styles.arrowButton, { justifyContent: "flex-start", left: 10 }]}>
+                  <Ionicons name="arrow-back" size={24} color="white" />
+                </TouchableOpacity>
+              )}
+              {step <= 1 && (
+                <View style={[styles.arrowButton, { backgroundColor: "gray" }]} />
+              )}
+              {step < 4 ? (
+                <TouchableOpacity onPress={() => setStep(step + 1)} style={[styles.arrowButton, { justifyContent: "flex-end", right: 10 }]}>
+                  <Ionicons name="arrow-forward" size={24} color="white" />
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity onPress={handleSubmit} style={[styles.uploadButton, { right: 10 }]}>
+                  <Text style={styles.uploadButtonText}>Save</Text>
+                </TouchableOpacity>
+              )}
+            </View>
           </View>
         </View>
       </TouchableWithoutFeedback>
     </Modal>
   );
+  
 };
 
 const styles = StyleSheet.create({
+  // Containers and Layouts
   modalOverlay: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Sfondo semi-trasparente per l'effetto overlay
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContainer: {
     width: '90%',
     maxWidth: 400,
     backgroundColor: 'gray',
-    borderRadius: 10,
+    borderRadius: 30,
     padding: 20,
     elevation: 5,
   },
-  formContainer: {
-    paddingBottom: 20,
+  headerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  navigationButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
+  },
+  separator: {
+    height: 1,
+    backgroundColor: 'black',
+    marginVertical: 5,
+    opacity: 0.2,
+  },
+  recapContainer: {
+    marginTop: 20,
+    padding: 15,
+    borderRadius: 10,
+  },
+  recapStatsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  recapStatBox: {
+    backgroundColor: 'rgb(141, 141, 141)',
+    borderRadius: 8,
+    padding: 10,
+    width: '48%',
+    alignItems: 'center',
+  },
+  recapSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  recapImages: {
+    marginTop: 10,
+    flexDirection: 'row',
   },
   inputContainer: {
-    marginBottom: 20,
-  },
-  label: {
-    fontWeight: 'bold',
-    fontSize: 18,
-    marginBottom: 5,
-    color: 'white',
-  },
-  label2: {
-    fontWeight: "normal",
-    marginBottom: 5,
-    color: 'white',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: 'white',
-    color: 'white',
-    padding: 10,
-    borderRadius: 5,
+    marginBottom: 10,
   },
   difficultyContainer: {
     flexDirection: 'row',
+    justifyContent: 'space-around',
     marginTop: 10,
-  },
-  difficultyButton: {
-    padding: 10,
-    borderRadius: 5,
-    marginRight: 10,
-  },
- 
-  buttonText: {
-    color: 'white',
-  },
-  uploadButton: {
-    backgroundColor: '#34495e',
-    padding: 10,
-    borderRadius: 5,
-    alignItems: 'center',
-  },
-  uploadButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
   },
   imagePreviewContainer: {
     marginTop: 10,
   },
+
+  // Buttons
+  arrowButton: {
+    padding: 10,
+    borderRadius: 50,
+    backgroundColor: '#34495e',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  closeButton: {
+    padding: 5,
+    borderRadius: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  difficultyButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgb(141, 141, 141)',
+    padding: 10,
+    borderRadius: 8,
+    width: '30%',
+    justifyContent: 'center',
+  },
+  uploadButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 10,
+    borderRadius: 8,
+    backgroundColor: '#34495e',
+  },
+
+  // Labels and Text
+  label: {
+    color: '#f1c40f',
+    fontWeight: 'bold',
+    marginLeft: 5,
+    
+  },
+  label2: {
+    fontWeight: 'normal',
+    marginBottom: 5,
+    color: 'white',
+  },
+  recapTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: 'white',
+    marginBottom: 10,
+  },
+  recapLabel: {
+    fontWeight: 'bold',
+    color: '#f1c40f',
+    width: 120,
+    marginLeft: 5,
+  },
+  recapValue: {
+    color: 'white',
+  },
+  statLabel: {
+    color: '#f1c40f',
+    fontWeight: 'bold',
+  },
+  statValue: {
+    color: 'white',
+  },
+  buttonText: {
+    color: 'white',
+    marginLeft: 5,
+    fontWeight: 'bold',
+    fontSize: 11,
+  },
+  uploadButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  recapText: {
+    color: 'white',
+    fontSize: 16,
+    marginVertical: 5,
+  },
+
+  // Inputs
+  input: {
+    borderWidth: 1,
+    borderColor: '#f39c12',
+    borderRadius: 8,
+    padding: 10,
+    color: 'white',
+    marginTop: 5,
+  },
+
+  // Colors for Difficulty Levels
+  beginner: { color: '#28a745' },
+  intermediate: { color: '#ffc107' },
+  advanced: { color: '#dc3545' },
+
+  // Image Styles
   imagePreview: {
     width: 100,
     height: 100,

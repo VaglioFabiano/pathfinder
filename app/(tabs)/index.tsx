@@ -16,6 +16,9 @@ import TrailDropdown from '@/components/TrailDropdown';
 
 import TrailInfoModal from '@/components/DetailTrail';
 import * as ReviewDAO from '@/dao/reviewDAO';
+import { useIsFocused } from '@react-navigation/native';
+
+
 
 interface Trail {
   id: number;
@@ -69,6 +72,7 @@ const MapWithTopoMap = () => {
 
 
   const [isModalDetailVisible, setIsModalDetailVisible] = useState(false);
+  const isFocused = useIsFocused();
 
   useEffect(() => {
     (async () => {
@@ -115,7 +119,7 @@ const MapWithTopoMap = () => {
     };
 
     fetchTrails();
-  }, [refresh]);
+  }, [isFocused]);
 
   const fetchTrail = async (t: Trail) => {
     try {
@@ -129,11 +133,13 @@ const MapWithTopoMap = () => {
 
   const handleMarkerPress = (t: Trail) => {
     
-    const overlappingTrails = trails.filter(
-      (trail) => trail.startpoint.latitude === t.startpoint.latitude &&
-                 trail.startpoint.longitude === t.startpoint.longitude
+    const tolerance = 0.0001;
+    const overlappingTrails = trails.filter((trail) => 
+      Math.abs(trail.startpoint.latitude - t.startpoint.latitude) <= tolerance &&
+      Math.abs(trail.startpoint.longitude - t.startpoint.longitude) <= tolerance
     );
-  
+    
+    console.log(overlappingTrails);
     if (overlappingTrails.length > 1) {
       showTrailOptions(overlappingTrails);
     } else {

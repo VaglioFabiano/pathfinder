@@ -1,3 +1,4 @@
+import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, FlatList, Modal, StyleSheet, Pressable } from "react-native";
 interface Trail {
@@ -47,7 +48,7 @@ const TrailDropdown: React.FC<TrailDropdownProps> = ({visible, setVisible, trail
   return (
     <View>
     <TouchableOpacity onPress={() => setVisible(true)}>
-      <Text style={styles.dropdownButton}>Seleziona un Trail</Text>
+      <Text style={styles.dropdownButton}>Select a Trail:</Text>
     </TouchableOpacity>
 
     <Modal visible={visible} transparent={true} animationType="slide">
@@ -57,27 +58,38 @@ const TrailDropdown: React.FC<TrailDropdownProps> = ({visible, setVisible, trail
           style={styles.backdrop}
           onPress={() => setVisible(false)}
         />
-        {/* Bottom Sheet */}
-        <View style={styles.bottomSheet}>
-          <TouchableOpacity
-            style={styles.closeButtonContainer}
-            onPress={() => setVisible(false)}
-          >
-            <Text style={styles.closeButtonText}>Chiudi</Text>
-          </TouchableOpacity>
-          <Text style={styles.title}>Seleziona un Trail:</Text>
+        <View style={styles.bottomSheet}>      
+          <Text style={styles.title}>Select a trail:</Text>
           <FlatList
             data={trails}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
-              <TouchableOpacity
-                style={styles.option}
-                onPress={() => handleSelect(item)}
-              >
+              <>
+              <TouchableOpacity style={styles.option} onPress={() => handleSelect(item)} >
                 <Text style={styles.optionText}>{item.name}</Text>
+                <Text style={[styles.optionText,, { padding: 4, borderRadius: 8, backgroundColor: item?.difficulty === 'Beginner' ? '#28a745' : item?.difficulty === 'Intermediate' ? '#ffc107' : '#dc3545', color: item?.difficulty === 'Intermediate' ? '#000': "#fff" }]}>{item.difficulty}</Text>
+                <Text style={styles.optionText}><MaterialIcons name="timeline" size={16} color="#fff" />{item.length} km</Text>
+                <Text style={styles.optionText}><MaterialIcons name="schedule" size={16} color="#fff" />{item.duration} h</Text>
+                <Text style={styles.optionText}>
+                    {item.activity === "bike" ? (
+                      <MaterialCommunityIcons name="bike" size={16} color="#fff" />
+                    ) : item.activity === "hiking" ? (
+                      <MaterialCommunityIcons name="hiking" size={16} color="#fff" />
+                    ) : (
+                      <MaterialCommunityIcons name="walk" size={16} color="#fff" />
+                    )}
+                  </Text>
               </TouchableOpacity>
+              <View style={styles.separator} />
+              </>
             )}
           />
+          <TouchableOpacity
+            style={styles.closeButtonContainer}
+            onPress={() => setVisible(false)}
+          >
+            <Text style={styles.closeButtonText}>Close</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </Modal>
@@ -103,7 +115,7 @@ const styles = StyleSheet.create({
         flex: 1,
       },
       bottomSheet: {
-        backgroundColor: "black",
+        backgroundColor: "gray",
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         padding: 20,
@@ -111,10 +123,13 @@ const styles = StyleSheet.create({
       },
       closeButtonContainer: {
         alignSelf: "flex-end",
+        padding: 10,
+        bottom: 20,
       },
       closeButtonText: {
-        color: "#FF3B30",
+        color: "white",
         fontSize: 16,
+        textDecorationLine: "underline",
         fontWeight: "bold",
       },
       title: {
@@ -125,12 +140,14 @@ const styles = StyleSheet.create({
       },
       option: {
         paddingVertical: 12,
-        borderBottomWidth: 1,
-        borderColor: "#444",
+        justifyContent:"space-between",
+        flexDirection: "row",
       },
       optionText: {
         fontSize: 16,
         color: "white",
       },
+      separator: { height: 1, backgroundColor: 'black', marginVertical: 5, opacity: 0.2, alignItems: 'center', justifyContent: 'center' },
+
   });
   
