@@ -28,6 +28,13 @@ const StartTrailButton = ({ startTrail, currentPosition }: StartTrailButtonProps
     <View style={styles.container}>
       {/* Row with Icon, Activity Button, and Start */}
       <View style={styles.row}>
+        {/* Start Trail Button */}
+        <TouchableOpacity
+          style={styles.startButton}
+          onPress={() => startTrail(currentPosition, selectedActivity)}
+        >
+          <Text style={styles.buttonText}>Start Trail</Text>
+        </TouchableOpacity>
         {/* Activity Button */}
         <TouchableOpacity
           style={styles.activityRow}
@@ -51,13 +58,7 @@ const StartTrailButton = ({ startTrail, currentPosition }: StartTrailButtonProps
           />
         </TouchableOpacity>
 
-        {/* Start Trail Button */}
-        <TouchableOpacity
-          style={styles.startButton}
-          onPress={() => startTrail(currentPosition, selectedActivity)}
-        >
-          <Text style={styles.buttonText}>Start Trail</Text>
-        </TouchableOpacity>
+        
       </View>
 
       {/* Dropdown List */}
@@ -97,7 +98,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     alignItems: 'center',
-    backgroundColor: 'gray',
+    backgroundColor: '#979797',
     padding: 10,
     elevation: 5,
   },
@@ -116,13 +117,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   activityIcon: {
-    marginRight: 10,
+    marginRight: 5,
   },
   dropdownIcon: {
-    marginLeft: 8,
+    marginLeft: 5,
   },
   startButton: {
-    backgroundColor: '#34495e',
+    backgroundColor: '#86af49',
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
@@ -136,13 +137,15 @@ const styles = StyleSheet.create({
   dropdown: {
     position: 'absolute',
     bottom: 100,
-    width: '70%',
-    backgroundColor: 'gray',
+    width: '50%',
+    backgroundColor: '#979797',
     borderRadius: 8,
-    left: 10,
+    right: 10,
+    zIndex: 5,
   },
   itemContainer: {
-    paddingVertical: 10,
+    paddingVertical: 2,
+    
   },
   modalItem: {
     fontSize: 16,

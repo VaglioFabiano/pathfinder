@@ -46,7 +46,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ reviewModalVisible, reviewTex
           <View style={styles.separator} />
           
           <View style={styles.buttonRow}>
-            <TouchableOpacity style={[styles.button,{backgroundColor: '#34495e'}]} onPress={()=>submitReview(true)}>
+            <TouchableOpacity style={[styles.button,{backgroundColor: '#86af49'}]} onPress={()=>submitReview(true)}>
               <Text style={styles.buttonText}>Send</Text>
             </TouchableOpacity>
             <TouchableOpacity

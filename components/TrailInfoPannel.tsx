@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     alignItems: 'center',
-    backgroundColor: 'gray',
+    backgroundColor: '#979797',
     borderRadius: 10,
     padding: 10,
     elevation: 5,
@@ -95,7 +95,7 @@ timeDistanceContainer: {
     alignItems: "flex-start",
   },
   endButton: {
-    backgroundColor: 'red',
+    backgroundColor: '#dc3545',
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',

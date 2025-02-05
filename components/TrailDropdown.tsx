@@ -67,7 +67,7 @@ const TrailDropdown: React.FC<TrailDropdownProps> = ({visible, setVisible, trail
               <>
               <TouchableOpacity style={styles.option} onPress={() => handleSelect(item)} >
                 <Text style={styles.optionText}>{item.name}</Text>
-                <Text style={[styles.optionText,, { padding: 4, borderRadius: 8, backgroundColor: item?.difficulty === 'Beginner' ? '#28a745' : item?.difficulty === 'Intermediate' ? '#ffc107' : '#dc3545', color: item?.difficulty === 'Intermediate' ? '#000': "#fff" }]}>{item.difficulty}</Text>
+                <Text style={[styles.optionText,, { padding: 4, borderRadius: 8, backgroundColor: item?.difficulty === 'Beginner' ? '#4986af' : item?.difficulty === 'Intermediate' ? '#af8649' : '#af4953', color: "#fff" }]}>{item.difficulty}</Text>
                 <Text style={styles.optionText}><MaterialIcons name="timeline" size={16} color="#fff" />{item.length} km</Text>
                 <Text style={styles.optionText}><MaterialIcons name="schedule" size={16} color="#fff" />{item.duration} h</Text>
                 <Text style={styles.optionText}>

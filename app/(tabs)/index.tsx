@@ -272,20 +272,20 @@ const MapWithTopoMap = () => {
 
         {trails.map((trail) => {
             const difficultyColor =
-            trail.difficulty === 'Beginner' ? '#28a745' :
-            trail.difficulty === 'Intermediate' ? '#ffc107' :
-            '#dc3545';
+            trail.difficulty === 'Beginner' ? '#4986af' :
+            trail.difficulty === 'Intermediate' ? '#af8649' :
+            '#af4953';
             
             let activityIcon;
             switch (trail.activity) {
               case 'walk':
-                activityIcon = <MaterialCommunityIcons name="walk" size={24} color={difficultyColor=="#ffc107" ? "black": "white"} />;
+                activityIcon = <MaterialCommunityIcons name="walk" size={24} color={"white"} />;
                 break; 
               case 'hiking':
-                activityIcon = <MaterialCommunityIcons name="hiking" size={24} color={difficultyColor=="#ffc107" ? "black": "white"}  />;
+                activityIcon = <MaterialCommunityIcons name="hiking" size={24} color={"white"}  />;
                 break;
               default:
-                activityIcon = <MaterialCommunityIcons name="bike" size={24} color={difficultyColor=="#ffc107" ? "black": "white"}  />;
+                activityIcon = <MaterialCommunityIcons name="bike" size={24} color={"white"}  />;
                 break;
             }
 
@@ -300,9 +300,9 @@ const MapWithTopoMap = () => {
           <Polyline
             coordinates={selectedTrail.trail}
             strokeColor={
-              selectedTrail.difficulty === 'Beginner' ? '#28a745' :
-              selectedTrail.difficulty === 'Intermediate' ? '#ffc107' :
-              '#dc3545'
+              selectedTrail.difficulty === 'Beginner' ? '#4986af' :
+              selectedTrail.difficulty === 'Intermediate' ? '#af8649' :
+              '#af4953'
             }
             strokeWidth={3}
           />

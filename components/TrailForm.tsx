@@ -25,7 +25,7 @@ const TrailForm: React.FC<TrailFormProps> = ({ trailData, resetTrail }) => {
 
   const handleSubmit = async () => {
     if (!name.trim()) {
-      Alert.alert('Error', 'Trail name is required.');
+      Alert.alert('Error', 'Trail name is requi#dc3545.');
       return;
     }
 
@@ -86,40 +86,40 @@ const TrailForm: React.FC<TrailFormProps> = ({ trailData, resetTrail }) => {
           <View style={styles.inputContainer}>
           
             <View style={[{ flexDirection: 'row' }]}>
-              <Icon name="map-outline" size={20} color="#f39c12" />
+              <Icon name="map-outline" size={20} color="white" />
               <Text style={styles.label}>Trail Name:</Text>
             </View>
             <TextInput
-              style={[styles.input, { opacity: 0.5 , width: '100%'}]}
+              style={[styles.input, { width: '100%'}]}
               value={name}
               onChangeText={setName}
               placeholder="Insert Trail Name..."
-              placeholderTextColor="#fff"
+              placeholderTextColor="rgba(255, 255, 255,0.5)"
             />
           </View>
 
           {/* Difficoltà */}
           <View style={[{ flexDirection: 'row' }]}>
 
-          <Icon name="speedometer" size={20} color="#f39c12" />
+          <Icon name="speedometer" size={20} color="white" />
 
           <Text style={styles.label}>Difficulty:</Text>
           </View>
           <View style={styles.difficultyContainer}>
             <TouchableOpacity
-              style={[styles.difficultyButton, difficulty === 'Beginner' && { backgroundColor: '#28a745' }]}
+              style={[styles.difficultyButton, difficulty === 'Beginner' && { backgroundColor: '#4986af' }]}
               onPress={() => setDifficulty('Beginner')}
             >
               <Text style={styles.buttonText}>Beginner</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.difficultyButton, difficulty === 'Intermediate' && { backgroundColor: '#ffc107' }]}
+              style={[styles.difficultyButton, difficulty === 'Intermediate' && { backgroundColor: '#af8649' }]}
               onPress={() => setDifficulty('Intermediate')}
             >
               <Text style={styles.buttonText}>Intermediate</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.difficultyButton, difficulty === 'Advanced' && { backgroundColor: '#dc3545' }]}
+              style={[styles.difficultyButton, difficulty === 'Advanced' && { backgroundColor: '#af4953' }]}
               onPress={() => setDifficulty('Advanced')}
             >
               <Text style={styles.buttonText}>Advanced</Text>
@@ -133,17 +133,17 @@ const TrailForm: React.FC<TrailFormProps> = ({ trailData, resetTrail }) => {
             {/* Descrizione */}
             <View style={styles.inputContainer}>
             <View style={[{ flexDirection: 'row' }]}>
-              <Icon name="text-box-outline" size={20} color="#f39c12" />
+              <Icon name="text-box-outline" size={20} color="white" />
               <Text style={styles.label}>Description:</Text>
               </View>
             </View>
             <TextInput
-              style={[styles.input, { height: 80, textAlignVertical: 'top', opacity: 0.5 }]}
+              style={[styles.input, { height: 80, textAlignVertical: 'top'}]}
               value={description}
               onChangeText={setDescription}
               multiline
               placeholder="Insert a description..."
-              placeholderTextColor="#fff"
+              placeholderTextColor="rgba(255, 255, 255,0.5)"
             />
           </View>
         );
@@ -153,11 +153,11 @@ const TrailForm: React.FC<TrailFormProps> = ({ trailData, resetTrail }) => {
             <View style={[ { flexDirection: 'row' , justifyContent: 'space-between', alignItems: 'center' }]}>
                    
             <View style={[styles.inputContainer, { flexDirection: 'row', marginTop: 10  }]}>
-              <Icon name="camera-outline" size={20} color="#f39c12" />
+              <Icon name="camera-outline" size={20} color="white" />
               <Text style={styles.label}>Photo:</Text>
               
             </View>
-            <TouchableOpacity onPress={handleFileInputClick} style={[styles.uploadButton, { backgroundColor: 'rgb(141, 141, 141)' , width: '60%'}]}>
+            <TouchableOpacity onPress={handleFileInputClick} style={[styles.uploadButton, { backgroundColor: 'rgb(120, 120, 120)' , width: '60%'}]}>
                 <Icon name="plus-circle-outline" size={18} color="white" />
                 <Text style={[styles.uploadButtonText]}>Insert Photo</Text>
               </TouchableOpacity>
@@ -174,19 +174,21 @@ const TrailForm: React.FC<TrailFormProps> = ({ trailData, resetTrail }) => {
           <View style={styles.recapContainer}> 
             {/* Nome del trail */}
             <View style={styles.recapSection}>
-              <Icon name="map-outline" size={20} color="#f39c12" />
+              <Icon name="map-outline" size={20} color="white" />
               <Text style={styles.recapLabel}>Trail Name:</Text>
               <Text style={styles.recapValue}>{name || "N/A"}</Text>
             </View>
             {/* Difficoltà */}
             <View style={styles.recapSection}>
-              <Icon name="speedometer" size={20} color="#f39c12" />
+              <Icon name="speedometer" size={20} color="white" />
               <Text style={styles.recapLabel}>Difficulty:</Text>
-              <Text style={[styles.recapValue, styles[difficulty.toLowerCase()]]}>{difficulty}</Text>
+              <View style={[styles.difficultyButton, { backgroundColor: difficulty === 'Beginner' ? '#4986af' : difficulty === 'Intermediate' ? '#af8649' : '#af4953' }]}>
+                <Text style={styles.recapValue}>{difficulty}</Text>
+              </View>
             </View>
             {/* Posizione */}
             <View style={styles.recapSection}>
-              <Icon name="map-marker-outline" size={20} color="#f39c12" />
+              <Icon name="map-marker-outline" size={20} color="white" />
               <Text style={styles.recapLabel}>Location:</Text>
               <Text style={styles.recapValue}>
                 {`${trailData.city}, ${trailData.state}, ${trailData.region}`}
@@ -194,19 +196,19 @@ const TrailForm: React.FC<TrailFormProps> = ({ trailData, resetTrail }) => {
             </View>
             {/* Attività */}
             <View style={styles.recapSection}>
-              <Icon name="bike" size={20} color="#f39c12" />
+              <Icon name={trailData.activityType.toLowerCase()} size={20} color="white" />
               <Text style={styles.recapLabel}>Activity:</Text>
               <Text style={styles.recapValue}>{trailData.activityType}</Text>
             </View>
             {/* Tempo e Distanza */}
             <View style={styles.recapStatsRow}>
               <View style={styles.recapStatBox}>
-                <Icon name="timer-outline" size={20} color="#f39c12" />
+                <Icon name="timer-outline" size={20} color="white" />
                 <Text style={styles.statLabel}>Time</Text>
                 <Text style={styles.statValue}>{formatTime(trailData.time)} h</Text>
               </View>
               <View style={styles.recapStatBox}>
-                <Icon name="map-marker-distance" size={20} color="#f39c12" />
+                <Icon name="map-marker-distance" size={20} color="white" />
                 <Text style={styles.statLabel}>Distance</Text>
                 <Text style={styles.statValue}>{trailData.distance.toFixed(2)} km</Text>
               </View>
@@ -214,12 +216,12 @@ const TrailForm: React.FC<TrailFormProps> = ({ trailData, resetTrail }) => {
             {/* Dislivello */}
             <View style={styles.recapStatsRow}>
               <View style={styles.recapStatBox}>
-                <Icon name="arrow-down-bold-outline" size={20} color="#f39c12" />
+                <Icon name="arrow-down-bold-outline" size={20} color="white" />
                 <Text style={styles.statLabel}>Downhill</Text>
                 <Text style={styles.statValue}>{trailData.downhill.toFixed(2)} m</Text>
               </View>
               <View style={styles.recapStatBox}>
-                <Icon name="arrow-up-bold-outline" size={20} color="#f39c12" />
+                <Icon name="arrow-up-bold-outline" size={20} color="white" />
                 <Text style={styles.statLabel}>Elevation</Text>
                 <Text style={styles.statValue}>{trailData.elevation.toFixed(2)} m</Text>
               </View>
@@ -227,7 +229,7 @@ const TrailForm: React.FC<TrailFormProps> = ({ trailData, resetTrail }) => {
             {/* Foto */}
             {images.length > 0 && (
               <View style={styles.recapImages}>
-                <Icon name="camera-outline" size={20} color="#f39c12" />
+                <Icon name="camera-outline" size={20} color="white" />
                 <Text style={styles.recapLabel}>Photos:</Text>
                 <ScrollView horizontal>
                   {images.map((image: string, index: number) => (
@@ -265,7 +267,7 @@ const TrailForm: React.FC<TrailFormProps> = ({ trailData, resetTrail }) => {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <View style={styles.headerContainer}>
-              <Text style={[styles.label, { color: '#f39c12',fontSize: 28 }]}>{getStepTitle(step)}</Text>
+              <Text style={[styles.label, { color: 'white',fontSize: 28 }]}>{getStepTitle(step)}</Text>
               <TouchableOpacity onPress={handleCancellation} style={styles.closeButton}>
                 <Ionicons name="close" size={30} color="white" />
               </TouchableOpacity>
@@ -282,14 +284,14 @@ const TrailForm: React.FC<TrailFormProps> = ({ trailData, resetTrail }) => {
                 </TouchableOpacity>
               )}
               {step <= 1 && (
-                <View style={[styles.arrowButton, { backgroundColor: "gray" }]} />
+                <View style={[styles.arrowButton, { backgroundColor: "#979797" }]} />
               )}
               {step < 4 ? (
                 <TouchableOpacity onPress={() => setStep(step + 1)} style={[styles.arrowButton, { justifyContent: "flex-end", right: 10 }]}>
                   <Ionicons name="arrow-forward" size={24} color="white" />
                 </TouchableOpacity>
               ) : (
-                <TouchableOpacity onPress={handleSubmit} style={[styles.uploadButton, { right: 10 }]}>
+                <TouchableOpacity onPress={handleSubmit} style={[styles.uploadButton, { right: 10, width: '30%' }]}>
                   <Text style={styles.uploadButtonText}>Save</Text>
                 </TouchableOpacity>
               )}
@@ -313,7 +315,7 @@ const styles = StyleSheet.create({
   modalContainer: {
     width: '90%',
     maxWidth: 400,
-    backgroundColor: 'gray',
+    backgroundColor: '#979797',
     borderRadius: 30,
     padding: 20,
     elevation: 5,
@@ -377,11 +379,12 @@ const styles = StyleSheet.create({
   arrowButton: {
     padding: 10,
     borderRadius: 50,
-    backgroundColor: '#34495e',
+    backgroundColor: '#86af49',
     justifyContent: 'center',
     alignItems: 'center',
   },
   closeButton: {
+    backgroundColor:"rgb(120, 120, 120)" ,
     padding: 5,
     borderRadius: 50,
     justifyContent: 'center',
@@ -390,7 +393,7 @@ const styles = StyleSheet.create({
   difficultyButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgb(141, 141, 141)',
+    backgroundColor: 'rgb(120, 120, 120)',
     padding: 10,
     borderRadius: 8,
     width: '30%',
@@ -402,12 +405,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 10,
     borderRadius: 8,
-    backgroundColor: '#34495e',
+    backgroundColor: '#86af49',
   },
 
   // Labels and Text
   label: {
-    color: '#f1c40f',
+    color: 'white',
     fontWeight: 'bold',
     marginLeft: 5,
     
@@ -425,7 +428,7 @@ const styles = StyleSheet.create({
   },
   recapLabel: {
     fontWeight: 'bold',
-    color: '#f1c40f',
+    color: 'white',
     width: 120,
     marginLeft: 5,
   },
@@ -433,7 +436,7 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   statLabel: {
-    color: '#f1c40f',
+    color: 'white',
     fontWeight: 'bold',
   },
   statValue: {
@@ -459,7 +462,7 @@ const styles = StyleSheet.create({
   // Inputs
   input: {
     borderWidth: 1,
-    borderColor: '#f39c12',
+    borderColor: 'white',
     borderRadius: 8,
     padding: 10,
     color: 'white',
@@ -467,9 +470,9 @@ const styles = StyleSheet.create({
   },
 
   // Colors for Difficulty Levels
-  beginner: { color: '#28a745' },
-  intermediate: { color: '#ffc107' },
-  advanced: { color: '#dc3545' },
+  beginner: { color: '#4986af' },
+  intermediate: { color: '#af8649' },
+  advanced: { color: '#af4953' },
 
   // Image Styles
   imagePreview: {

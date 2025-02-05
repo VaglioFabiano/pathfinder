@@ -129,8 +129,8 @@ const TrailInfoModal: React.FC<PopupProps> = ({ selectedTrail, startTrail, close
                 <Text style={styles.infoText}>
                   <MaterialIcons name="landscape" size={16} color="#fff" /> {selectedTrail?.elevation} m
                 </Text>
-                <View style={[styles.difficultyContainer, { backgroundColor: selectedTrail?.difficulty === 'Beginner' ? '#28a745' : selectedTrail?.difficulty === 'Intermediate' ? '#ffc107' : '#dc3545' }]}>
-                  <Text style={[styles.difficultyLabel, {color: selectedTrail?.difficulty === 'Intermediate' ? '#000' : '#fff'}]}>{selectedTrail?.difficulty}</Text>
+                <View style={[styles.difficultyContainer, { backgroundColor: selectedTrail?.difficulty === 'Beginner' ? '#4986af' : selectedTrail?.difficulty === 'Intermediate' ? '#af8649' : '#af4953' }]}>
+                  <Text style={[styles.difficultyLabel, {color: "#fff"}]}>{selectedTrail?.difficulty}</Text>
                 </View>
               </View>
               
@@ -165,7 +165,7 @@ const TrailInfoModal: React.FC<PopupProps> = ({ selectedTrail, startTrail, close
               <View style={styles.addCommentSection}>
                 <Text style={styles.commentTitle}>Submit a comment:</Text>
                 <View style={styles.commentForm}>
-                  <TextInput style={styles.commentInput} placeholder="Write your comment..." placeholderTextColor="#fff" value={newComment} onChangeText={setNewComment} />
+                  <TextInput style={styles.commentInput} placeholder="Write your comment..." multiline placeholderTextColor="rgba(255, 255, 255,0.5)"  value={newComment} onChangeText={setNewComment} />
                   <View style={{justifyContent: 'space-between', flexDirection: 'row'}}>
                     <View style={styles.starSelection}>{renderStars(newRating)}</View>
                     <TouchableOpacity style={styles.submitButton} onPress={handleAddComment}>
@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
   modalContainer: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0, 0, 0, 0.5)' },
   backdrop: { flex: 1 },
   separator: { height: 1, backgroundColor: 'black', marginVertical: 5, opacity: 0.2, alignItems: 'center', justifyContent: 'center' },
-  bottomSheet: { backgroundColor: 'gray', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, height: '85%' },
+  bottomSheet: { backgroundColor: '#979797', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, height: '85%' },
   closeButtonContainer: { paddingVertical: 10, paddingHorizontal: 20, borderRadius: 5  },
   closeButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold', marginBottom: 5 , textDecorationLine: 'underline'},
   scrollView: { paddingBottom: 20 },
@@ -220,12 +220,12 @@ const styles = StyleSheet.create({
   noCommentsText: { color: '#fff', fontStyle: 'italic' },
   addCommentSection: { marginTop: 20 },
   commentForm: { backgroundColor: '#rgb(141, 141, 141)', padding: 10, borderRadius: 8 },
-  commentInput: { backgroundColor: '#rgb(160, 160, 160)', color: 'white', borderRadius: 8, padding: 10, marginBottom: 10 },
+  commentInput: { borderWidth:1, borderColor: 'white', textAlignVertical:"top",   color: 'white', borderRadius: 8, padding: 10, marginBottom: 5 },
   starSelection: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  submitButton: { alignSelf: 'flex-end', backgroundColor: '#34495e', paddingVertical: 5, paddingHorizontal: 20, borderRadius: 5 },
+  submitButton: { alignSelf: 'flex-end', backgroundColor: '#86af49', paddingVertical: 5, paddingHorizontal: 20, borderRadius: 5 },
   submitButtonText: { color: 'white', fontSize: 16 },
   buttonRow: { flexDirection: 'row', justifyContent: "space-between", marginTop: 45, bottom: 40 },
-  startButton: { backgroundColor: '#34495e',padding: 10, borderRadius: 5 },
+  startButton: { backgroundColor: '#86af49',padding: 10, borderRadius: 5 },
   buttonText: { color: 'white', fontWeight: 'bold', marginHorizontal: 10, marginVertical: 5, fontSize: 16, },
 });
 
