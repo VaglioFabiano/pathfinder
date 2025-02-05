@@ -276,7 +276,7 @@ const AddTrail = () => {
         calculateAverageSpeed={calculateAverageSpeed}
       />
 
-      <View style={styles.buttonGroup}>
+      <View style={[styles.buttonGroup, { bottom: trailData.isActive ? 170 : 80 }]}>
         <View style={styles.leftButtonContainer}/>
         <View style={styles.rightButtonContainer}>
           <RecenterButton mapRef={mapRef} location={location} setRegion={setRegion} />

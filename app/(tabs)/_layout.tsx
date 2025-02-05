@@ -1,53 +1,63 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
+import { Tabs, useFocusEffect } from 'expo-router';
+import React, { useCallback } from 'react';
 import { Platform } from 'react-native';
-
 import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import MapView from 'react-native-maps';
-import { FontAwesome5, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-  const mapRef = React.useRef<MapView>(null);
 
   return (
     <Tabs
-      screenOptions={{
+      screenOptions={({ route, navigation }) => ({
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
         tabBarStyle: Platform.select({
           ios: {
-            backgroundColor: "gray",
+            backgroundColor: '#979797',
             position: 'absolute',
           },
           default: {},
         }),
-      }}>
+        listeners: {
+          tabPress: () => {
+            // Forza il refresh quando il tab viene premuto
+            navigation.navigate(route.name, { key: Math.random() });
+          },
+        },
+      })}
+    >
       <Tabs.Screen
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <FontAwesome5 name="map-marked-alt" size={28}  color={color} />,
+          tabBarIcon: ({ color }) => (
+            <FontAwesome5 name="map-marked-alt" size={28} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
         name="addtrail"
         options={{
           title: 'Add Trail',
-          tabBarIcon: ({ color }) => <MaterialCommunityIcons name="map-marker-plus-outline" size={28} color={color} />,
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons name="map-marker-plus-outline" size={28} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'profile',
-          tabBarIcon: ({ color }) => <FontAwesome5 name="user" size={28}  color={color} />,
+          title: 'Profile',
+          tabBarIcon: ({ color }) => (
+            <FontAwesome5 name="user" size={28} color={color} />
+          ),
         }}
       />
     </Tabs>

@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
   recenterButton: {
     position: 'absolute',
     bottom: 180,
-    backgroundColor: '#34495e',
+    backgroundColor: '#86af49',
     borderRadius: 50,
     width: 60,
     height: 60,

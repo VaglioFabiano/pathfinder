@@ -16,6 +16,9 @@ import TrailDropdown from '@/components/TrailDropdown';
 
 import TrailInfoModal from '@/components/DetailTrail';
 import * as ReviewDAO from '@/dao/reviewDAO';
+import { useIsFocused } from '@react-navigation/native';
+
+
 
 interface Trail {
   id: number;
@@ -69,6 +72,7 @@ const MapWithTopoMap = () => {
 
 
   const [isModalDetailVisible, setIsModalDetailVisible] = useState(false);
+  const isFocused = useIsFocused();
 
   useEffect(() => {
     (async () => {
@@ -115,7 +119,7 @@ const MapWithTopoMap = () => {
     };
 
     fetchTrails();
-  }, [refresh]);
+  }, [isFocused]);
 
   const fetchTrail = async (t: Trail) => {
     try {
@@ -129,11 +133,13 @@ const MapWithTopoMap = () => {
 
   const handleMarkerPress = (t: Trail) => {
     
-    const overlappingTrails = trails.filter(
-      (trail) => trail.startpoint.latitude === t.startpoint.latitude &&
-                 trail.startpoint.longitude === t.startpoint.longitude
+    const tolerance = 0.0001;
+    const overlappingTrails = trails.filter((trail) => 
+      Math.abs(trail.startpoint.latitude - t.startpoint.latitude) <= tolerance &&
+      Math.abs(trail.startpoint.longitude - t.startpoint.longitude) <= tolerance
     );
-  
+    
+    console.log(overlappingTrails);
     if (overlappingTrails.length > 1) {
       showTrailOptions(overlappingTrails);
     } else {
@@ -266,20 +272,20 @@ const MapWithTopoMap = () => {
 
         {trails.map((trail) => {
             const difficultyColor =
-            trail.difficulty === 'Beginner' ? '#28a745' :
-            trail.difficulty === 'Intermediate' ? '#ffc107' :
-            '#dc3545';
+            trail.difficulty === 'Beginner' ? '#4986af' :
+            trail.difficulty === 'Intermediate' ? '#af8649' :
+            '#af4953';
             
             let activityIcon;
             switch (trail.activity) {
               case 'walk':
-                activityIcon = <MaterialCommunityIcons name="walk" size={24} color={difficultyColor=="#ffc107" ? "black": "white"} />;
+                activityIcon = <MaterialCommunityIcons name="walk" size={24} color={"white"} />;
                 break; 
               case 'hiking':
-                activityIcon = <MaterialCommunityIcons name="hiking" size={24} color={difficultyColor=="#ffc107" ? "black": "white"}  />;
+                activityIcon = <MaterialCommunityIcons name="hiking" size={24} color={"white"}  />;
                 break;
               default:
-                activityIcon = <MaterialCommunityIcons name="bike" size={24} color={difficultyColor=="#ffc107" ? "black": "white"}  />;
+                activityIcon = <MaterialCommunityIcons name="bike" size={24} color={"white"}  />;
                 break;
             }
 
@@ -294,9 +300,9 @@ const MapWithTopoMap = () => {
           <Polyline
             coordinates={selectedTrail.trail}
             strokeColor={
-              selectedTrail.difficulty === 'Beginner' ? '#28a745' :
-              selectedTrail.difficulty === 'Intermediate' ? '#ffc107' :
-              '#dc3545'
+              selectedTrail.difficulty === 'Beginner' ? '#4986af' :
+              selectedTrail.difficulty === 'Intermediate' ? '#af8649' :
+              '#af4953'
             }
             strokeWidth={3}
           />

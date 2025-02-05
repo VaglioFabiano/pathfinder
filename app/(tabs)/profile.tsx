@@ -153,7 +153,7 @@ const handleUserSelect = (user: { id: number; name: string; surname: string }) =
                 <Ionicons name="trail-sign-outline" size={24} color="white" />
                 <Text style={styles.listItemText}>Trails Done</Text>
                 <Animated.View style={{ transform: [{ rotate: rotateAnimationTD.interpolate({ inputRange: [0, 90], outputRange: ['0deg', '90deg'] }) }] }}>
-                    <Ionicons name="chevron-forward" size={20} color="gray" />
+                    <Ionicons name="chevron-forward" size={20} color="#979797" />
                 </Animated.View>
             </TouchableOpacity>
 
@@ -199,7 +199,7 @@ const handleUserSelect = (user: { id: number; name: string; surname: string }) =
             <MaterialCommunityIcons name="map-marker-plus" size={24} color="white" />
             <Text style={styles.listItemText}>Trails Created</Text>
             <Animated.View style={{ transform: [{ rotate: rotateAnimationTC.interpolate({ inputRange: [0, 90], outputRange: ['0deg', '90deg'] }) }] }}>
-              <Ionicons name="chevron-forward" size={20} color="gray" />
+              <Ionicons name="chevron-forward" size={20} color="#979797" />
             </Animated.View>
           </TouchableOpacity>
   
@@ -252,7 +252,7 @@ const handleUserSelect = (user: { id: number; name: string; surname: string }) =
                 <Ionicons name="settings-outline" size={24} color="white" />
                 <Text style={styles.listItemText}>Settings</Text>
                 <Animated.View style={{ transform: [{ rotate: rotateAnimationS.interpolate({ inputRange: [0, 90], outputRange: ['0deg', '90deg'] }) }] }}>
-                  <Ionicons name="chevron-forward" size={20} color="gray" />
+                  <Ionicons name="chevron-forward" size={20} color="#979797" />
                 </Animated.View>
               </TouchableOpacity>
 
@@ -400,7 +400,7 @@ const styles = StyleSheet.create({
       color: '#bbb', 
       fontSize: 14 },
     trailCard: { 
-      backgroundColor: 'gray', 
+      backgroundColor: '#979797', 
       padding: 20, 
       borderRadius: 10, 
       marginBottom: 10 },
@@ -437,7 +437,7 @@ const styles = StyleSheet.create({
       alignItems: 'center', 
       marginTop: 10 },
     startButton: { 
-      backgroundColor: '#34495e', 
+      backgroundColor: '#86af49', 
       paddingVertical: 10, 
       paddingHorizontal: 20, 
       borderRadius: 5 },

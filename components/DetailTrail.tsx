@@ -57,7 +57,7 @@ const TrailInfoModal: React.FC<PopupProps> = ({ selectedTrail, startTrail, close
 
   const handleAddComment = async () => {
     if (newComment.trim() === '') {
-      alert('Inserisci un commento e seleziona una valutazione.');
+      alert('Insert a comment before sending');
       return;
     }
     const newId = reviews.length > 0 ? reviews[reviews.length - 1].id + 1 : 1;
@@ -125,13 +125,13 @@ const TrailInfoModal: React.FC<PopupProps> = ({ selectedTrail, startTrail, close
                   <MaterialIcons name="timeline" size={16} color="#fff" /> {selectedTrail?.length} km
                 </Text>
                 <Text style={styles.infoText}>
-                  <MaterialIcons name="schedule" size={16} color="#fff" /> {selectedTrail?.duration} ore
+                  <MaterialIcons name="schedule" size={16} color="#fff" /> {selectedTrail?.duration} h
                 </Text>
                 <Text style={styles.infoText}>
                   <MaterialIcons name="landscape" size={16} color="#fff" /> {selectedTrail?.elevation} m
                 </Text>
-                <View style={[styles.difficultyContainer, { backgroundColor: selectedTrail?.difficulty === 'Beginner' ? '#4CAF50' : selectedTrail?.difficulty === 'Intermediate' ? '#FFD700' : '#FF3B30' }]}>
-                  <Text style={[styles.difficultyLabel, {color: selectedTrail?.difficulty === 'Intermediate' ? '#000' : '#fff'}]}>{selectedTrail?.difficulty}</Text>
+                <View style={[styles.difficultyContainer, { backgroundColor: selectedTrail?.difficulty === 'Beginner' ? '#4986af' : selectedTrail?.difficulty === 'Intermediate' ? '#af8649' : '#af4953' }]}>
+                  <Text style={[styles.difficultyLabel, {color: "#fff"}]}>{selectedTrail?.difficulty}</Text>
                 </View>
               </View>
               
@@ -166,7 +166,7 @@ const TrailInfoModal: React.FC<PopupProps> = ({ selectedTrail, startTrail, close
               <View style={styles.addCommentSection}>
                 <Text style={styles.commentTitle}>Submit a comment:</Text>
                 <View style={styles.commentForm}>
-                  <TextInput style={styles.commentInput} placeholder="Write your comment..." placeholderTextColor="#fff" value={newComment} onChangeText={setNewComment} />
+                  <TextInput style={styles.commentInput} placeholder="Write your comment..." multiline placeholderTextColor="rgba(255, 255, 255,0.5)"  value={newComment} onChangeText={setNewComment} />
                   <View style={{justifyContent: 'space-between', flexDirection: 'row'}}>
                     <View style={styles.starSelection}>{renderStars(newRating)}</View>
                     <TouchableOpacity style={styles.submitButton} onPress={handleAddComment}>
@@ -177,18 +177,17 @@ const TrailInfoModal: React.FC<PopupProps> = ({ selectedTrail, startTrail, close
               </View>
             </ScrollView>
 
-            {/* Pulsante Inizia */}
             <View>
               <View style={styles.separator} />
                 <View style={styles.buttonRow}>
                   <TouchableOpacity style={styles.startButton} onPress={startTrail}>
-                    <Text style={styles.buttonText}>Inizia</Text>
+                    <Text style={styles.buttonText}>Start</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.closeButtonContainer}
                     onPress={() => closeModal(true)}
                   >
-                    <Text style={styles.closeButtonText}>Chiudi</Text>
+                    <Text style={styles.closeButtonText}>Close</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -202,7 +201,7 @@ const styles = StyleSheet.create({
   modalContainer: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0, 0, 0, 0.5)' },
   backdrop: { flex: 1 },
   separator: { height: 1, backgroundColor: 'black', marginVertical: 5, opacity: 0.2, alignItems: 'center', justifyContent: 'center' },
-  bottomSheet: { backgroundColor: 'gray', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, height: '85%' },
+  bottomSheet: { backgroundColor: '#979797', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, height: '85%' },
   closeButtonContainer: { paddingVertical: 10, paddingHorizontal: 20, borderRadius: 5  },
   closeButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold', marginBottom: 5 , textDecorationLine: 'underline'},
   scrollView: { paddingBottom: 20 },
@@ -222,13 +221,13 @@ const styles = StyleSheet.create({
   noCommentsText: { color: '#fff', fontStyle: 'italic' },
   addCommentSection: { marginTop: 20 },
   commentForm: { backgroundColor: '#rgb(141, 141, 141)', padding: 10, borderRadius: 8 },
-  commentInput: { backgroundColor: '#rgb(160, 160, 160)', color: 'white', borderRadius: 8, padding: 10, marginBottom: 10 },
+  commentInput: { borderWidth:1, borderColor: 'white', textAlignVertical:"top",   color: 'white', borderRadius: 8, padding: 10, marginBottom: 5 },
   starSelection: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  submitButton: { alignSelf: 'flex-end', backgroundColor: '#34495e', paddingVertical: 5, paddingHorizontal: 20, borderRadius: 5 },
+  submitButton: { alignSelf: 'flex-end', backgroundColor: '#86af49', paddingVertical: 5, paddingHorizontal: 20, borderRadius: 5 },
   submitButtonText: { color: 'white', fontSize: 16 },
   buttonRow: { flexDirection: 'row', justifyContent: "space-between", marginTop: 45, bottom: 40 },
-  startButton: { backgroundColor: '#34495e', paddingVertical: 10, paddingHorizontal: 20, borderRadius: 5 },
-  buttonText: { color: 'white', fontSize: 16 },
+  startButton: { backgroundColor: '#86af49',padding: 10, borderRadius: 5 },
+  buttonText: { color: 'white', fontWeight: 'bold', marginHorizontal: 10, marginVertical: 5, fontSize: 16, },
 });
 
 export default TrailInfoModal;

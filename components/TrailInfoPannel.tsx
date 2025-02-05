@@ -18,29 +18,29 @@ const TrailInfoPanel: React.FC<TrailInfoPanelProps> = ({ time, distance, downhil
           <Text style={styles.infoTitle}>
             {Math.floor(time / 60)}m {time % 60}s
           </Text>
-          <Text style={styles.infoLabel}>Tempo</Text>
+          <Text style={styles.infoLabel}>Time</Text>
         </View>
         <View style={styles.infoBox}>
           <Text style={styles.infoTitle}>{distance.toFixed(2)} km</Text>
-          <Text style={styles.infoLabel}>Distanza</Text>
+          <Text style={styles.infoLabel}>Distance</Text>
         </View>
       </View>
 
 
       <View style={styles.secondRow}>
         <View style={styles.downhillContainer}>
-            <Text style={styles.infoLabel} >Discesa: {downhill.toFixed(2)} m</Text>
+            <Text style={styles.infoLabel} >Downhill: {downhill.toFixed(2)} m</Text>
         </View>
 
         <View style={styles.elevationContainer}>
-            <Text style={styles.infoLabel} >Elevazione: {elevation.toFixed(2)} m</Text>
+            <Text style={styles.infoLabel} >Elevation: {elevation.toFixed(2)} m</Text>
         </View>
         <View style={styles.averageSpeedContainer}>
-            <Text style={styles.infoLabel} >Velocità: {calculateAverageSpeed()} km/h</Text>
+            <Text style={styles.infoLabel} >Avg Speed: {calculateAverageSpeed()} km/h</Text>
         </View>
         </View>
         <TouchableOpacity style={styles.endButton} onPress={endTrail}>
-            <Text style={styles.buttonText}>Termina</Text>
+            <Text style={styles.buttonText}>End Trail</Text>
         </TouchableOpacity>
     </View>
   );
@@ -49,11 +49,11 @@ const TrailInfoPanel: React.FC<TrailInfoPanelProps> = ({ time, distance, downhil
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    bottom: 80, // Posiziona il pannello in basso
+    bottom: 70, // Posiziona il pannello in basso
     left: 0,
     right: 0,
     alignItems: 'center',
-    backgroundColor: 'gray',
+    backgroundColor: '#979797',
     borderRadius: 10,
     padding: 10,
     elevation: 5,
@@ -95,12 +95,13 @@ timeDistanceContainer: {
     alignItems: "flex-start",
   },
   endButton: {
-    backgroundColor: '#34495e',
+    backgroundColor: '#dc3545',
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
     width: '100%',
-    marginTop: 20,
+    marginTop: 10,
+    marginBottom: 10,
   },
   buttonText: {
     color: 'white',

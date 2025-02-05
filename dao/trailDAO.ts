@@ -1,8 +1,8 @@
 import getDatabase from '@/hooks/database';
 
 interface Coordinate {
-    lat: number;
-    lng: number;
+    latitude: number;
+    longitude: number;
 }
 
 interface Trail {
@@ -84,7 +84,6 @@ const getTrail = async (id: number) => {
             latitude: result.endpoint[0],
             longitude: result.endpoint[1]
         };
-
         return result;
     } catch (error) {
         console.log(error);
@@ -94,10 +93,6 @@ const getTrail = async (id: number) => {
 const createTrail = async (trail: Trail) => {
     try {
         const db = await getDatabase();
-
-        console.log(JSON.stringify(trail.startpoint));
-        console.log(JSON.stringify(trail.trail));
-        console.log(JSON.stringify(trail.endpoint));
 
 
         const sql = `INSERT INTO Trail 

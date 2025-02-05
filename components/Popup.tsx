@@ -34,18 +34,18 @@ const Popup: React.FC<PopupProps> = ({ selectedTrail, startTrail, closeModal, se
           <Text style={styles.infoText}>
             <MaterialIcons name="landscape" size={16} color="#fff" /> {selectedTrail?.elevation} m
           </Text>
-          <View style={[styles.difficultyContainer, { backgroundColor: selectedTrail?.difficulty === 'Beginner' ? '#28a745' : selectedTrail?.difficulty === 'Intermediate' ? '#ffc107' : '#dc3545' }]}>
-            <Text style={[styles.difficultyLabel, {color: selectedTrail?.difficulty === 'Intermediate' ? '#000': "#fff"} ]}>{selectedTrail?.difficulty}</Text>
+          <View style={[styles.difficultyContainer, { backgroundColor: selectedTrail?.difficulty === 'Beginner' ? '#4986af' : selectedTrail?.difficulty === 'Intermediate' ? '#af8649' : '#af4953' }]}>
+            <Text style={[styles.difficultyLabel, {color:  "#fff"} ]}>{selectedTrail?.difficulty}</Text>
           </View>
         </View>
         <View style={styles.separator} />
         {/* Pulsanti posizionati sotto */}
         <View style={styles.buttonRow}>
           <TouchableOpacity style={styles.startButton} onPress={startTrail}>
-            <Text style={styles.buttonText}>Inizia</Text>
+            <Text style={styles.buttonText}>Start</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.cancelButton} onPress={() => closeModal(true)}>
-            <Text style={[styles.buttonText, {textDecorationLine:"underline"}]}>Chiudi</Text>
+            <Text style={[styles.buttonText, {textDecorationLine:"underline"}]}>Close</Text>
           </TouchableOpacity>
         </View>
       </TouchableOpacity>
@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
     right: 0,
   },
   popup: {
-    backgroundColor: 'gray',
+    backgroundColor: '#979797',
     padding: 20,
     borderRadius: 12,
     width: 400,
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   startButton: {
-    backgroundColor: '#34495e',
+    backgroundColor: '#86af49',
     padding: 10,
     borderRadius: 8,
   },
