@@ -1,10 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, TextInput, StyleSheet, Text, TouchableOpacity, FlatList, Alert, Keyboard, TouchableWithoutFeedback  } from 'react-native';
+import { View, TextInput, StyleSheet, Text, TouchableOpacity, FlatList, Alert, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { FontAwesome,Entypo } from '@expo/vector-icons';
-
-
-
+import { Entypo } from '@expo/vector-icons';
 
 const SearchBar = ({ mapRef }: { mapRef: React.RefObject<any> }) => {
   const [query, setQuery] = useState('');
@@ -36,23 +33,21 @@ const SearchBar = ({ mapRef }: { mapRef: React.RefObject<any> }) => {
   const handleInputChange = (value: string) => {
     setQuery(value);
     setShowDropdown(true);
-  
+
     if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
-  
+
     debounceTimeout.current = setTimeout(async () => {
       if (value.trim().length > 0) {
         try {
           const response = await fetch(
             `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(value)}&format=json&addressdetails=1&limit=5&countrycodes=it`
           );
-  
+
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
-  
+
           const data = await response.json();
-          console.log('%c API Response:', 'color: cyan; font-weight: bold;', data);
-  
           if (Array.isArray(data) && data.length > 0) {
             const formattedData = data.map((item) => ({
               name: item.display_name || 'Unknown location',
@@ -61,15 +56,12 @@ const SearchBar = ({ mapRef }: { mapRef: React.RefObject<any> }) => {
                 longitude: parseFloat(item.lon),
               },
             }));
-  
-            console.log('%c Processed Suggestions:', 'color: green; font-weight: bold;', formattedData);
             setSuggestions(formattedData);
           } else {
-            console.warn('%c No results found.', 'color: orange; font-weight: bold;');
             setSuggestions([]);
           }
         } catch (error) {
-          console.error('%c Error fetching suggestions:', 'color: red; font-weight: bold;', error);
+          console.error('Error fetching suggestions:', error);
           setSuggestions([]);
         }
       } else {
@@ -77,7 +69,6 @@ const SearchBar = ({ mapRef }: { mapRef: React.RefObject<any> }) => {
       }
     }, 300);
   };
-  
 
   const handleSearch = async (searchTerm: string) => {
     if (!mapRef?.current) {
@@ -99,25 +90,7 @@ const SearchBar = ({ mapRef }: { mapRef: React.RefObject<any> }) => {
       );
       updateRecentSearches(searchTerm);
     } else {
-      try {
-        const response = await fetch(
-          `https://nominatim.openstreetmap.org/search?q=${searchTerm}&format=json&addressdetails=1&limit=1`
-        );
-        const data = await response.json();
-        if (data.length > 0) {
-          const coords = {
-            latitude: parseFloat(data[0].lat),
-            longitude: parseFloat(data[0].lon),
-          };
-          mapRef.current.animateToRegion({ ...coords, latitudeDelta: 0.01, longitudeDelta: 0.01 }, 1000);
-          updateRecentSearches(searchTerm);
-        } else {
-          Alert.alert('Location not found', 'Please refine your search.');
-        }
-      } catch (error) {
-        console.error('Error during search:', error);
-        Alert.alert('Error', 'An error occurred while searching for the location.');
-      }
+      Alert.alert('Location not found', 'Please refine your search.');
     }
 
     setQuery(searchTerm);
@@ -125,14 +98,7 @@ const SearchBar = ({ mapRef }: { mapRef: React.RefObject<any> }) => {
   };
 
   return (
-    <TouchableWithoutFeedback 
-      onPress={() => {
-        Keyboard.dismiss(); // Chiude la tastiera
-        setShowDropdown(false); // Chiude il dropdown
-        setSuggestions([]); // Cancella i suggerimenti
-      }} 
-      accessible={false}
-    >
+    <TouchableWithoutFeedback onPress={() => { Keyboard.dismiss(); setShowDropdown(false); setSuggestions([]); }} accessible={false}>
       <View style={styles.container}>
         <View style={styles.searchBarWrapper}>
           <View style={styles.searchBar}>
@@ -144,37 +110,18 @@ const SearchBar = ({ mapRef }: { mapRef: React.RefObject<any> }) => {
               onChangeText={handleInputChange}
               onFocus={() => setShowDropdown(true)}
               onSubmitEditing={() => handleSearch(query)}
-              blurOnSubmit={true} 
+              blurOnSubmit={true}
             />
-  
             {query.length > 0 && (
-              <TouchableOpacity 
-                onPress={() => {
-                  setQuery('');
-                  setShowDropdown(false);
-                  setSuggestions([]); 
-                  Keyboard.dismiss();
-                }} 
-                style={styles.clearButton}
-              >
+              <TouchableOpacity onPress={() => { setQuery(''); setShowDropdown(false); setSuggestions([]); Keyboard.dismiss(); }} style={styles.clearButton}>
                 <Entypo name="cross" size={20} color="#7f8c8d" />
               </TouchableOpacity>
             )}
           </View>
-  
-          <TouchableOpacity style={styles.searchButton} onPress={() => handleSearch(query)}>
-            <FontAwesome name="search" size={20} color="#2c3e50" />
-          </TouchableOpacity>
         </View>
-  
+
         {showDropdown && suggestions.length > 0 && (
-          <TouchableWithoutFeedback 
-            onPress={() => {
-              Keyboard.dismiss(); 
-              setShowDropdown(false);
-              setSuggestions([]);
-            }} 
-          >
+          <TouchableWithoutFeedback onPress={() => { Keyboard.dismiss(); setShowDropdown(false); setSuggestions([]); }}>
             <View style={styles.suggestionsContainer}>
               <FlatList
                 data={suggestions || []}
@@ -184,12 +131,7 @@ const SearchBar = ({ mapRef }: { mapRef: React.RefObject<any> }) => {
                     <Text style={styles.suggestion}>{item?.name ?? 'No name available'}</Text>
                   </TouchableOpacity>
                 )}
-                keyboardShouldPersistTaps="always" 
-                ListEmptyComponent={() => (
-                  <Text style={{ padding: 10, textAlign: 'center', color: '#aaa' }}>
-                    No suggestions found
-                  </Text>
-                )}
+                keyboardShouldPersistTaps="always"
               />
             </View>
           </TouchableWithoutFeedback>
@@ -197,19 +139,21 @@ const SearchBar = ({ mapRef }: { mapRef: React.RefObject<any> }) => {
       </View>
     </TouchableWithoutFeedback>
   );
-  
-  
-   
 };
 
 const styles = StyleSheet.create({
   container: {
     margin: 20,
     position: 'absolute',
-    top: '3.5%',
-    left: '10%',
-    right: '10%',
+    top: '4%',
+    left: '3%',
+    right: '3%',
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
+    elevation: 10,
   },
   searchBarWrapper: {
     flexDirection: 'row',
@@ -225,40 +169,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     height: 50,
     width: '100%',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 5, 
+    elevation: 5,
   },
   input: {
     flex: 1,
     fontSize: 16,
     color: '#2c3e50',
-    paddingRight: 15,
+    paddingRight: 25,
   },
-  searchButton: {
-    backgroundColor: '#fff',
-    borderRadius: 50,
-    padding: 12,
-    marginLeft: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 4,
+  clearButton: {
+    position: 'absolute',
+    right: 10,
+    padding: 10,
   },
-  dropdown: {
-    marginTop: 10,
-    backgroundColor: '#fff',
+  suggestionsContainer: {
+    position: 'absolute',
+    top: 60,
+    left: '3%',
+    right: '3%',
+    backgroundColor: 'white',
     borderRadius: 10,
     paddingHorizontal: 10,
-    width: '80%',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
     elevation: 5,
+    zIndex: 1000,
   },
   suggestion: {
     paddingVertical: 12,
@@ -266,26 +199,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#ecf0f1',
     color: '#34495e',
-  },
-  suggestionsContainer: {
-    position: 'absolute',
-    top: 60, 
-    left: -25,
-    right: 30,
-    backgroundColor: 'white', 
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 5, 
-    zIndex: 1000, 
-  },  
-  clearButton: {
-    position: 'absolute',    
-    right: 0,
-    padding: 10,
   },
 });
 

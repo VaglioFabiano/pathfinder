@@ -10,118 +10,115 @@ import TrailInfoModal from '@/components/DetailTrail';
 
 
 export default function ProfileScreen() {
-  const [userName, setUserName] = useState<string | null>(null);
-  const [userImage, setUserImage] = useState<string | null>(null);
-  const [profileSource, setProfileSource] = useState<any>(null);
-  const [userId, setUserId] = useState<number | null>(null);
-  const [trailsCreated, setTrailsCreated] = useState<any[]>([]);
-  const [trailsDone, setTrailsDone] = useState<any[]>([]);
-  const [users, setUsers] = useState<{ id: number; name: string; surname: string }[]>([]);
-  const [isTrailExpandedTD, setIsTrailExpandedTD] = useState(false);
-  const [isTrailExpandedTC, setIsTrailExpandedTC] = useState(false);
-  const [isTrailExpandedS, setIsTrailExpandedS] = useState(false);
-  const [isUserModalVisible, setIsUserModalVisible] = useState(false);
-  const [isModalDetailVisible, setIsModalDetailVisible] = useState(false);
-  const [selectedTrail, setSelectedTrail] = useState(null);
+ // Stato
+const [userName, setUserName] = useState<string | null>(null);
+const [userImage, setUserImage] = useState<any>(null); // Ora accetta direttamente il valore dell'immagine
+const [profileSource, setProfileSource] = useState<any>(null);
+const [userId, setUserId] = useState<number | null>(null);
+const [trailsCreated, setTrailsCreated] = useState<any[]>([]);
+const [trailsDone, setTrailsDone] = useState<any[]>([]);
+const [users, setUsers] = useState<{ id: number; name: string; surname: string }[]>([]);
+const [isTrailExpandedTD, setIsTrailExpandedTD] = useState(false);
+const [isTrailExpandedTC, setIsTrailExpandedTC] = useState(false);
+const [isTrailExpandedS, setIsTrailExpandedS] = useState(false);
+const [isUserModalVisible, setIsUserModalVisible] = useState(false);
+const [isModalDetailVisible, setIsModalDetailVisible] = useState(false);
+const [selectedTrail, setSelectedTrail] = useState(null);
 
-  const rotateAnimationTD = useState(new Animated.Value(0))[0];
-  const rotateAnimationTC = useState(new Animated.Value(0))[0];
-  const rotateAnimationS = useState(new Animated.Value(0))[0];
+const rotateAnimationTD = useState(new Animated.Value(0))[0];
+const rotateAnimationTC = useState(new Animated.Value(0))[0];
+const rotateAnimationS = useState(new Animated.Value(0))[0];
 
-  const userImages: { [key: string]: any } = {
-      "FabiVaglio.png": require("../../assets/images/FabiVaglio.png"),
-      "MarcoSporty.png": require("../../assets/images/MarcoSporty.png"),
-  };
+// Mappa immagini basata su ID utente
+const userImages: { [key: number]: any } = {
+    2: require("../../assets/images/MarcoSporty.png"),
+    3: require("../../assets/images/FabiVaglio.png"),
+};
 
-  const openModal = (trail) => {
-      setSelectedTrail(trail);
-      setIsModalDetailVisible(true);
-  };
+// Apri modale dettagli trail
+const openModal = (trail) => {
+    setSelectedTrail(trail);
+    setIsModalDetailVisible(true);
+};
 
-  const closeModal = () => {
-      setIsModalDetailVisible(false);
-      setSelectedTrail(null);
-  };
+// Chiudi modale
+const closeModal = () => {
+    setIsModalDetailVisible(false);
+    setSelectedTrail(null);
+};
 
-  useEffect(() => {
-      console.log("🔄 Aggiornamento userImage:", userImage);
+// Effetto per aggiornare l'immagine del profilo quando cambia userId
+useEffect(() => {
+    if (userId && userImages[userId]) {
+        console.log("✅ Assegnata immagine per ID:", userId);
+        setProfileSource(userImages[userId]);
+    } else {
+        console.log("⚠️ Nessuna immagine trovata per ID:", userId);
+        setProfileSource(null);
+    }
+}, [userId]);
 
-      if (userImage) {
-          const imageSource = userImages[userImage] || null;
-          console.log("🎯 Immagine caricata:", imageSource);
-          setProfileSource(imageSource);
-      } else {
-          setProfileSource(null);
-      }
-  }, [userImage]);
+// Caricamento iniziale utente e trail
+useEffect(() => {
+    const fetchUserAndTrails = async () => {
+        const userData = await UserDAO.getUser();
 
-  useEffect(() => {
-      const fetchUserAndTrails = async () => {
-          const userData = await UserDAO.getUser();
+        if (userData && userData.fullName) {
+            setUserName(userData.fullName);
 
-          if (userData && userData.fullName) {
-              setUserName(userData.fullName);
-              setUserImage(userData.image);
+            const fetchedUsers = await UserDAO.getUsers();
+            const userFound = fetchedUsers?.find((u) => `${u.name} ${u.surname}` === userData.fullName);
 
-              const fetchedUsers = await UserDAO.getUsers();
-              const userFound = fetchedUsers?.find((u) => `${u.name} ${u.surname}` === userData.fullName);
+            if (userFound) {
+                setUserId(userFound.id);
+                fetchTrails(userFound.id);
+            }
+        }
+    };
 
-              if (userFound) {
-                  setUserId(userFound.id);
-                  fetchTrails(userFound.id);  // Carica sia i trail creati che quelli completati
-              }
-          }
-      };
+    fetchUserAndTrails();
+}, []);
 
-      fetchUserAndTrails();
-  }, []);
+// Carica i trail creati e completati da un utente
+const fetchTrails = async (id: number) => {
+    const createdTrails = await TrailDAO.getTrailsCreatedByUsers(id);
+    setTrailsCreated(createdTrails);
 
-  // Funzione che ora carica sia i trail creati che quelli completati
-  const fetchTrails = async (id: number) => {
-      const createdTrails = await TrailDAO.getTrailsCreatedByUsers(id);
-      setTrailsCreated(createdTrails);
+    const doneTrails = await TrailDAO.getTrailsDoneByUsers(id);
+    setTrailsDone(doneTrails);
+};
 
-      const doneTrails = await TrailDAO.getTrailsDoneByUsers(id);
-      setTrailsDone(doneTrails);
-  };
+// Anima l'espansione delle sezioni
+const toggleSection = (setter: React.Dispatch<React.SetStateAction<boolean>>, animation: Animated.Value) => {
+    setter((prev) => {
+        const newState = !prev;
+        Animated.timing(animation, {
+            toValue: newState ? 90 : 0,
+            duration: 200,
+            useNativeDriver: true,
+        }).start();
+        return newState;
+    });
+};
 
-  const toggleSection = (setter: React.Dispatch<React.SetStateAction<boolean>>, animation: Animated.Value) => {
-      setter((prev) => {
-          const newState = !prev;
-          Animated.timing(animation, {
-              toValue: newState ? 90 : 0,
-              duration: 200,
-              useNativeDriver: true,
-          }).start();
-          return newState;
-      });
-  };
+// Apri il selettore utenti
+const openUserSelection = async () => {
+    const fetchedUsers = await UserDAO.getUsers();
+    if (fetchedUsers) {
+        setUsers(fetchedUsers);
+        setIsUserModalVisible(true);
+    }
+};
 
-  const openUserSelection = async () => {
-      const fetchedUsers = await UserDAO.getUsers();
-      if (fetchedUsers) {
-          setUsers(fetchedUsers);
-          setIsUserModalVisible(true);
-      }
-  };
+// Selezione di un nuovo utente
+const handleUserSelect = (user: { id: number; name: string; surname: string }) => {
+    setUserName(`${user.name} ${user.surname}`);
+    setUserId(user.id);
+    fetchTrails(user.id);
 
-  const handleUserSelect = (user: { id: number; name: string; surname: string, image?: string }) => {
-      console.log("👤 Utente selezionato:", user);
+    setIsUserModalVisible(false);
+};
 
-      setUserName(`${user.name} ${user.surname}`);
-      setUserId(user.id);
-      fetchTrails(user.id);
-
-      if (user.image && userImages[user.image]) {
-          console.log("✅ Immagine trovata:", user.image);
-          setUserImage(user.image);
-      } else {
-          console.log("⚠️ Nessuna immagine trovata, uso il default.");
-          setUserImage(null);
-      }
-
-      setIsUserModalVisible(false);
-  };
  
 
   return (
@@ -142,13 +139,13 @@ export default function ProfileScreen() {
               style={styles.profileImage} 
             />
           ) : (
-            <Ionicons name="person-circle-outline" size={80} color="white" />
+            <View style={styles.profileImageContainer}>
+              <Ionicons name="person-circle-outline" size={150} color="white" />
+            </View>
           )}
           <Text style={styles.greeting}>{userName ? userName : "Caricamento..."}</Text>
         </View>
 
-
-  
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>CONTENTS</Text>
   
@@ -306,16 +303,17 @@ const styles = StyleSheet.create({
   container: { 
     flex: 1, 
     backgroundColor: '#000' },
-  header: { 
-    alignItems: 'center', 
-    paddingVertical: 70, 
-    backgroundColor: '#1c1c1e' },
+    header: { 
+      alignItems: 'center', 
+      justifyContent: 'center', 
+      paddingVertical: 40, 
+      backgroundColor: '#1c1c1e' },
   greeting: { 
     color: 'white', 
     fontSize: 24, 
     fontWeight: 'bold', 
     textAlign: 'center', 
-    marginTop: 10 },
+    marginTop: 50 },
   section: { 
     marginTop: 20, 
     paddingHorizontal: 20 },
@@ -448,10 +446,21 @@ const styles = StyleSheet.create({
       fontSize: 16, 
       fontWeight: 'bold' },
     profileImage: {
+      top: 30,
       width: 150,
       height: 150,
       borderRadius: 80, // Per renderla circolare
-    }
+    },
+    profileImageContainer: {
+      width: 150,
+      height: 150,
+      borderRadius: 80, // Assicura che sia simile all'immagine
+      justifyContent: 'center',
+      alignItems: 'center',
+      overflow: 'hidden', // Evita problemi di ridimensionamento
+      backgroundColor: 'transparent', // Mantiene lo sfondo trasparente
+      top: 30,},
+   
 });
 
 
