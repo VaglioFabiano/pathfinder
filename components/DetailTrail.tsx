@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, View, Text, TouchableOpacity, StyleSheet, ScrollView, Pressable, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
+import { Modal, View, Text, TouchableOpacity, StyleSheet, ScrollView, Pressable, TextInput, KeyboardAvoidingView, Platform, Image, ActivityIndicator } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import * as ReviewDAO from '@/dao/reviewDAO';
+import { Asset } from 'expo-asset';
 
 interface PopupProps {
   selectedTrail: {
@@ -16,7 +17,7 @@ interface PopupProps {
     trail: [[number, number]];
     endpoint: [number, number];
     description: string;
-    image: string;
+    image: string[];
     city: string;
     region: string;
     state: string;
@@ -40,6 +41,16 @@ const TrailInfoModal: React.FC<PopupProps> = ({ selectedTrail, startTrail, close
   const [reviews, setReviews] = useState<Review[]>([]);
   const [newComment, setNewComment] = useState<string>('');
   const [newRating, setNewRating] = useState<number>(0);
+  const [loadingImages, setLoadingImages] = useState<boolean>(true);
+  const images = Array.isArray(selectedTrail?.image)
+    ? selectedTrail.image
+    : typeof selectedTrail?.image === "string"
+    ? JSON.parse(selectedTrail.image) // Se è una stringa JSON, convertila in array
+    : [];
+
+ console.log("Images array:", images); // Debug per verificare i dati
+
+
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -116,9 +127,29 @@ const TrailInfoModal: React.FC<PopupProps> = ({ selectedTrail, startTrail, close
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={0} style={styles.modalContainer} >
           <Pressable style={styles.backdrop} onPress={() => closeModal(true)}/>
           <View style={styles.bottomSheet}>
-          <Text style={styles.descriptionTitle}>qui dovresti mettere l'immagine</Text>
             <View style={styles.separator} />
             <ScrollView contentContainerStyle={styles.scrollView}>
+            {/* Carosello di immagini */}
+            {images.length > 0 ? (
+              <ScrollView horizontal style={styles.imageScrollView}>
+                {images.map((img, index) => (
+                  <View key={index} style={styles.imageContainer}>
+                    <Image 
+                      source={{ uri: img }} 
+                      style={styles.image} 
+                      onLoad={() => setLoadingImages(false)}
+                      onError={(error) => {
+                        console.log(`Errore nel caricamento immagine: ${img}`, error);
+                        setLoadingImages(false);
+                      }}
+                    />
+                  </View>
+                ))}
+              </ScrollView>
+            ) : (
+              <Text style={styles.noImagesText}>No images available</Text>
+            )}
+            <View style={styles.separator} />
               <Text style={styles.trailName}>{selectedTrail?.name}</Text>
               <View style={styles.infoRow}>
                 <Text style={styles.infoText}>
@@ -228,6 +259,29 @@ const styles = StyleSheet.create({
   buttonRow: { flexDirection: 'row', justifyContent: "space-between", marginTop: 45, bottom: 40 },
   startButton: { backgroundColor: '#86af49',padding: 10, borderRadius: 5 },
   buttonText: { color: 'white', fontWeight: 'bold', marginHorizontal: 10, marginVertical: 5, fontSize: 16, },
+  imageScrollView: {
+    marginBottom: 10,
+  },
+  imageContainer: {
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  image: {
+    width: 250,
+    height: 250,
+    borderRadius: 10,
+    marginRight: 10,
+  },
+  loader: {
+    position: 'absolute',
+  },
+  noImagesText: {
+    color: 'white',
+    fontStyle: 'italic',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
 });
 
 export default TrailInfoModal;

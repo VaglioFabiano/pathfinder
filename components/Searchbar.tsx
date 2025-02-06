@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     borderBottomWidth: 1,
     borderBottomColor: '#ecf0f1',
-    color: '#86af49',
+    color: '#2c3e50',
   },
 });
 
