@@ -73,7 +73,7 @@ const StartTrailButton = ({ startTrail, currentPosition }: StartTrailButtonProps
                 <View style={styles.activityRow}>
                   <MaterialCommunityIcons
                     name={activityIcons[item] || 'walk'}
-                    size={18}
+                    size={25}
                     color="white"
                     style={styles.activityIcon}
                   />
@@ -145,6 +145,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'white',
   },
+  
 });
 
 export default StartTrailButton;
