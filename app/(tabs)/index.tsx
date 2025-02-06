@@ -279,13 +279,13 @@ const MapWithTopoMap = () => {
             let activityIcon;
             switch (trail.activity) {
               case 'walk':
-                activityIcon = <MaterialCommunityIcons name="walk" size={24} color={"white"} />;
+                activityIcon = <MaterialCommunityIcons name="walk" size={30} color={"white"} />;
                 break; 
               case 'hiking':
-                activityIcon = <MaterialCommunityIcons name="hiking" size={24} color={"white"}  />;
+                activityIcon = <MaterialCommunityIcons name="hiking" size={30} color={"white"}  />;
                 break;
               default:
-                activityIcon = <MaterialCommunityIcons name="bike" size={24} color={"white"}  />;
+                activityIcon = <MaterialCommunityIcons name="bike" size={30} color={"white"}  />;
                 break;
             }
 
