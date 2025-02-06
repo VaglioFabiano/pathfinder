@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TouchableOpacity, StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 
@@ -9,72 +9,70 @@ type RecenterButtonProps = {
 };
 
 const RecenterButton: React.FC<RecenterButtonProps> = ({ mapRef, location, setRegion }) => {
-  const [isClicked, setIsClicked] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false);
 
-  const getCurrentRegion = () => {
-    return mapRef.current?.__lastRegion || {
-      latitude: location?.latitude || 0,
-      longitude: location?.longitude || 0,
-      latitudeDelta: 0.05,
-      longitudeDelta: 0.05,
-    };
-  };
+  useEffect(() => {
+    if (isFollowing && location) {
+      setRegion({
+        latitude: location.latitude,
+        longitude: location.longitude,
+        latitudeDelta: 0.005,
+        longitudeDelta: 0.005,
+      });
+
+      const interval = setInterval(() => {
+        if (mapRef.current) {
+          mapRef.current.animateToRegion({
+            latitude: location.latitude,
+            longitude: location.longitude,
+            latitudeDelta: 0.005,
+            longitudeDelta: 0.005,
+          }, 500);
+        }
+      }, 3000);
+
+      return () => clearInterval(interval);
+    }
+  }, [isFollowing, location, mapRef, setRegion]);
 
   const flyToLocation = () => {
     if (!location || !mapRef.current) return;
 
-    const startRegion = getCurrentRegion();
-    const endRegion = {
+    const currentRegion = mapRef.current.__lastRegion || {
+      latitude: 0,
+      longitude: 0,
+      latitudeDelta: 0.1,
+      longitudeDelta: 0.1,
+    };
+
+    const targetRegion = {
       latitude: location.latitude,
       longitude: location.longitude,
-      latitudeDelta: 0.005, // Zoom più vicino
+      latitudeDelta: 0.005,
       longitudeDelta: 0.005,
     };
 
-    animateFlyTo(startRegion, endRegion, 2000);
-  };
+    // Esegui animazione solo se la posizione attuale è diversa da quella target
+    const distanceLat = Math.abs(targetRegion.latitude - currentRegion.latitude);
+    const distanceLon = Math.abs(targetRegion.longitude - currentRegion.longitude);
 
-  
-
-  const animateFlyTo = (startRegion: any, endRegion: any, duration: number) => {
-    let startTime: number | null = null;
-
-    const animate = (timestamp: number) => {
-      if (!startTime) startTime = timestamp;
-      const elapsed = timestamp - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-
-      // Easing per un movimento più naturale
-      const easeOutExpo = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-
-      const interpolatedRegion = {
-        latitude: startRegion.latitude + (endRegion.latitude - startRegion.latitude) * easeOutExpo,
-        longitude: startRegion.longitude + (endRegion.longitude - startRegion.longitude) * easeOutExpo,
-        latitudeDelta: startRegion.latitudeDelta + (endRegion.latitudeDelta - startRegion.latitudeDelta) * easeOutExpo,
-        longitudeDelta: startRegion.longitudeDelta + (endRegion.longitudeDelta - startRegion.longitudeDelta) * easeOutExpo,
-      };
-
-      mapRef.current.animateToRegion(interpolatedRegion, 16);
-      setRegion(interpolatedRegion);
-
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      }
-    };
-
-    requestAnimationFrame(animate);
+    if (distanceLat > 0.0005 || distanceLon > 0.0005) {
+      mapRef.current.animateToRegion(targetRegion, 2000);
+      setRegion(targetRegion);
+    }
   };
 
   return (
     <TouchableOpacity
-      style={[styles.recenterButton, isClicked && styles.clicked]}
+      style={[styles.recenterButton, isFollowing && styles.activeButton]}
       onPress={() => {
-        setIsClicked(true);
-        flyToLocation();
-        setTimeout(() => setIsClicked(false), 300);
+        setIsFollowing((prev) => !prev);
+        if (!isFollowing) {
+          flyToLocation();
+        }
       }}
     >
-      <MaterialIcons name="gps-fixed" size={24} color="white" />
+      <MaterialIcons name={isFollowing ? "gps-fixed" : "gps-not-fixed"} size={24} color="white" />
     </TouchableOpacity>
   );
 };
@@ -95,7 +93,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.5,
     shadowRadius: 10,
   },
-  clicked: {
+  activeButton: {
     backgroundColor: '#32421b',
   },
 });

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, StyleSheet, TouchableOpacity} from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Animated} from 'react-native';
 import MapView, { Marker, UrlTile, Polyline } from 'react-native-maps';
 import * as Location from 'expo-location';
 import {  Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -70,6 +70,7 @@ const MapWithTopoMap = () => {
   const [trailOptionsVisible, setTrailOptionsVisible] = useState<Trail[]>([]);
   const [visibileOptions, setVisibleOptions] = useState(false);
 
+  const [heading, setHeading] = useState(0); // Direction in degrees for the marker rotation
 
   const [isModalDetailVisible, setIsModalDetailVisible] = useState(false);
   const isFocused = useIsFocused();
@@ -159,9 +160,10 @@ const MapWithTopoMap = () => {
   };
 
   const endTrail = () => {
+    setTrailActive(false);
+    setHeading(0);
     setReviewModalVisible(true);
   };
-
   const submitReview = async (flag:boolean) => {
     if (flag){
       if (reviewText.trim() === '') {
@@ -194,8 +196,6 @@ const MapWithTopoMap = () => {
       setSimulatedPosition(null);
     }
   };
-
-  
   useEffect(() => {
     let timerId: string | number | NodeJS.Timeout | null | undefined = null;
   
@@ -214,6 +214,10 @@ const MapWithTopoMap = () => {
           const distance = calculateDistance(currentPosition, nextPosition);
           const travelTime = (distance / speedMetersPerSecond) * 1000; // Tempo necessario in millisecondi
           
+          
+          // Calculate the heading between points
+          const direction = calculateHeading(currentPosition, nextPosition);
+          setHeading(direction);
 
           setSimulatedPosition(nextPosition); // Aggiorna la posizione dell'utente
   
@@ -231,9 +235,7 @@ const MapWithTopoMap = () => {
   
       return () => clearTimeout(timerId); // Pulizia
     }
-  }, [trailActive, selectedTrail]);
-
-  
+  }, [trailActive, selectedTrail]);  
   const calculateDistance = (pointA: { latitude: any; longitude: any; }, pointB: { latitude: any; longitude: any; }) => {
     const toRadians = (degrees: number) => (degrees * Math.PI) / 180;
     const R = 6371e3;
@@ -248,7 +250,20 @@ const MapWithTopoMap = () => {
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   };
+  const calculateHeading = (pointA: { latitude: number; longitude: number }, pointB: { latitude: number; longitude: number }) => {
+    const toRadians = (degrees: number) => (degrees * Math.PI) / 180;
+    const toDegrees = (radians: number) => (radians * 180) / Math.PI;
 
+    const deltaLon = toRadians(pointB.longitude - pointA.longitude);
+    const lat1 = toRadians(pointA.latitude);
+    const lat2 = toRadians(pointB.latitude);
+
+    const y = Math.sin(deltaLon) * Math.cos(lat2);
+    const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(deltaLon);
+    const initialBearing = toDegrees(Math.atan2(y, x));
+
+    return (initialBearing + 360) % 360;
+  };
 
   if (!region) {
     return <View style={styles.container} />;
@@ -263,9 +278,14 @@ const MapWithTopoMap = () => {
         
         {location && (
           <Marker coordinate={simulatedPosition ?? location}>
-            <View style={styles.marker}>
-              <View style={styles.innerCircle} />
-            </View>
+            <Animated.View style={{ transform: [{ rotate: `${heading}deg` }] }}>
+              <View style={styles.markerContainer}>
+                <View style={styles.markerArrow} />
+                <View style={styles.marker}>
+                  <View style={styles.innerCircle} />
+                </View>
+              </View>
+            </Animated.View>
           </Marker>
         )}
 
@@ -321,7 +341,7 @@ const MapWithTopoMap = () => {
       {/* Bottom sheet modal */}
       {modalVisible && ( <Popup selectedTrail={selectedTrail} startTrail={startTrail} closeModal={closeModal} setIsModalDetailVisible={setIsModalDetailVisible}/> )}
 
-      {!modalVisible && ( <BottomSheet endTrail={endTrail} trailActive={trailActive} mapRef={mapRef} location={location} setRegion={setRegion} />)} 
+      {!modalVisible && ( <BottomSheet endTrail={endTrail} trailActive={trailActive} mapRef={mapRef} location={simulatedPosition ?? location} setRegion={setRegion} />)} 
       
       {/* Modal per la selezione del trail */}
       {trailOptionsVisible && visibileOptions && <TrailDropdown visible={visibileOptions}  setVisible={setVisibleOptions} trails={trailOptionsVisible} setTrail={setTrailOptionsVisible} onSelect={fetchTrail} />}
@@ -341,6 +361,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  markerContainer: {
+    alignItems: 'center',
+  },
+  markerArrow: {
+    width: 0,
+    height: 0,
+    borderLeftWidth: 5,
+    borderRightWidth: 5,
+    borderBottomWidth: 7,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderBottomColor: '#3498db',
+    marginBottom: -2,
+  },
   marker: {
     width: 20,
     height: 20,
@@ -354,7 +388,7 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 4,
     backgroundColor: 'white',
-  }, 
+  },
 });
 
 

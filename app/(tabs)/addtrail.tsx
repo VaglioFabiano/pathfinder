@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { Alert, Animated, StyleSheet, View } from 'react-native';
 import MapView, { Marker, Polyline, UrlTile } from 'react-native-maps';
 import * as Location from 'expo-location';
 import RecenterButton from '@/components/recenterBotton';
@@ -39,6 +39,8 @@ const AddTrail = () => {
   const [trailStarted, setTrailStarted] = useState(false);
   const [pathCoordinates, setPathCoordinates] = useState<{ latitude: number; longitude: number }[]>([]);
   const [refresh, setRefresh] = useState(false);
+  const [heading, setHeading] = useState(0); // Direction in degrees for the marker rotation
+  
   const mapRef = useRef<MapView>(null);
 
   const [trailData, setTrailData] = useState({
@@ -172,6 +174,11 @@ const AddTrail = () => {
           // Calculate the total distance between the current and next points
           const totalDistance = haversineDistance(currentPosition, nextPosition);
   
+
+          // Calculate the heading between points
+          const direction = calculateHeading(currentPosition, nextPosition);
+          setHeading(direction);
+
           // Determine the distance to cover in the current second
           const distanceToCover = speedMetersPerSecond;
           accumulatedDistance += distanceToCover;
@@ -241,6 +248,22 @@ const AddTrail = () => {
       longitude: start.longitude + (end.longitude - start.longitude) * fraction,
     };
   };
+
+  const calculateHeading = (pointA: { latitude: number; longitude: number }, pointB: { latitude: number; longitude: number }) => {
+    const toRadians = (degrees: number) => (degrees * Math.PI) / 180;
+    const toDegrees = (radians: number) => (radians * 180) / Math.PI;
+
+    const deltaLon = toRadians(pointB.longitude - pointA.longitude);
+    const lat1 = toRadians(pointA.latitude);
+    const lat2 = toRadians(pointB.latitude);
+
+    const y = Math.sin(deltaLon) * Math.cos(lat2);
+    const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(deltaLon);
+    const initialBearing = toDegrees(Math.atan2(y, x));
+
+    return (initialBearing + 360) % 360;
+  };
+
   const calculateAverageSpeed = () => {
     return trailData.time > 0 ? parseFloat((trailData.distance / (trailData.time / 3600)).toFixed(2)) : 0;
   };
@@ -256,9 +279,14 @@ const AddTrail = () => {
         {/* Marker per la posizione corrente */}
         {location && (
           <Marker coordinate={location}>
-            <View style={styles.marker}>
-              <View style={styles.innerCircle} />
-            </View>
+            <Animated.View style={{ transform: [{ rotate: `${heading}deg` }] }}>
+              <View style={styles.markerContainer}>
+                <View style={styles.markerArrow} />
+                <View style={styles.marker}>
+                  <View style={styles.innerCircle} />
+                </View>
+              </View>
+            </Animated.View>
           </Marker>
         )}
 
@@ -294,6 +322,26 @@ const styles = StyleSheet.create({
   },
   map: {
     ...StyleSheet.absoluteFillObject,
+  },
+  markerIcon: {
+    padding: 5,
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  markerContainer: {
+    alignItems: 'center',
+  },
+  markerArrow: {
+    width: 0,
+    height: 0,
+    borderLeftWidth: 5,
+    borderRightWidth: 5,
+    borderBottomWidth: 7,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderBottomColor: '#3498db',
+    marginBottom: -2,
   },
   marker: {
     width: 20,
