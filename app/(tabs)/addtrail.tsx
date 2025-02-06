@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 import MapView, { Marker, Polyline, UrlTile } from 'react-native-maps';
 import * as Location from 'expo-location';
 import RecenterButton from '@/components/recenterBotton';
@@ -98,20 +98,22 @@ const AddTrail = () => {
       state: currentInfo[0].country ? currentInfo[0].country : '',
       province: currentInfo[0].subregion ? currentInfo[0].subregion : '',  
     });
-    console.log("Trail started!", trailData);
     setTrailStarted(true);
     setLocation(position);
     fetchRoute(position, { latitude: 45.464664, longitude: 9.188540 });
   };
 
   const endTrail = async () => {
-
-    setTrailData((prevData) => ({
-      ...prevData,
-
-      isActive: false,
-    }));
-    setTrailStarted(false);
+    Alert.alert('Are you sure?', 'Do you want to end the trail?', [
+      { text: 'No', style: 'cancel' },
+      { text: 'Yes', style: 'destructive', onPress: () =>{setTrailData((prevData) => ({
+        ...prevData,
+  
+        isActive: false,
+      }));
+      setTrailStarted(false);} },
+    ]);
+    
   };
   const resetTrail = () => {
     setTrailData({
@@ -205,7 +207,6 @@ const AddTrail = () => {
   
           timerId = setTimeout(moveToNextPoint, 1000); // Schedule next update every second
         } else {
-          console.log("Raggiunto l'endpoint!");
           setTrailStarted(false);
           setTrailData((prevData) => ({
             ...prevData,
@@ -276,7 +277,7 @@ const AddTrail = () => {
         calculateAverageSpeed={calculateAverageSpeed}
       />
 
-      <View style={[styles.buttonGroup, { bottom: trailData.isActive ? 170 : 80 }]}>
+      <View style={[styles.buttonGroup, { bottom: trailData.isActive ? 170 : 120 }]}>
         <View style={styles.leftButtonContainer}/>
         <View style={styles.rightButtonContainer}>
           <RecenterButton mapRef={mapRef} location={location} setRegion={setRegion} />

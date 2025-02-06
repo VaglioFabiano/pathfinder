@@ -139,7 +139,6 @@ const MapWithTopoMap = () => {
       Math.abs(trail.startpoint.longitude - t.startpoint.longitude) <= tolerance
     );
     
-    console.log(overlappingTrails);
     if (overlappingTrails.length > 1) {
       showTrailOptions(overlappingTrails);
     } else {

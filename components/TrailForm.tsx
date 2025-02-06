@@ -157,7 +157,7 @@ const TrailForm: React.FC<TrailFormProps> = ({ trailData, resetTrail }) => {
               <Text style={styles.label}>Photo:</Text>
               
             </View>
-            <TouchableOpacity onPress={handleFileInputClick} style={[styles.uploadButton, { backgroundColor: 'rgb(120, 120, 120)' , width: '60%'}]}>
+            <TouchableOpacity onPress={handleFileInputClick} style={[styles.uploadButton, { backgroundColor: '#86af49' , width: '60%', justifyContent: 'center', alignItems: 'center',marginTop: 10 }]}>
                 <Icon name="plus-circle-outline" size={18} color="white" />
                 <Text style={[styles.uploadButtonText]}>Insert Photo</Text>
               </TouchableOpacity>
@@ -384,7 +384,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   closeButton: {
-    backgroundColor:"rgb(120, 120, 120)" ,
+    backgroundColor:"#dc3545" ,
     padding: 5,
     borderRadius: 50,
     justifyContent: 'center',
@@ -393,7 +393,6 @@ const styles = StyleSheet.create({
   difficultyButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgb(120, 120, 120)',
     padding: 10,
     borderRadius: 8,
     width: '30%',
@@ -444,7 +443,6 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: 'white',
-    marginLeft: 5,
     fontWeight: 'bold',
     fontSize: 11,
   },
