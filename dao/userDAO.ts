@@ -4,7 +4,6 @@ import getDatabase from '@/hooks/database';
 const getUser = async (id: number = 3): Promise<{ fullName: string | null, image: string | null }> => {
     try {
         const db = await getDatabase();
-        console.log("Database Object:", db); // Debug per verificare cosa viene restituito
 
         const sql = "SELECT name, surname, image FROM User WHERE id = ?";
         // Prova a usare lo stesso metodo che funziona in getTrail
@@ -13,7 +12,6 @@ const getUser = async (id: number = 3): Promise<{ fullName: string | null, image
         // Prendi il primo risultato (che dovrebbe essere uno solo)
         const result = res[0];
 
-        console.log("Risultato da DB:", result);
 
         if (result && result.name && result.surname) { 
             return {

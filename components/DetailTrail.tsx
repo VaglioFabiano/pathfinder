@@ -56,7 +56,6 @@ const TrailInfoModal: React.FC<PopupProps> = ({ selectedTrail, startTrail, close
     const fetchReviews = async () => {
       try {
         const fetchedReviews = await ReviewDAO.getReviews(selectedTrail.id);
-        console.log(fetchedReviews);
         setReviews(fetchedReviews);
       } catch (error) {
         console.error("Errore durante il recupero delle recensioni:", error);
@@ -81,7 +80,6 @@ const TrailInfoModal: React.FC<PopupProps> = ({ selectedTrail, startTrail, close
       comment: newComment,
     };
 
-    console.log(newReview);
 
     try {
       await ReviewDAO.addReview(newReview);

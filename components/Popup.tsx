@@ -34,7 +34,9 @@ const Popup: React.FC<PopupProps> = ({ selectedTrail, startTrail, closeModal, se
           <Text style={styles.infoText}>
             <MaterialIcons name="landscape" size={16} color="#fff" /> {selectedTrail?.elevation} m
           </Text>
-          <View style={[styles.difficultyContainer, { backgroundColor: selectedTrail?.difficulty === 'Beginner' ? '#4986af' : selectedTrail?.difficulty === 'Intermediate' ? '#af8649' : '#af4953' }]}>
+          <View style={[styles.difficultyContainer, 
+            { backgroundColor: selectedTrail?.difficulty === 'Beginner' ? '#4986af' :
+             selectedTrail?.difficulty === 'Intermediate' ? '#af8649' : '#af4953' }]}>
             <Text style={[styles.difficultyLabel, {color:  "#fff"} ]}>{selectedTrail?.difficulty}</Text>
           </View>
         </View>

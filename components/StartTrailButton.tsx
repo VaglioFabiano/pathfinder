@@ -26,16 +26,7 @@ const StartTrailButton = ({ startTrail, currentPosition }: StartTrailButtonProps
 
   return (
     <View style={styles.container}>
-      {/* Row with Icon, Activity Button, and Start */}
-      <View style={styles.row}>
-        {/* Start Trail Button */}
-        <TouchableOpacity
-          style={styles.startButton}
-          onPress={() => startTrail(currentPosition, selectedActivity)}
-        >
-          <Text style={styles.buttonText}>Start Trail</Text>
-        </TouchableOpacity>
-        {/* Activity Button */}
+   
         <TouchableOpacity
           style={styles.activityRow}
           onPress={() => setDropdownVisible(!dropdownVisible)}
@@ -58,8 +49,15 @@ const StartTrailButton = ({ startTrail, currentPosition }: StartTrailButtonProps
           />
         </TouchableOpacity>
 
+
+        <TouchableOpacity
+          style={styles.startButton}
+          onPress={() => startTrail(currentPosition, selectedActivity)}
+        >
+          <Text style={styles.buttonText}>Start Trail</Text>
+        </TouchableOpacity>
+       
         
-      </View>
 
       {/* Dropdown List */}
       {dropdownVisible && (
@@ -113,21 +111,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 15,
     borderRadius: 10,
-    width: '40%',
+    width: '100%',
     justifyContent: 'center',
   },
   activityIcon: {
-    marginRight: 5,
+    marginRight: 10,
   },
-  dropdownIcon: {
-    marginLeft: 5,
-  },
+
   startButton: {
     backgroundColor: '#86af49',
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
-    width: '60%',
+    width: '100%',
   },
   buttonText: {
     color: 'white',
@@ -136,16 +132,14 @@ const styles = StyleSheet.create({
   },
   dropdown: {
     position: 'absolute',
-    bottom: 100,
-    width: '50%',
+    bottom: 130,
+    width: '100%',
     backgroundColor: '#979797',
     borderRadius: 8,
-    right: 10,
     zIndex: 5,
   },
   itemContainer: {
     paddingVertical: 2,
-    
   },
   modalItem: {
     fontSize: 16,

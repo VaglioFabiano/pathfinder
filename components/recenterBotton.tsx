@@ -34,6 +34,8 @@ const RecenterButton: React.FC<RecenterButtonProps> = ({ mapRef, location, setRe
     animateFlyTo(startRegion, endRegion, 2000);
   };
 
+  
+
   const animateFlyTo = (startRegion: any, endRegion: any, duration: number) => {
     let startTime: number | null = null;
 
@@ -94,7 +96,7 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
   },
   clicked: {
-    backgroundColor: '#00bcd4',
+    backgroundColor: '#32421b',
   },
 });
 

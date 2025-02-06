@@ -41,10 +41,7 @@ const TrailDropdown: React.FC<TrailDropdownProps> = ({visible, setVisible, trail
     setTrail([]);
     onSelect(trail);
   };
-  useEffect(() => {
-    console.log("Modal visibile:", visible);
-  }, [visible]);
-  
+
   return (
     <View>
     <TouchableOpacity onPress={() => setVisible(true)}>
