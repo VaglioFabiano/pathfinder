@@ -71,8 +71,15 @@ const MapWithTopoMap = () => {
   const [visibileOptions, setVisibleOptions] = useState(false);
 
   const [heading, setHeading] = useState(0); // Direction in degrees for the marker rotation
-
+  const [isPaused, setIsPaused] = useState(true);
   const [isModalDetailVisible, setIsModalDetailVisible] = useState(false);
+
+  const [trailData, setTrailData] = useState({
+    time: 0,
+    distance: 0,
+    downhill: 0,
+    elevation: 0,
+  });
   const isFocused = useIsFocused();
 
   useEffect(() => {
@@ -97,12 +104,14 @@ const MapWithTopoMap = () => {
 
       }
       setLocation(currentLocation.coords);
+      
+
 
       setRegion({
         latitude: currentLocation.coords.latitude,
         longitude: currentLocation.coords.longitude,
-        latitudeDelta: 0.005,
-        longitudeDelta: 0.005,
+        latitudeDelta: 0.004,
+        longitudeDelta: 0.004,
       });
      
       
@@ -154,12 +163,19 @@ const MapWithTopoMap = () => {
 
   const startTrail = () => {
     setTrailActive(true);
+    setIsPaused(false);
     setIsModalDetailVisible(false);
     setSimulatedPosition(selectedTrail ? { latitude: selectedTrail.trail[0][0], longitude: selectedTrail.trail[0][1] } : null);
     setModalVisible(false);
   };
 
   const endTrail = () => {
+    setTrailData({
+      time: 0,
+      distance: 0,
+      downhill: 0,
+      elevation: 0,
+    });
     setTrailActive(false);
     setHeading(0);
     setReviewModalVisible(true);
@@ -197,45 +213,93 @@ const MapWithTopoMap = () => {
     }
   };
   useEffect(() => {
-    let timerId: string | number | NodeJS.Timeout | null | undefined = null;
+    let timerId: NodeJS.Timeout | null = null;
   
-    if (trailActive && selectedTrail) {
+    if (!isPaused && trailActive && selectedTrail) {
       const path = selectedTrail.trail;
       let index = 0;
+      let accumulatedDistance = 0;
   
-      const speedMetersPerSecond = 10 * 1000 / 3600; 
-
+      const speedMetersPerSecond = 10 * 1000 / 3600;
+  
       const moveToNextPoint = () => {
+        if (isPaused) return; // Blocca il movimento se in pausa
+  
         if (index < path.length - 1) {
           const currentPosition = path[index];
           const nextPosition = path[index + 1];
   
-          // Calcola la distanza tra i due punti
-          const distance = calculateDistance(currentPosition, nextPosition);
-          const travelTime = (distance / speedMetersPerSecond) * 1000; // Tempo necessario in millisecondi
-          
-          
-          // Calculate the heading between points
+          const totalDistance = calculateDistance(currentPosition, nextPosition);
+  
+          // Calcola la direzione tra i punti
           const direction = calculateHeading(currentPosition, nextPosition);
           setHeading(direction);
-
-          setSimulatedPosition(nextPosition); // Aggiorna la posizione dell'utente
   
-          index++;
+          // Determina quanto possiamo percorrere in questo aggiornamento
+          const distanceToCover = speedMetersPerSecond;
   
-          // Passa al prossimo punto dopo il tempo calcolato
-          timerId = setTimeout(moveToNextPoint, travelTime);
+          // Verifica se superiamo il punto successivo
+          accumulatedDistance += distanceToCover;
+  
+          let newPosition = currentPosition;
+          let nextIndex = index;
+  
+          if (accumulatedDistance >= totalDistance) {
+            accumulatedDistance -= totalDistance;
+            newPosition = nextPosition;
+            nextIndex++;
+          } else {
+            const fraction = accumulatedDistance / totalDistance;
+            newPosition = interpolatePosition(currentPosition, nextPosition, fraction);
+          }
+  
+          setSimulatedPosition(newPosition);
+  
+          setTrailData((prevData) => ({
+            ...prevData,
+            time: prevData.time + 1,
+            distance: prevData.distance + distanceToCover / 1000,
+            downhill: prevData.downhill + (Math.random() * 0.005),
+            elevation: prevData.elevation + (Math.random() * 0.01),
+          }));
+  
+          index = nextIndex;
+  
+          // Continua il ciclo ogni secondo
+          timerId = setTimeout(moveToNextPoint, 1000);
         } else {
           console.log("Raggiunto l'endpoint!");
-          endTrail(); 
+          setTrailActive(false);
+          endTrail();
         }
       };
   
       moveToNextPoint();
   
-      return () => clearTimeout(timerId); // Pulizia
+      return () => {
+        if (timerId) clearTimeout(timerId);
+      };
     }
-  }, [trailActive, selectedTrail]);  
+  }, [trailActive, selectedTrail, isPaused]);
+  
+
+  const pauseTrail = () => {  
+    setIsPaused(true);
+  };
+  const resumeTrail = () => {
+    setIsPaused(false);
+  };
+
+  const interpolatePosition = (start, end, fraction) => {
+    return {
+      latitude: start.latitude + (end.latitude - start.latitude) * fraction,
+      longitude: start.longitude + (end.longitude - start.longitude) * fraction,
+    };
+  };
+  const calculateAverageSpeed = () => {
+    return trailData.time > 0 ? parseFloat((trailData.distance / (trailData.time / 3600)).toFixed(2)) : 0;
+  };
+
   const calculateDistance = (pointA: { latitude: any; longitude: any; }, pointB: { latitude: any; longitude: any; }) => {
     const toRadians = (degrees: number) => (degrees * Math.PI) / 180;
     const R = 6371e3;
@@ -289,7 +353,7 @@ const MapWithTopoMap = () => {
           </Marker>
         )}
 
-        {trails.map((trail) => {
+        {!trailActive && trails.map((trail) => {
             const difficultyColor =
             trail.difficulty === 'Beginner' ? '#4986af' :
             trail.difficulty === 'Intermediate' ? '#af8649' :
@@ -331,17 +395,15 @@ const MapWithTopoMap = () => {
       
       <SearchBar mapRef={mapRef} />
       
-      
       {/* Modal per inserire la review */}
       {reviewModalVisible && <ReviewModal reviewModalVisible={reviewModalVisible} reviewText={reviewText} setReviewText={setReviewText} submitReview={submitReview} rating={rating} setRating={setRating} />}
-
 
       {isModalDetailVisible && <TrailInfoModal isVisible={isModalDetailVisible} closeModal={closeModal} selectedTrail={selectedTrail} startTrail={startTrail}/>}
 
       {/* Bottom sheet modal */}
       {modalVisible && ( <Popup selectedTrail={selectedTrail} startTrail={startTrail} closeModal={closeModal} setIsModalDetailVisible={setIsModalDetailVisible}/> )}
 
-      {!modalVisible && ( <BottomSheet endTrail={endTrail} trailActive={trailActive} mapRef={mapRef} location={simulatedPosition ?? location} setRegion={setRegion} />)} 
+      {!modalVisible && ( <BottomSheet isPaused={isPaused} trailData={trailData} endTrail={endTrail} trailActive={trailActive} mapRef={mapRef} location={simulatedPosition ?? location} setRegion={setRegion} calculateAverageSpeed={calculateAverageSpeed} pauseTrail={pauseTrail} resumeTrail={resumeTrail} />)} 
       
       {/* Modal per la selezione del trail */}
       {trailOptionsVisible && visibileOptions && <TrailDropdown visible={visibileOptions}  setVisible={setVisibleOptions} trails={trailOptionsVisible} setTrail={setTrailOptionsVisible} onSelect={fetchTrail} />}

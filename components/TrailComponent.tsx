@@ -4,6 +4,7 @@ import TrailForm from '@/components/TrailForm'; // Assumendo che TrailForm sia s
 import StartTrailButton from '@/components/StartTrailButton';
 import TrailInfoPanel from './TrailInfoPannel';
 interface TrailComponentProps {
+  isPaused: boolean;
   startTrail: (position: { latitude: number; longitude: number }, selectedActivity: any) => Promise<void>;
   endTrail: () => void;
   currentPosition: any;
@@ -11,16 +12,18 @@ interface TrailComponentProps {
   trailData: any;
   calculateAverageSpeed: () => number;
   resetTrail: () => void;
+  pauseTrail: () => void;
+  resumeTrail: () => void;
  
 }
 
-const TrailComponent: React.FC<TrailComponentProps> = ({ startTrail, endTrail, currentPosition, trailData, isRecap, calculateAverageSpeed, resetTrail,}) => {
+const TrailComponent: React.FC<TrailComponentProps> = ({isPaused, pauseTrail, resumeTrail, startTrail, endTrail, currentPosition, trailData, isRecap, calculateAverageSpeed, resetTrail,}) => {
   return (
     <>
       {!trailData.isActive && !isRecap && ( <StartTrailButton startTrail={startTrail} currentPosition={currentPosition} /> )}
 
       {trailData.isActive && (
-        <TrailInfoPanel time={trailData.time} distance={trailData.distance} downhill={trailData.downhill} elevation={trailData.elevation} calculateAverageSpeed={calculateAverageSpeed} endTrail={endTrail} />
+        <TrailInfoPanel isPaused={isPaused} pauseTrail={pauseTrail} resumeTrail={resumeTrail} time={trailData.time} distance={trailData.distance} downhill={trailData.downhill} elevation={trailData.elevation} calculateAverageSpeed={calculateAverageSpeed} endTrail={endTrail} />
       )}
 
       {isRecap && ( <TrailForm trailData = {trailData} resetTrail={resetTrail}/> )}

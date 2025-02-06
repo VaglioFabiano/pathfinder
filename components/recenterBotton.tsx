@@ -48,8 +48,8 @@ const RecenterButton: React.FC<RecenterButtonProps> = ({ mapRef, location, setRe
     const targetRegion = {
       latitude: location.latitude,
       longitude: location.longitude,
-      latitudeDelta: 0.005,
-      longitudeDelta: 0.005,
+      latitudeDelta: 0.004,
+      longitudeDelta: 0.004,
     };
 
     // Esegui animazione solo se la posizione attuale è diversa da quella target
