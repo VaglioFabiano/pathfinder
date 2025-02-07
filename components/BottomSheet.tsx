@@ -20,16 +20,17 @@ interface BottomSheetProps {
   submitWarning: (warningText: string, position: { latitude: number; longitude: number }) => void;
   findNearestTrail: (position: { latitude: number; longitude: number }) => any;
   setSelectedTrail: (trail: any) => void;
+  trails: any;
 }
 
-const BottomSheet: React.FC<BottomSheetProps> = ({setSelectedTrail, findNearestTrail,submitWarning, isPaused, trailData , trailActive, mapRef, location, setRegion, endTrail, calculateAverageSpeed, pauseTrail, resumeTrail }) => {
+const BottomSheet: React.FC<BottomSheetProps> = ({trails,setRecomanded, setSelectedTrail, findNearestTrail,submitWarning, isPaused, trailData , trailActive, mapRef, location, setRegion, endTrail, calculateAverageSpeed, pauseTrail, resumeTrail }) => {
   return (
   <>
     { trailActive && ( <TrailInfoIndex isPaused={isPaused} submitWarning={submitWarning} currentPos = {trailData.currentPosition} time={trailData.time} distance={trailData.distance} downhill={trailData.downhill} elevation={trailData.elevation} calculateAverageSpeed={calculateAverageSpeed} endTrail={endTrail} pauseTrail={pauseTrail} resumeTrail={resumeTrail} /> )}
     <View style={[styles.buttonGroup, { bottom: trailActive ? 170 : 20 }]}>
       {/* Tree a sinistra */}
       <View style={styles.leftButtonContainer}>
-        {!trailActive &&  <Tree />}
+        {!trailActive &&  <Tree setRegion={setRegion} location={location}  trail={trails} setRecomanded={setRecomanded}/>}
       </View>
       
       {/* RecenterButton e Tutorial a destra */}

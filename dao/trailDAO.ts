@@ -157,6 +157,8 @@ const getTrailsCreatedByUsers = async (id_user: number): Promise<Trail[]> => {
         elevation: trail.elevation,
         difficulty: trail.difficulty,
         activity: trail.activity,
+        image: trail.image
+
       }));
     } catch (error) {
       console.error("Errore in getTrailsUsers:", error);
@@ -191,6 +193,7 @@ const getTrailsDoneByUsers = async (id_user: number): Promise<Trail[]> => {
             elevation: trail.elevation,
             difficulty: trail.difficulty,
             activity: trail.activity,
+            image: trail.image
         }));
         
     } catch (error) {

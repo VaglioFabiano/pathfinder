@@ -44,6 +44,7 @@
     "expo-symbols": "~0.2.1",
     "expo-system-ui": "~4.0.7",
     "expo-web-browser": "~14.0.2",
+    "geolib": "^3.3.4",
     "lottie-react-native": "^7.2.2",
     "pathfinder": "file:",
     "react": "18.3.1",

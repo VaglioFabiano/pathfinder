@@ -307,8 +307,6 @@ const AddTrail = () => {
           </Marker>
         )}
 
-        {/* Mostra il percorso */}
-        {trailStarted && <Polyline coordinates={pathCoordinates} strokeColor="#3498db" strokeWidth={3} />}
       </MapView>
 
       {/* Componenti Trail */}

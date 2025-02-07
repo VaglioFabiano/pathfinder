@@ -48,7 +48,6 @@ const TrailInfoModal: React.FC<PopupProps> = ({ selectedTrail, startTrail, close
     ? JSON.parse(selectedTrail.image) // Se è una stringa JSON, convertila in array
     : [];
 
- console.log("Images array:", images); // Debug per verificare i dati
 
 
 

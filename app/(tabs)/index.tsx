@@ -72,6 +72,8 @@ const MapWithTopoMap = () => {
   const [reviewModalVisible, setReviewModalVisible] = useState(false);
   const [reviewText, setReviewText] = useState("");
   const [rating, setRating] = useState(0);
+  const [recomanded, setRecomanded] = useState<Trail | null>(null);
+
 
   const [trails, setTrails] = useState<Trail[]>([]);
   
@@ -417,30 +419,44 @@ const MapWithTopoMap = () => {
           </Marker>
         )}
         {!trailActive && trails.map((trail) => {
-            const difficultyColor =
-            trail.difficulty === 'Beginner' ? '#4986af' :
-            trail.difficulty === 'Intermediate' ? '#af8649' :
-            '#af4953';
-            
-            let activityIcon;
-            switch (trail.activity) {
-              case 'walk':
-                activityIcon = <MaterialCommunityIcons name="walk" size={30} color={"white"} />;
-                break; 
-              case 'hiking':
-                activityIcon = <MaterialCommunityIcons name="hiking" size={30} color={"white"}  />;
-                break;
-              default:
-                activityIcon = <MaterialCommunityIcons name="bike" size={30} color={"white"}  />;
-                break;
-            }
+  const difficultyColor =
+    trail.difficulty === 'Beginner' ? '#4986af' :
+    trail.difficulty === 'Intermediate' ? '#af8649' :
+    '#af4953';
+  
+  let activityIcon;
+  switch (trail.activity) {
+    case 'walk':
+      activityIcon = <MaterialCommunityIcons name="walk" size={30} color={"white"} />;
+      break; 
+    case 'hiking':
+      activityIcon = <MaterialCommunityIcons name="hiking" size={30} color={"white"}  />;
+      break;
+    default:
+      activityIcon = <MaterialCommunityIcons name="bike" size={30} color={"white"}  />;
+      break;
+  }
 
-            return (
-              <Marker key={trail.id} coordinate={trail.startpoint} flat={true} onPress={() => handleMarkerPress(trail)}>
-                <View style={[styles.markerIcon, { backgroundColor: difficultyColor }]}>{activityIcon}</View>
-              </Marker>
-            );
-        })}
+  const isRecommended = recomanded && recomanded.some((r: any) => r.id === trail.id);
+
+  return (
+    <Marker key={trail.id} coordinate={trail.startpoint} flat={true} onPress={() => handleMarkerPress(trail)}>
+      <View 
+        style={[
+          styles.markerIcon, 
+          { 
+            backgroundColor: difficultyColor, 
+            borderWidth: isRecommended ? 3 : 0, 
+            borderColor: isRecommended ? '#FFD700' : 'transparent', // Contorno dorato se è raccomandato
+          }
+        ]}
+      >
+        {activityIcon}
+      </View>
+    </Marker>
+  );
+})}
+
         {selectedTrail && (
           <Polyline
             coordinates={selectedTrail.trail}
@@ -474,7 +490,7 @@ const MapWithTopoMap = () => {
       {/* Bottom sheet modal */}
       {modalVisible && ( <Popup selectedTrail={selectedTrail} startTrail={startTrail} closeModal={closeModal} setIsModalDetailVisible={setIsModalDetailVisible}/> )}
 
-      {!modalVisible && ( <BottomSheet setSelectedTrail={setSelectedTrail} findNearestTrail={findNearestTrail} submitWarning={submitWarning} isPaused={isPaused} trailData={trailData} endTrail={endTrail} trailActive={trailActive} mapRef={mapRef} location={simulatedPosition ?? location} setRegion={setRegion} calculateAverageSpeed={calculateAverageSpeed} pauseTrail={pauseTrail} resumeTrail={resumeTrail} />)} 
+      {!modalVisible && ( <BottomSheet setRecomanded={setRecomanded} trails={trails} setSelectedTrail={setSelectedTrail} findNearestTrail={findNearestTrail} submitWarning={submitWarning} isPaused={isPaused} trailData={trailData} endTrail={endTrail} trailActive={trailActive} mapRef={mapRef} location={simulatedPosition ?? location} setRegion={setRegion} calculateAverageSpeed={calculateAverageSpeed} pauseTrail={pauseTrail} resumeTrail={resumeTrail} />)} 
       
       {/* Modal per la selezione del trail */}
       {trailOptionsVisible && visibileOptions && <TrailDropdown visible={visibileOptions}  setVisible={setVisibleOptions} trails={trailOptionsVisible} setTrail={setTrailOptionsVisible} onSelect={fetchTrail} />}

@@ -7,7 +7,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { KeyboardAvoidingView, Platform,Image } from 'react-native';
 import TrailInfoModal from '@/components/DetailTrail';
 
-
+import { MaterialIcons } from '@expo/vector-icons';
 
 export default function ProfileScreen() {
  // Stato
@@ -28,7 +28,13 @@ const [selectedTrail, setSelectedTrail] = useState(null);
 const rotateAnimationTD = useState(new Animated.Value(0))[0];
 const rotateAnimationTC = useState(new Animated.Value(0))[0];
 const rotateAnimationS = useState(new Animated.Value(0))[0];
+const [loadingImages, setLoadingImages] = useState<boolean>(true);
 
+const images = Array.isArray(selectedTrail?.image)
+        ? selectedTrail.image
+        : typeof selectedTrail?.image === "string"
+        ? JSON.parse(selectedTrail.image) // Se è una stringa JSON, convertila in array
+        : [];
 // Mappa immagini basata su ID utente
 const userImages: { [key: number]: any } = {
     2: require("../../assets/images/MarcoSporty.png"),
@@ -162,26 +168,28 @@ const handleUserSelect = (user: { id: number; name: string; surname: string }) =
                     {trailsDone.length > 0 ? (
                         trailsDone.map((trail) => (
                             <TouchableOpacity key={trail.id} style={styles.trailCard} onPress={() => openModal(trail)}>
+                              
+                        
                                 <Text style={styles.trailName}>{trail.name}</Text>
                                 <View style={styles.infoRow}>
                                     <Text style={styles.infoText}>
-                                        <MaterialCommunityIcons name="timeline" size={16} color="#fff" /> {trail.length} km
+                                        <MaterialIcons name="timeline" size={16} color="#fff" /> {trail.length} km
                                     </Text>
                                     <Text style={styles.infoText}>
-                                        <MaterialCommunityIcons name="clock-time-five-outline" size={16} color="#fff" /> {trail.duration} ore
+                                        <MaterialIcons name="schedule" size={16} color="#fff" /> {trail.duration} ore
                                     </Text>
                                     <Text style={styles.infoText}>
-                                        <MaterialCommunityIcons name="terrain" size={16} color="#fff" /> {trail.elevation ? `${trail.elevation} m` : "N/A"}
+                                        <MaterialIcons name="landscape" size={16} color="#fff" /> {trail.elevation ? `${trail.elevation} m` : "N/A"}
                                     </Text>
                                     <View style={[
                                         styles.difficultyContainer,
-                                        { backgroundColor: trail.difficulty === 'Beginner' ? '#4CAF50' : 
-                                                        trail.difficulty === 'Intermediate' ? '#FFD700' : 
-                                                        '#FF3B30' }
+                                        { backgroundColor: trail.difficulty === 'Beginner' ? '#4986af' : 
+                                                        trail.difficulty === 'Intermediate' ? '#af8649' : 
+                                                        '#af4953' }
                                     ]}>
                                         <Text style={[
                                             styles.difficultyLabel, 
-                                            { color: trail.difficulty === 'Intermediate' ? '#000' : '#fff' }
+                                            { color: '#fff' }
                                         ]}>
                                             {trail.difficulty}
                                         </Text>
@@ -212,28 +220,29 @@ const handleUserSelect = (user: { id: number; name: string; surname: string }) =
                     style={styles.trailCard} 
                     onPress={() => openModal(trail)}
                   >
+                    
                     <Text style={styles.trailName}>{trail.name}</Text>
 
                     <View style={styles.infoRow}>
                       <Text style={styles.infoText}>
-                        <MaterialCommunityIcons name="timeline" size={16} color="#fff" /> {trail.length} km
+                        <MaterialIcons name="timeline" size={16} color="#fff" /> {trail.length} km
                       </Text>
                       <Text style={styles.infoText}>
-                        <MaterialCommunityIcons name="clock-time-five-outline" size={16} color="#fff" /> {trail.duration} ore
+                        <MaterialIcons name="schedule" size={16} color="#fff" /> {trail.duration} ore
                       </Text>
                       <Text style={styles.infoText}>
-                        <MaterialCommunityIcons name="terrain" size={16} color="#fff" /> {trail.elevation ? `${trail.elevation} m` : "N/A"}
+                        <MaterialIcons name="landscape" size={16} color="#fff" /> {trail.elevation ? `${trail.elevation} m` : "N/A"}
                       </Text>
 
                       <View style={[
                         styles.difficultyContainer,
-                        { backgroundColor: trail.difficulty === 'Beginner' ? '#4CAF50' : 
-                                        trail.difficulty === 'Intermediate' ? '#FFD700' : 
-                                        '#FF3B30' }
+                        { backgroundColor: trail.difficulty === 'Beginner' ? '#4986af' : 
+                                        trail.difficulty === 'Intermediate' ? '#af8649' : 
+                                        '#af4953' }
                       ]}>
                         <Text style={[
                           styles.difficultyLabel, 
-                          { color: trail.difficulty === 'Intermediate' ? '#000' : '#fff' }
+                          { color:  '#fff' }
                         ]}>
                           {trail.difficulty}
                         </Text>
@@ -300,6 +309,31 @@ const handleUserSelect = (user: { id: number; name: string; surname: string }) =
 }
 
 const styles = StyleSheet.create({
+
+  imageScrollView: {
+    marginBottom: 10,
+  },
+  imageContainer: {
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  image: {
+    width: 250,
+    height: 250,
+    borderRadius: 10,
+    marginRight: 10,
+  },
+  loader: {
+    position: 'absolute',
+  },
+  noImagesText: {
+    color: 'white',
+    fontStyle: 'italic',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  
   container: { 
     flex: 1, 
     backgroundColor: '#000' },
