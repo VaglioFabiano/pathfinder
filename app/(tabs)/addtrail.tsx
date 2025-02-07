@@ -3,7 +3,7 @@ import { Alert, Animated, StyleSheet, View } from 'react-native';
 import MapView, { Marker, Polyline, UrlTile } from 'react-native-maps';
 import * as Location from 'expo-location';
 import RecenterButton from '@/components/recenterBotton';
-import Tutorial from '@/components/Tutorial';
+import Tutorial from '@/components/TutorialAdd';
 import TrailComponent from '@/components/TrailComponent';
 import polyline from '@mapbox/polyline';
 import * as TrailDAO from '@/dao/trailDAO';

@@ -1,29 +1,17 @@
 import React, { useState } from 'react';
 import { TouchableOpacity, Text, StyleSheet, Modal, View, Dimensions } from 'react-native';
 
-import * as TrailDAO from '@/dao/trailDAO'; 
 
 
-interface TutorialProps {
-  findNearestTrail: (position:{latitude: number; longitude: number}) => any;
-  location: { latitude: number; longitude: number } | null;
-  setRegion: (region: { latitude: number; longitude: number; latitudeDelta: number; longitudeDelta: number }) => void;
-  setSelectedTrail: (trail: any) => void;
-}
-
-const Tutorial: React.FC<TutorialProps> = ({ setSelectedTrail, findNearestTrail, location, setRegion }) => {
+const Tutorial = () => {
   const [isClicked, setIsClicked] = useState(false);
   const [currentStep, setCurrentStep] = useState<number | null>(null);
 
   const steps = [
-    'Welcome to the Pathfinder map! \n From here you can orient yourself and start a new activity',
-    'Tap this button to start a new activity',
-    'This line indicates the path of the trail you are following',
-    'Using this button you can return to the map of Pathfinder',
-    'Using this button you can add a new trail to the map',
-    'Here will be all your pernonal information',
+    'Welcome to Add Trail the Pathfinder map! \n From here you can orient yourself and record a new activity',
+    'Tap this button to start recording a new activity',
+    'This button indicates which activity you are recording',
     'This is the button to recenter the map on your position',
-    'This is Treely! He will help you to find the best trail for you',
     'End of tutorial! You are now ready to go.',
   ];
 
@@ -37,32 +25,6 @@ const Tutorial: React.FC<TutorialProps> = ({ setSelectedTrail, findNearestTrail,
     if (currentStep !== null && currentStep < steps.length - 1) {
       const nextStep = currentStep + 1;
       setCurrentStep(nextStep);
-      const nearesttrail = findNearestTrail(location);
-      const trail = await TrailDAO.getTrail(nearesttrail.id);
-
-      if (nextStep === 1) {
-        // Step 2: Chiama la funzione per trovare il trail più vicino
-        console.log(nearesttrail);
-        setRegion({
-          latitude: nearesttrail.startpoint.latitude,
-          longitude: nearesttrail.startpoint.longitude,
-          latitudeDelta: 0.005,
-          longitudeDelta: 0.005,
-        });
-      }
-      else if (nextStep === 2) {
-        // Step 3: Chiama la funzione per selezionare il trail
-        setSelectedTrail(trail);
-      }
-      else if (nextStep === 3){
-        setSelectedTrail(null);
-        setRegion({
-          latitude: location.latitude,
-          longitude: location.longitude,
-          latitudeDelta: 0.005,
-          longitudeDelta: 0.005,
-        });
-      }
     } else {
       
       setCurrentStep(null); // Chiude il modal
@@ -173,34 +135,20 @@ const styles: { [key: string]: any } = StyleSheet.create({
     left: width / 2 - 150,
   },
   step1: {
-    top: 300,
+    bottom: 170,
     left: 50,
   },
   step2: {
-    bottom: 100,
-    right: 20,
+    bottom: 230,
+    left: 50,
   },
+ 
   step3: {
-    bottom: 100,
+    bottom: 290,
     left: 10,
   },
+ 
   step4: {
-    bottom: 100,
-    left: width / 2 - 150,
-  },
-  step5: {
-    bottom: 100,
-    right: 10,
-  },
-  step6: {
-    bottom: 190,
-    left: 10,
-  },
-  step7: {
-    bottom: 190,
-    right: 10,
-  },
-  step8: {
     top: height / 2 - 100,
     left: width / 2 - 150,
   },

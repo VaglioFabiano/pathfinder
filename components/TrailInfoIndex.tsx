@@ -4,6 +4,7 @@ import Icon from 'react-native-vector-icons/FontAwesome'; // Aggiungiamo l'icona
 import WarningModal from './WarningModal';
 
 interface TrailInfoPanelProps {
+  currentPos: { latitude: number; longitude: number };
   isPaused: boolean;
   time: number;
   distance: number;
@@ -13,26 +14,30 @@ interface TrailInfoPanelProps {
   endTrail: () => void;
   pauseTrail: () => void;
   resumeTrail: () => void;
+  submitWarning: (warningText: string, position: { latitude: number; longitude: number }) => void;
 }
 
-const TrailInfoIndex: React.FC<TrailInfoPanelProps> = ({isPaused, time, distance, downhill, elevation, calculateAverageSpeed, endTrail, pauseTrail, resumeTrail,}) => {
+const TrailInfoIndex: React.FC<TrailInfoPanelProps> = ({submitWarning, currentPos, isPaused, time, distance, downhill, elevation, calculateAverageSpeed, endTrail, pauseTrail, resumeTrail,}) => {
 
     // Nell'app principale o componente dove viene utilizzato
     const [warningModalVisible, setWarningModalVisible] = useState(false);
     const [warningText, setWarningText] = useState('');
 
     const handleWarning = () => {
-        console.log("Warning button pressed");
         setWarningModalVisible(true);
         pauseTrail();
     };
 
     const handleWarningSubmit = (confirmed: boolean) => {
-    if (confirmed) {
-        console.log("Warning description submitted:", warningText);
-    } else {
-        console.log("Warning action cancelled");
-    }
+        if (confirmed) {
+          if (warningText.trim() === '') {
+            alert('Inserisci un commento e seleziona una valutazione.');
+            return;
+          }
+          console.log("cuttentPos", currentPos);
+          submitWarning(warningText, currentPos);
+        }
+        resumeTrail();
         setWarningModalVisible(false); 
     };
 

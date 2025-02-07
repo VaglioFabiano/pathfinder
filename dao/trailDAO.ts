@@ -1,10 +1,14 @@
 import getDatabase from '@/hooks/database';
-
+import * as WarningTrail from '@/dao/warningDAO';
 interface Coordinate {
     latitude: number;
     longitude: number;
 }
-
+interface Warning {  
+    trail_id: number;
+    position: [number, number];
+    description: string;
+}
 interface Trail {
     name: string;
     downhill: number;
@@ -12,19 +16,16 @@ interface Trail {
     length: number;
     duration: number;
     elevation: number;
-
     startpoint: Coordinate;
     trail: Coordinate[];
     endpoint: Coordinate;
-
     description: string;
     image: string;
-
     city: string;
     region: string;
     state: string;
     province: string;
-
+    warning: Warning;
     activity: string;
 }
   
@@ -64,8 +65,20 @@ const getTrail = async (id: number) => {
         const sql = "SELECT * FROM Trail WHERE id = ?";
         const res = await db.getAllAsync(sql, [id]);
         
+        const warnings = await WarningTrail.getWarning(id);
+        
+        const warning = warnings.map((warning: Warning) => ({
+            trail_id: warning.trail_id,
+            position: {
+                latitude: warning.position[0],
+                longitude: warning.position[1]
+            },
+            description: warning.description
+        }));
+
         const result = res[0];
         
+        result.warning = warning;
 
         result.startpoint = JSON.parse(result.startpoint);
         result.trails = JSON.parse(result.trails);

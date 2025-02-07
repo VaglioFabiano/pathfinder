@@ -12,10 +12,13 @@ import Popup from '@/components/Popup';
 import BottomSheet from '@/components/BottomSheet';
 
 import * as TrailDAO from '@/dao/trailDAO';
+import * as WarningDAO from '@/dao/warningDAO';
+import * as ReviewDAO from '@/dao/reviewDAO';
+
 import TrailDropdown from '@/components/TrailDropdown';
 
 import TrailInfoModal from '@/components/DetailTrail';
-import * as ReviewDAO from '@/dao/reviewDAO';
+import WarningAlert from '@/components/WarningAlert';
 import { useIsFocused } from '@react-navigation/native';
 
 
@@ -40,7 +43,7 @@ interface Trail {
   region: string;
   state: string;
   province: string;
-
+  warning: [Warning];
   activity: string;
 
 }
@@ -50,6 +53,11 @@ interface Review {
   user_id: number;
   rating: number;
   comment: string;
+}
+interface Warning {  
+  trail_id: number;
+  position: [number, number];
+  description: string;
 }
 const MapWithTopoMap = () => {
   const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
@@ -79,8 +87,12 @@ const MapWithTopoMap = () => {
     distance: 0,
     downhill: 0,
     elevation: 0,
+    currentPosition: [0, 0],
   });
   const isFocused = useIsFocused();
+  const [warningModalVisible, setWarningModalVisible] = useState(false);
+  const [currentWarningText, setCurrentWarningText] = useState('');
+  
 
   useEffect(() => {
     (async () => {
@@ -117,7 +129,6 @@ const MapWithTopoMap = () => {
       
     })();
   }, [refresh]);
-
   useEffect(() => {
     const fetchTrails = async () => {
       try {
@@ -131,16 +142,26 @@ const MapWithTopoMap = () => {
     fetchTrails();
   }, [isFocused]);
 
+ 
+  const handleWarningPress = (text: string) => {
+    setCurrentWarningText(text);
+    setWarningModalVisible(true);
+  };
+  const handleWarningClose = () => {
+    setWarningModalVisible(false);
+    setCurrentWarningText('');
+  }
+
   const fetchTrail = async (t: Trail) => {
     try {
       const trail = await TrailDAO.getTrail(t.id);
       setSelectedTrail(trail);
+      console.log(trail.warning);
       setModalVisible(true);
     } catch (error) {
       console.error("Errore durante il recupero del trail:", error);
     }
   };
-
   const handleMarkerPress = (t: Trail) => {
     
     const tolerance = 0.0001;
@@ -155,12 +176,10 @@ const MapWithTopoMap = () => {
       fetchTrail(t);
     }
   };
-  
   const showTrailOptions = (overlappingTrails: Trail[]) => {
     setVisibleOptions(true);
     setTrailOptionsVisible(overlappingTrails);
   };
-
   const startTrail = () => {
     setTrailActive(true);
     setIsPaused(false);
@@ -168,13 +187,13 @@ const MapWithTopoMap = () => {
     setSimulatedPosition(selectedTrail ? { latitude: selectedTrail.trail[0][0], longitude: selectedTrail.trail[0][1] } : null);
     setModalVisible(false);
   };
-
   const endTrail = () => {
     setTrailData({
       time: 0,
       distance: 0,
       downhill: 0,
       elevation: 0,
+      currentPosition: [0, 0],
     });
     setTrailActive(false);
     setHeading(0);
@@ -261,6 +280,7 @@ const MapWithTopoMap = () => {
             distance: prevData.distance + distanceToCover / 1000,
             downhill: prevData.downhill + (Math.random() * 0.005),
             elevation: prevData.elevation + (Math.random() * 0.01),
+            currentPosition: newPosition,
           }));
   
           index = nextIndex;
@@ -281,6 +301,47 @@ const MapWithTopoMap = () => {
       };
     }
   }, [trailActive, selectedTrail, isPaused]);
+
+  const findNearestTrail = (currentLocation: { latitude: number; longitude: number }) => {
+    if (!currentLocation || trails.length === 0) return null;
+  
+    const toRadians = (degrees: number) => (degrees * Math.PI) / 180;
+    const R = 6371e3; // Raggio della Terra in metri
+  
+    const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+      const deltaLat = toRadians(lat2 - lat1);
+      const deltaLon = toRadians(lon2 - lon1);
+      const a =
+        Math.sin(deltaLat / 2) ** 2 +
+        Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) * Math.sin(deltaLon / 2) ** 2;
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    };
+  
+    let nearestTrail = trails[0];
+    let shortestDistance = calculateDistance(
+      currentLocation.latitude,
+      currentLocation.longitude,
+      trails[0].startpoint.latitude,
+      trails[0].startpoint.longitude
+    );
+  
+    trails.forEach((trail) => {
+      const distance = calculateDistance(
+        currentLocation.latitude,
+        currentLocation.longitude,
+        trail.startpoint.latitude,
+        trail.startpoint.longitude
+      );
+  
+      if (distance < shortestDistance) {
+        shortestDistance = distance;
+        nearestTrail = trail;
+      }
+    });
+  
+    return nearestTrail;
+  };
   
 
   const pauseTrail = () => {  
@@ -289,7 +350,15 @@ const MapWithTopoMap = () => {
   const resumeTrail = () => {
     setIsPaused(false);
   };
+  const submitWarning= async (warningText: string, position:{ latitude: number; longitude: number }) => {
+    const newWarning: Warning = {
+      trail_id: selectedTrail?.id ?? 0,
+      position: [position.latitude, position.longitude],
+      description: warningText,
+    };
 
+    await WarningDAO.addWarning(newWarning);
+  };
   const interpolatePosition = (start, end, fraction) => {
     return {
       latitude: start.latitude + (end.latitude - start.latitude) * fraction,
@@ -299,7 +368,6 @@ const MapWithTopoMap = () => {
   const calculateAverageSpeed = () => {
     return trailData.time > 0 ? parseFloat((trailData.distance / (trailData.time / 3600)).toFixed(2)) : 0;
   };
-
   const calculateDistance = (pointA: { latitude: any; longitude: any; }, pointB: { latitude: any; longitude: any; }) => {
     const toRadians = (degrees: number) => (degrees * Math.PI) / 180;
     const R = 6371e3;
@@ -328,7 +396,6 @@ const MapWithTopoMap = () => {
 
     return (initialBearing + 360) % 360;
   };
-
   if (!region) {
     return <View style={styles.container} />;
   }
@@ -336,10 +403,7 @@ const MapWithTopoMap = () => {
   return (
     <View style={styles.container}>
       <MapView showsCompass={false} ref={mapRef} style={styles.map} region={region} onRegionChangeComplete={(region) => setRegion(region)} mapType="terrain" >
-        <UrlTile urlTemplate="http://c.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-        
-
-        
+        <UrlTile urlTemplate="http://c.tile.openstreetmap.org/{z}/{x}/{y}.png" />        
         {location && (
           <Marker coordinate={simulatedPosition ?? location}>
             <Animated.View style={{ transform: [{ rotate: `${heading}deg` }] }}>
@@ -352,7 +416,6 @@ const MapWithTopoMap = () => {
             </Animated.View>
           </Marker>
         )}
-
         {!trailActive && trails.map((trail) => {
             const difficultyColor =
             trail.difficulty === 'Beginner' ? '#4986af' :
@@ -378,7 +441,6 @@ const MapWithTopoMap = () => {
               </Marker>
             );
         })}
-
         {selectedTrail && (
           <Polyline
             coordinates={selectedTrail.trail}
@@ -390,11 +452,20 @@ const MapWithTopoMap = () => {
             strokeWidth={3}
           />
         )}
-
+        {selectedTrail && selectedTrail.warning.map((warning:any,index:number) => (
+          <Marker key={index} coordinate={warning.position} flat={true} onPress={() => {handleWarningPress(warning.description)}} >
+            <View style={styles.warningMarker}>
+              <MaterialCommunityIcons name="alert" size={20} color="#f4c542" />
+            </View>
+          </Marker>
+        ))}
       </MapView>
       
       <SearchBar mapRef={mapRef} />
       
+      {/* Modal per i warning */}
+      <WarningAlert visible={warningModalVisible} warningText={currentWarningText} onClose={handleWarningClose} />
+
       {/* Modal per inserire la review */}
       {reviewModalVisible && <ReviewModal reviewModalVisible={reviewModalVisible} reviewText={reviewText} setReviewText={setReviewText} submitReview={submitReview} rating={rating} setRating={setRating} />}
 
@@ -403,7 +474,7 @@ const MapWithTopoMap = () => {
       {/* Bottom sheet modal */}
       {modalVisible && ( <Popup selectedTrail={selectedTrail} startTrail={startTrail} closeModal={closeModal} setIsModalDetailVisible={setIsModalDetailVisible}/> )}
 
-      {!modalVisible && ( <BottomSheet isPaused={isPaused} trailData={trailData} endTrail={endTrail} trailActive={trailActive} mapRef={mapRef} location={simulatedPosition ?? location} setRegion={setRegion} calculateAverageSpeed={calculateAverageSpeed} pauseTrail={pauseTrail} resumeTrail={resumeTrail} />)} 
+      {!modalVisible && ( <BottomSheet setSelectedTrail={setSelectedTrail} findNearestTrail={findNearestTrail} submitWarning={submitWarning} isPaused={isPaused} trailData={trailData} endTrail={endTrail} trailActive={trailActive} mapRef={mapRef} location={simulatedPosition ?? location} setRegion={setRegion} calculateAverageSpeed={calculateAverageSpeed} pauseTrail={pauseTrail} resumeTrail={resumeTrail} />)} 
       
       {/* Modal per la selezione del trail */}
       {trailOptionsVisible && visibileOptions && <TrailDropdown visible={visibileOptions}  setVisible={setVisibleOptions} trails={trailOptionsVisible} setTrail={setTrailOptionsVisible} onSelect={fetchTrail} />}
@@ -416,7 +487,13 @@ const MapWithTopoMap = () => {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   map: { flex: 1 },
-
+  warningMarker: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 5,
+    borderRadius: 10,
+    backgroundColor: '#fff',
+  },
   markerIcon: {
     padding: 5,
     borderRadius: 5,

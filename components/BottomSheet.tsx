@@ -17,12 +17,15 @@ interface BottomSheetProps {
   calculateAverageSpeed: () => number;
   pauseTrail: () => void;
   resumeTrail: () => void;
+  submitWarning: (warningText: string, position: { latitude: number; longitude: number }) => void;
+  findNearestTrail: (position: { latitude: number; longitude: number }) => any;
+  setSelectedTrail: (trail: any) => void;
 }
 
-const BottomSheet: React.FC<BottomSheetProps> = ({isPaused, trailData , trailActive, mapRef, location, setRegion, endTrail, calculateAverageSpeed, pauseTrail, resumeTrail }) => {
+const BottomSheet: React.FC<BottomSheetProps> = ({setSelectedTrail, findNearestTrail,submitWarning, isPaused, trailData , trailActive, mapRef, location, setRegion, endTrail, calculateAverageSpeed, pauseTrail, resumeTrail }) => {
   return (
   <>
-    { trailActive && ( <TrailInfoIndex isPaused={isPaused} time={trailData.time} distance={trailData.distance} downhill={trailData.downhill} elevation={trailData.elevation} calculateAverageSpeed={calculateAverageSpeed} endTrail={endTrail} pauseTrail={pauseTrail} resumeTrail={resumeTrail} /> )}
+    { trailActive && ( <TrailInfoIndex isPaused={isPaused} submitWarning={submitWarning} currentPos = {trailData.currentPosition} time={trailData.time} distance={trailData.distance} downhill={trailData.downhill} elevation={trailData.elevation} calculateAverageSpeed={calculateAverageSpeed} endTrail={endTrail} pauseTrail={pauseTrail} resumeTrail={resumeTrail} /> )}
     <View style={[styles.buttonGroup, { bottom: trailActive ? 170 : 20 }]}>
       {/* Tree a sinistra */}
       <View style={styles.leftButtonContainer}>
@@ -32,7 +35,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({isPaused, trailData , trailAct
       {/* RecenterButton e Tutorial a destra */}
       <View style={styles.rightButtonContainer}>
         <RecenterButton mapRef={mapRef} location={location} setRegion={setRegion} />
-        <Tutorial />
+        <Tutorial setSelectedTrail={setSelectedTrail} findNearestTrail={findNearestTrail} location={location} setRegion={setRegion}/>
       </View>
     </View>
     </>
