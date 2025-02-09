@@ -17,7 +17,7 @@ const StartTrailButton = ({ startTrail, currentPosition }: StartTrailButtonProps
   const [selectedActivity, setSelectedActivity] = useState('Walk');
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
-  const activities = ['Walk', 'Hiking', 'Bike'];
+  const activities = ['Walk', 'Hike', 'Bike'];
 
   const handleActivitySelect = (activity: string) => {
     setSelectedActivity(activity);
