@@ -95,7 +95,7 @@ const Tree: React.FC<TreeProps> = ({ setRegion, location, trail, setRecomanded }
           <Text style={styles.bubbleText}>
             {isSecondAnimationPlaying
               ? "I recommend these trails. Click here to return to the initial situation!"
-              : "Hello! Click on me to find a trail for you!"}
+              : "Hello! Click on me to find a \ntrail for you!"}
           </Text>
         </Animated.View>
       )}
