@@ -258,7 +258,7 @@ const MapWithTopoMap = () => {
       }
       const newReview: Review = {
         trail_id: selectedTrail?.id ?? 0,
-        user_id: 1,
+        user_id: 3,
         rating: rating,
         comment: reviewText,
         id: 0
