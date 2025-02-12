@@ -1,6 +1,5 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { View, Animated, StyleSheet, TouchableOpacity, Text } from 'react-native';
-import LottieView from 'lottie-react-native';
+import React, { useRef, useState } from 'react';
+import { View, Animated, StyleSheet, TouchableOpacity, Text, Image } from 'react-native';
 
 interface TreeProps {
   setRegion: (region: any) => void;
@@ -12,7 +11,6 @@ interface TreeProps {
 const Tree: React.FC<TreeProps> = ({ setRegion, location, trail, setRecomanded }) => {
   const [isVisible, setIsVisible] = useState(true);
   const [showBubble, setShowBubble] = useState(true);
-  const [isFirstAnimationCompleted, setIsFirstAnimationCompleted] = useState(false);
   const [isSecondAnimationPlaying, setIsSecondAnimationPlaying] = useState(false);
   const [recommendedTrail, setRecommendedTrail] = useState<any | null>(null);
 
@@ -23,15 +21,9 @@ const Tree: React.FC<TreeProps> = ({ setRegion, location, trail, setRecomanded }
     setIsVisible(true);
     setShowBubble(true);
     setRecommendedTrail(null);
-    setIsFirstAnimationCompleted(false);
     setIsSecondAnimationPlaying(false);
     setRecomanded([]);
-    setRegion({
-      latitude: location.latitude,
-      longitude: location.longitude,
-      latitudeDelta: 0.01,
-      longitudeDelta: 0.01,
-    })
+   
   };
 
   const hideTree = () => {
@@ -40,10 +32,8 @@ const Tree: React.FC<TreeProps> = ({ setRegion, location, trail, setRecomanded }
       return;
     }
 
-    // Calcola i 3 trail più vicini solo al clic sulla prima animazione
     if (trail.length > 0 && location) {
       const closestTrails = getClosestTrails(location, trail);
-      console.log('Closest trails after click:', closestTrails);
       setRecommendedTrail(closestTrails);
       setRecomanded(closestTrails);
 
@@ -58,13 +48,16 @@ const Tree: React.FC<TreeProps> = ({ setRegion, location, trail, setRecomanded }
       }
     }
 
-    Animated.timing(fadeAnim, {
-      toValue: 0,
-      duration: 500,
-      useNativeDriver: true,
-    }).start(() => setIsVisible(false));
-
     setIsSecondAnimationPlaying(true);
+    if (recommendedTrail) {
+      setTimeout(() => {
+        setShowBubble(false);  // Hide bubble
+        setIsSecondAnimationPlaying(false); // Stop second animation
+        resetTree();
+      }, 5000);
+    }  
+
+    
   };
 
   const getClosestTrails = (location: any, trails: any[]) => {
@@ -94,37 +87,21 @@ const Tree: React.FC<TreeProps> = ({ setRegion, location, trail, setRecomanded }
         <Animated.View style={[styles.bubble, { opacity: bubbleFadeAnim }]}>
           <Text style={styles.bubbleText}>
             {isSecondAnimationPlaying
-              ? "I recommend these trails. Click here to return to the initial situation!"
+              ? "I recommend these trails. \n Click on me to return back!"
               : "Hello! Click on me to find a \ntrail for you!"}
           </Text>
         </Animated.View>
       )}
 
-      {/* First Animation (Tree) */}
-      {isVisible && !isSecondAnimationPlaying && (
-        <TouchableOpacity onPress={hideTree}>
-          <Animated.View style={[styles.treeContainer, { opacity: fadeAnim }]}>
-            <LottieView
-              source={require('./animazioni/Animation - 1738939847982.json')}
-              autoPlay
-              loop={false}
-              style={styles.animation}
-              onAnimationFinish={() => setIsFirstAnimationCompleted(true)}
-            />
-          </Animated.View>
-        </TouchableOpacity>
-      )}
-
-      {/* Second Animation */}
-      {isSecondAnimationPlaying && (
-        <TouchableOpacity onPress={hideTree}>
-          <LottieView
-            source={require('./animazioni/Animation - 1738939888724.json')}
-            loop={true}
+      {/* Animation using GIF */}
+      <TouchableOpacity onPress={hideTree}>
+        <Animated.View style={[styles.treeContainer, { opacity: fadeAnim }]}>
+          <Image
+            source={require('./animazioni/giphy.gif')}
             style={styles.animation}
           />
-        </TouchableOpacity>
-      )}
+        </Animated.View>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -138,26 +115,43 @@ const styles = StyleSheet.create({
   },
   treeContainer: {
     position: 'absolute',
-    left: -20,
-    bottom: 45,
+    left: -10,
+    bottom: 40,
+    shadowColor: '#000',  // Colore dell'ombra (nero)
+    shadowOffset: { width: 0, height: 2 },  // Offset dell'ombra
+    shadowOpacity: 0.2,  // Opacità dell'ombra
+    shadowRadius: 4,  // Raggio dell'ombra
+    
   },
   animation: {
-    width: 200,
+    width: 170,
     height: 200,
+    shadowColor: '#000',  // Colore dell'ombra (nero)
+    shadowOffset: { width: 0, height: 2 },  // Offset dell'ombra
+    shadowOpacity: 0.2,  // Opacità dell'ombra
+    shadowRadius: 4,  // Raggio dell'ombra
   },
   bubble: {
     position: 'absolute',
-    bottom: 200,
-    left: 10,
+    bottom: 250,
+    left: 0,
     backgroundColor: 'white',
     padding: 10,
     borderRadius: 10,
     borderWidth: 1,
     borderColor: 'black',
+    shadowColor: '#000',  // Colore dell'ombra (nero)
+    shadowOffset: { width: 0, height: 2 },  // Offset dell'ombra
+    shadowOpacity: 0.2,  // Opacità dell'ombra
+    shadowRadius: 4,  // Raggio dell'ombra
   },
   bubbleText: {
     fontSize: 14,
     fontWeight: 'bold',
+    shadowColor: '#000',  // Colore dell'ombra (nero)
+    shadowOffset: { width: 0, height: 2 },  // Offset dell'ombra
+    shadowOpacity: 0.2,  // Opacità dell'ombra
+    shadowRadius: 4,  // Raggio dell'ombra
   },
 });
 

@@ -21,9 +21,11 @@ interface BottomSheetProps {
   findNearestTrail: (position: { latitude: number; longitude: number }) => any;
   setSelectedTrail: (trail: any) => void;
   trails: any;
+  region: { latitude: number; longitude: number; latitudeDelta: number; longitudeDelta: number };
+  setRecomanded: (recomanded: any) => void;
 }
 
-const BottomSheet: React.FC<BottomSheetProps> = ({trails,setRecomanded, setSelectedTrail, findNearestTrail,submitWarning, isPaused, trailData , trailActive, mapRef, location, setRegion, endTrail, calculateAverageSpeed, pauseTrail, resumeTrail }) => {
+const BottomSheet: React.FC<BottomSheetProps> = ({trails,setRecomanded, region, setSelectedTrail, findNearestTrail,submitWarning, isPaused, trailData , trailActive, mapRef, location, setRegion, endTrail, calculateAverageSpeed, pauseTrail, resumeTrail }) => {
   return (
   <>
     { trailActive && ( <TrailInfoIndex isPaused={isPaused} submitWarning={submitWarning} currentPos = {trailData.currentPosition} time={trailData.time} distance={trailData.distance} downhill={trailData.downhill} elevation={trailData.elevation} calculateAverageSpeed={calculateAverageSpeed} endTrail={endTrail} pauseTrail={pauseTrail} resumeTrail={resumeTrail} /> )}
@@ -36,7 +38,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({trails,setRecomanded, setSelec
       {/* RecenterButton e Tutorial a destra */}
       <View style={styles.rightButtonContainer}>
         <RecenterButton mapRef={mapRef} location={location} setRegion={setRegion} />
-        <Tutorial setSelectedTrail={setSelectedTrail} findNearestTrail={findNearestTrail} location={location} setRegion={setRegion}/>
+        <Tutorial setSelectedTrail={setSelectedTrail} region={region} findNearestTrail={findNearestTrail} location={location} setRegion={setRegion}/>
       </View>
     </View>
     </>

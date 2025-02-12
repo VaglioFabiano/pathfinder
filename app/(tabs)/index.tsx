@@ -24,6 +24,7 @@ import { useIsFocused } from '@react-navigation/native';
 
 
 interface Trail {
+  some(arg0: (r: any) => boolean): unknown;
   id: number;
   name: string;
   downhill: number;
@@ -43,7 +44,7 @@ interface Trail {
   region: string;
   state: string;
   province: string;
-  warning: [Warning];
+  //warning: [Warning];
   activity: string;
 
 }
@@ -53,6 +54,7 @@ interface Review {
   user_id: number;
   rating: number;
   comment: string;
+  username: string;
 }
 interface Warning {  
   trail_id: number;
@@ -144,7 +146,28 @@ const MapWithTopoMap = () => {
     fetchTrails();
   }, [isFocused]);
 
- 
+  useEffect(() => {
+    if (selectedTrail && mapRef.current) {
+      mapRef.current.fitToCoordinates(
+        [...selectedTrail.trail, selectedTrail.startpoint, selectedTrail.endpoint],
+        {
+          edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+          animated: true
+        }
+      );
+    }
+    else{
+      mapRef.current && mapRef.current.animateToRegion(
+        {
+          latitude: location?.latitude ?? 0,
+          longitude: location?.longitude ?? 0,
+          latitudeDelta: 0.004,
+          longitudeDelta: 0.004,
+        }, 1000);
+    }
+    
+  }, [selectedTrail, recomanded]);
+
   const handleWarningPress = (text: string) => {
     setCurrentWarningText(text);
     setWarningModalVisible(true);
@@ -157,25 +180,34 @@ const MapWithTopoMap = () => {
   const fetchTrail = async (t: Trail) => {
     try {
       const trail = await TrailDAO.getTrail(t.id);
+      const index = (trail.trail.length / 2).toFixed(0);
+      mapRef.current?.animateToRegion({
+        latitude: trail.trail[index].latitude,
+        longitude: trail.trail[index].longitude,
+        latitudeDelta: 0.8,
+        longitudeDelta: 0.8,
+      });
       setSelectedTrail(trail);
-      console.log(trail.warning);
       setModalVisible(true);
     } catch (error) {
       console.error("Errore durante il recupero del trail:", error);
     }
   };
   const handleMarkerPress = (t: Trail) => {
-    
-    const tolerance = 0.0001;
-    const overlappingTrails = trails.filter((trail) => 
-      Math.abs(trail.startpoint.latitude - t.startpoint.latitude) <= tolerance &&
-      Math.abs(trail.startpoint.longitude - t.startpoint.longitude) <= tolerance
+    const latitudeDelta = region?.latitudeDelta;
+    const longitudeDelta = region?.longitudeDelta;
+    const toleranceLatitude = latitudeDelta * 0.1; // Fattore da regolare
+    const toleranceLongitude = longitudeDelta * 0.1; // Fattore da regolare
+      const overlappingTrails = trails.filter((trail) => 
+      Math.abs(trail.startpoint.latitude - t.startpoint.latitude) <= toleranceLatitude &&
+      Math.abs(trail.startpoint.longitude - t.startpoint.longitude) <= toleranceLongitude
     );
     
     if (overlappingTrails.length > 1) {
       showTrailOptions(overlappingTrails);
     } else {
       fetchTrail(t);
+      
     }
   };
   const showTrailOptions = (overlappingTrails: Trail[]) => {
@@ -190,6 +222,14 @@ const MapWithTopoMap = () => {
     setModalVisible(false);
   };
   const endTrail = () => {
+    const reachedEndPoint =
+    trailData.currentPosition.latitude === selectedTrail.endpoint.latitude &&
+    trailData.currentPosition.longitude === selectedTrail.endpoint.longitude;
+    setTrailActive(false);
+    setHeading(0);
+    setCurrentDistance(0);
+    setCurrentIndex(0);
+
     setTrailData({
       time: 0,
       distance: 0,
@@ -197,9 +237,18 @@ const MapWithTopoMap = () => {
       elevation: 0,
       currentPosition: [0, 0],
     });
-    setTrailActive(false);
-    setHeading(0);
-    setReviewModalVisible(true);
+    if (reachedEndPoint) {
+      setReviewModalVisible(true);
+    } else {
+      setIsModalDetailVisible(false);
+      setTrailActive(false);
+      setSelectedTrail(null);
+      setSimulatedPosition(null);
+      alert("Devi raggiungere il punto di arrivo per terminare il trail!");
+      
+    }
+  
+    
   };
   const submitReview = async (flag:boolean) => {
     if (flag){
@@ -233,35 +282,32 @@ const MapWithTopoMap = () => {
       setSimulatedPosition(null);
     }
   };
+  
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentDistance, setCurrentDistance] = useState(0);
+
   useEffect(() => {
     let timerId: NodeJS.Timeout | null = null;
   
-    if (!isPaused && trailActive && selectedTrail) {
+    if (trailActive && selectedTrail && !isPaused) {
       const path = selectedTrail.trail;
-      let index = 0;
-      let accumulatedDistance = 0;
+      let index = currentIndex; // Usa lo stato invece di una ref
+      let accumulatedDistance = currentDistance; // Mantiene la distanza accumulata
   
       const speedMetersPerSecond = 10 * 1000 / 3600;
   
       const moveToNextPoint = () => {
-        if (isPaused) return; // Blocca il movimento se in pausa
+        if (isPaused) return;
   
         if (index < path.length - 1) {
           const currentPosition = path[index];
           const nextPosition = path[index + 1];
   
           const totalDistance = calculateDistance(currentPosition, nextPosition);
-  
-          // Calcola la direzione tra i punti
           const direction = calculateHeading(currentPosition, nextPosition);
           setHeading(direction);
   
-          // Determina quanto possiamo percorrere in questo aggiornamento
-          const distanceToCover = speedMetersPerSecond;
-  
-          // Verifica se superiamo il punto successivo
-          accumulatedDistance += distanceToCover;
-  
+          accumulatedDistance += speedMetersPerSecond;
           let newPosition = currentPosition;
           let nextIndex = index;
   
@@ -275,19 +321,18 @@ const MapWithTopoMap = () => {
           }
   
           setSimulatedPosition(newPosition);
+          setCurrentIndex(nextIndex); // Aggiorna l'indice
+          setCurrentDistance(accumulatedDistance); // Aggiorna la distanza
   
           setTrailData((prevData) => ({
             ...prevData,
             time: prevData.time + 1,
-            distance: prevData.distance + distanceToCover / 1000,
-            downhill: prevData.downhill + (Math.random() * 0.005),
-            elevation: prevData.elevation + (Math.random() * 0.01),
+            distance: prevData.distance + speedMetersPerSecond / 1000,
+            downhill: prevData.downhill + Math.random() * 0.005,
+            elevation: prevData.elevation + Math.random() * 0.01,
             currentPosition: newPosition,
           }));
   
-          index = nextIndex;
-  
-          // Continua il ciclo ogni secondo
           timerId = setTimeout(moveToNextPoint, 1000);
         } else {
           console.log("Raggiunto l'endpoint!");
@@ -297,13 +342,13 @@ const MapWithTopoMap = () => {
       };
   
       moveToNextPoint();
-  
-      return () => {
-        if (timerId) clearTimeout(timerId);
-      };
     }
-  }, [trailActive, selectedTrail, isPaused]);
-
+  
+    return () => {
+      if (timerId) clearTimeout(timerId);
+    };
+  }, [trailActive, selectedTrail, isPaused, currentIndex, currentDistance]);
+  
   const findNearestTrail = (currentLocation: { latitude: number; longitude: number }) => {
     if (!currentLocation || trails.length === 0) return null;
   
@@ -345,7 +390,6 @@ const MapWithTopoMap = () => {
     return nearestTrail;
   };
   
-
   const pauseTrail = () => {  
     setIsPaused(true);
   };
@@ -406,6 +450,7 @@ const MapWithTopoMap = () => {
     <View style={styles.container}>
       <MapView showsCompass={false} ref={mapRef} style={styles.map} region={region} onRegionChangeComplete={(region) => setRegion(region)} mapType="terrain" >
         <UrlTile urlTemplate="http://c.tile.openstreetmap.org/{z}/{x}/{y}.png" />        
+        
         {location && (
           <Marker coordinate={simulatedPosition ?? location}>
             <Animated.View style={{ transform: [{ rotate: `${heading}deg` }] }}>
@@ -418,70 +463,77 @@ const MapWithTopoMap = () => {
             </Animated.View>
           </Marker>
         )}
-        {!trailActive && trails.map((trail) => {
-  const difficultyColor =
-    trail.difficulty === 'Beginner' ? '#4986af' :
-    trail.difficulty === 'Intermediate' ? '#af8649' :
-    '#af4953';
-  
-  let activityIcon;
-  switch (trail.activity) {
-    case 'walk':
-      activityIcon = <MaterialCommunityIcons name="walk" size={30} color={"white"} />;
-      break; 
-    case 'hiking':
-      activityIcon = <MaterialCommunityIcons name="hiking" size={30} color={"white"}  />;
-      break;
-    default:
-      activityIcon = <MaterialCommunityIcons name="bike" size={30} color={"white"}  />;
-      break;
-  }
 
-  const isRecommended = recomanded && recomanded.some((r: any) => r.id === trail.id);
+        {!selectedTrail  && 
+          (trails.map((trail) => {
+            const difficultyColor =
+              trail.difficulty === 'Beginner' ? '#4986af' :
+              trail.difficulty === 'Intermediate' ? '#af8649' :
+              '#af4953';
+            
+            let activityIcon;
+            switch (trail.activity) {
+              case 'walk':
+                activityIcon = <MaterialCommunityIcons name="walk" size={30} color={"white"} />;
+                break; 
+              case 'hiking':
+                activityIcon = <MaterialCommunityIcons name="hiking" size={30} color={"white"}  />;
+                break;
+              default:
+                activityIcon = <MaterialCommunityIcons name="bike" size={30} color={"white"}  />;
+                break;
+            }
 
-  return (
-    <Marker key={trail.id} coordinate={trail.startpoint} flat={true} onPress={() => handleMarkerPress(trail)}>
-      <View 
-        style={[
-          styles.markerIcon, 
-          { 
-            backgroundColor: difficultyColor, 
-            borderWidth: isRecommended ? 3 : 0, 
-            borderColor: isRecommended ? '#FFD700' : 'transparent', // Contorno dorato se è raccomandato
-          }
-        ]}
-      >
-        {activityIcon}
-      </View>
-    </Marker>
-  );
-})}
+            const isRecommended = recomanded && recomanded.some((r: any) => r.id === trail.id);
+
+            return (
+              <Marker key={trail.id} coordinate={trail.startpoint} flat={true} onPress={() => handleMarkerPress(trail)}>
+                <View 
+                  style={[ styles.markerIcon,  { 
+                      backgroundColor: difficultyColor, 
+                      borderWidth: isRecommended ? 8 : 0, 
+                      borderColor: isRecommended ? '#FFD700' : 'transparent', // Contorno dorato se è raccomandato
+                    }
+                  ]}
+                >
+                  {activityIcon}
+                </View>
+              </Marker>
+            );
+        }))}
 
         {selectedTrail && (
+          <>
           <Polyline
-            coordinates={selectedTrail.trail}
+            coordinates={selectedTrail?.trail}
             strokeColor={
-              selectedTrail.difficulty === 'Beginner' ? '#4986af' :
-              selectedTrail.difficulty === 'Intermediate' ? '#af8649' :
+              selectedTrail?.difficulty === 'Beginner' ? '#4986af' :
+              selectedTrail?.difficulty === 'Intermediate' ? '#af8649' :
               '#af4953'
             }
             strokeWidth={3}
           />
-        )}
-        {selectedTrail && selectedTrail.warning.map((warning:any,index:number) => (
-          <Marker key={index} coordinate={warning.position} flat={true} onPress={() => {handleWarningPress(warning.description)}} >
-            <View style={styles.warningMarker}>
-              <MaterialCommunityIcons name="alert" size={20} color="#f4c542" />
+       
+          <Marker  coordinate={selectedTrail?.endpoint}  flat={true} >
+            <View style={styles.endpointMarker}>
+              <MaterialCommunityIcons name="flag-checkered" size={24} color="white" />
             </View>
           </Marker>
-        ))}
+       
+          <Marker coordinate={selectedTrail?.startpoint} flat={true} >
+            <View style={styles.startpointMarker}>
+              <MaterialCommunityIcons name="flag" size={24} color="white" /> 
+            </View>
+          </Marker>
+          </>
+        )}
+
+
       </MapView>
       
       <SearchBar mapRef={mapRef} />
       
-      {/* Modal per i warning */}
-      <WarningAlert visible={warningModalVisible} warningText={currentWarningText} onClose={handleWarningClose} />
-
+      
       {/* Modal per inserire la review */}
       {reviewModalVisible && <ReviewModal reviewModalVisible={reviewModalVisible} reviewText={reviewText} setReviewText={setReviewText} submitReview={submitReview} rating={rating} setRating={setRating} />}
 
@@ -490,7 +542,7 @@ const MapWithTopoMap = () => {
       {/* Bottom sheet modal */}
       {modalVisible && ( <Popup selectedTrail={selectedTrail} startTrail={startTrail} closeModal={closeModal} setIsModalDetailVisible={setIsModalDetailVisible}/> )}
 
-      {!modalVisible && ( <BottomSheet setRecomanded={setRecomanded} trails={trails} setSelectedTrail={setSelectedTrail} findNearestTrail={findNearestTrail} submitWarning={submitWarning} isPaused={isPaused} trailData={trailData} endTrail={endTrail} trailActive={trailActive} mapRef={mapRef} location={simulatedPosition ?? location} setRegion={setRegion} calculateAverageSpeed={calculateAverageSpeed} pauseTrail={pauseTrail} resumeTrail={resumeTrail} />)} 
+      {!modalVisible && ( <BottomSheet setRecomanded={setRecomanded} trails={trails} setSelectedTrail={setSelectedTrail} findNearestTrail={findNearestTrail} submitWarning={submitWarning} isPaused={isPaused} trailData={trailData} endTrail={endTrail} trailActive={trailActive} mapRef={mapRef} location={simulatedPosition ?? location} setRegion={setRegion} region={region} calculateAverageSpeed={calculateAverageSpeed} pauseTrail={pauseTrail} resumeTrail={resumeTrail} />)} 
       
       {/* Modal per la selezione del trail */}
       {trailOptionsVisible && visibileOptions && <TrailDropdown visible={visibileOptions}  setVisible={setVisibleOptions} trails={trailOptionsVisible} setTrail={setTrailOptionsVisible} onSelect={fetchTrail} />}
@@ -543,6 +595,34 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 4,
     backgroundColor: 'white',
+  },
+  endpointMarker: {
+    backgroundColor: "#86af49", 
+    padding: 4,
+    borderRadius: 10, 
+    borderWidth: 2, 
+    borderColor: "white",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 3.5,
+    elevation: 5, // Per Android
+  },
+  startpointMarker: {
+    backgroundColor: "#979797", 
+    padding: 4,
+    borderRadius: 10, 
+    borderWidth: 2, 
+    borderColor: "white",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 3.5,
+    elevation: 5, // Per Android
   },
 });
 

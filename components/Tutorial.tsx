@@ -2,18 +2,21 @@ import React, { useState } from 'react';
 import { TouchableOpacity, Text, StyleSheet, Modal, View, Dimensions } from 'react-native';
 
 import * as TrailDAO from '@/dao/trailDAO'; 
+import { Entypo } from '@expo/vector-icons';
 
 
 interface TutorialProps {
   findNearestTrail: (position:{latitude: number; longitude: number}) => any;
   location: { latitude: number; longitude: number } | null;
   setRegion: (region: { latitude: number; longitude: number; latitudeDelta: number; longitudeDelta: number }) => void;
+  region: { latitude: number; longitude: number; latitudeDelta: number; longitudeDelta: number };
   setSelectedTrail: (trail: any) => void;
 }
 
-const Tutorial: React.FC<TutorialProps> = ({ setSelectedTrail, findNearestTrail, location, setRegion }) => {
+const Tutorial: React.FC<TutorialProps> = ({ setSelectedTrail, findNearestTrail, location,region, setRegion }) => {
   const [isClicked, setIsClicked] = useState(false);
   const [currentStep, setCurrentStep] = useState<number | null>(null);
+  const [arrowPosition, setArrowPosition] = useState<{ top: number; left: number } | null>(null);
 
   const steps = [
     'Welcome to the Pathfinder map! \n From here you can orient yourself and start a new activity',
@@ -23,7 +26,7 @@ const Tutorial: React.FC<TutorialProps> = ({ setSelectedTrail, findNearestTrail,
     'Using this button you can add a new trail to the map',
     'Here will be all your pernonal information',
     'This is the button to recenter the map on your position',
-    'This is Treely! He will help you to find the best trail for you',
+    'This is Treely!\n He will help you \nto find the best trail for you',
     'End of tutorial! You are now ready to go.',
   ];
 
@@ -33,16 +36,23 @@ const Tutorial: React.FC<TutorialProps> = ({ setSelectedTrail, findNearestTrail,
     setTimeout(() => setIsClicked(false), 500);
   };
 
+
   const handleNextStep = async () => {
     if (currentStep !== null && currentStep < steps.length - 1) {
       const nextStep = currentStep + 1;
       setCurrentStep(nextStep);
       const nearesttrail = findNearestTrail(location);
       const trail = await TrailDAO.getTrail(nearesttrail.id);
+      setArrowPosition(null);
 
       if (nextStep === 1) {
         // Step 2: Chiama la funzione per trovare il trail più vicino
-        console.log(nearesttrail);
+        if (nearesttrail.startpoint) {
+          setArrowPosition({
+            top: height/2 - 50 , // Modifica in base alla posizione dello startpoint
+            left:  width/2 - 25, // Modifica in base alla posizione dello startpoint
+          });
+        }
         setRegion({
           latitude: nearesttrail.startpoint.latitude,
           longitude: nearesttrail.startpoint.longitude,
@@ -52,10 +62,18 @@ const Tutorial: React.FC<TutorialProps> = ({ setSelectedTrail, findNearestTrail,
       }
       else if (nextStep === 2) {
         // Step 3: Chiama la funzione per selezionare il trail
+        setArrowPosition({
+          top: height/2  , // Modifica in base alla posizione dello startpoint
+          left:  width/2 - 25, // Modifica in base alla posizione dello startpoint
+        });
         setSelectedTrail(trail);
       }
       else if (nextStep === 3){
         setSelectedTrail(null);
+        setArrowPosition({
+          top: height - 130 , // Modifica in base alla posizione dello startpoint
+          left:  40, // Modifica in base alla posizione dello startpoint
+        });
         setRegion({
           latitude: location.latitude,
           longitude: location.longitude,
@@ -63,15 +81,124 @@ const Tutorial: React.FC<TutorialProps> = ({ setSelectedTrail, findNearestTrail,
           longitudeDelta: 0.005,
         });
       }
+      else if (nextStep === 4){
+        setArrowPosition({
+          top: height - 130 , // Modifica in base alla posizione dello startpoint
+          left:  width/2 - 30, // Modifica in base alla posizione dello startpoint
+        });
+      }
+      else if (nextStep === 5){
+        setArrowPosition({
+          top: height - 130 , // Modifica in base alla posizione dello startpoint
+          left:  width - 95, // Modifica in base alla posizione dello startpoint
+        });
+      }
+
+      else if (nextStep === 6){
+        setArrowPosition({
+          top: height - 290 , // Modifica in base alla posizione dello startpoint
+          left:  width - 75, // Modifica in base alla posizione dello startpoint
+        });
+      }
+
+      else if (nextStep === 7){
+        setArrowPosition({
+          top: height - 250 , // Modifica in base alla posizione dello startpoint
+          left:  60, // Modifica in base alla posizione dello startpoint
+        });
+      }
+      else if (nextStep === 8){
+        setSelectedTrail(null);
+        setArrowPosition(null);
+        setRegion(region);
+      }
+
     } else {
       
       setCurrentStep(null); // Chiude il modal
     }
   };
 
-  const handlePreviousStep = () => {
-    if (currentStep !== null && currentStep > 0) {
-      setCurrentStep(currentStep - 1);
+  const handlePreviousStep = async () => {
+    if (currentStep !== null && currentStep < steps.length - 1) {
+      const nextStep = currentStep - 1;
+      setCurrentStep(nextStep);
+      setArrowPosition(null);
+
+      const nearesttrail = findNearestTrail(location);
+      const trail = await TrailDAO.getTrail(nearesttrail.id);
+
+      if (nextStep === 1) {
+        // Step 2: Chiama la funzione per trovare il trail più vicino
+        if (nearesttrail.startpoint) {
+          setArrowPosition({
+            top: height/2 - 50 , // Modifica in base alla posizione dello startpoint
+            left:  width/2 - 25, // Modifica in base alla posizione dello startpoint
+          });
+        }
+        setRegion({
+          latitude: nearesttrail.startpoint.latitude,
+          longitude: nearesttrail.startpoint.longitude,
+          latitudeDelta: 0.005,
+          longitudeDelta: 0.005,
+        });
+      }
+      else if (nextStep === 2) {
+        // Step 3: Chiama la funzione per selezionare il trail
+        setArrowPosition({
+          top: height/2  , // Modifica in base alla posizione dello startpoint
+          left:  width/2 - 25, // Modifica in base alla posizione dello startpoint
+        });
+        setSelectedTrail(trail);
+      }
+      else if (nextStep === 3){
+        setSelectedTrail(null);
+        setArrowPosition({
+          top: height - 130 , // Modifica in base alla posizione dello startpoint
+          left:  40, // Modifica in base alla posizione dello startpoint
+        });
+        setRegion({
+          latitude: location.latitude,
+          longitude: location.longitude,
+          latitudeDelta: 0.005,
+          longitudeDelta: 0.005,
+        });
+      }
+      else if (nextStep === 4){
+        setArrowPosition({
+          top: height - 130 , // Modifica in base alla posizione dello startpoint
+          left:  width/2 - 30, // Modifica in base alla posizione dello startpoint
+        });
+      }
+      else if (nextStep === 5){
+        setArrowPosition({
+          top: height - 130 , // Modifica in base alla posizione dello startpoint
+          left:  width - 95, // Modifica in base alla posizione dello startpoint
+        });
+      }
+
+      else if (nextStep === 6){
+        setArrowPosition({
+          top: height - 290 , // Modifica in base alla posizione dello startpoint
+          left:  width - 75, // Modifica in base alla posizione dello startpoint
+        });
+      }
+
+      else if (nextStep === 7){
+        setArrowPosition({
+          top: height - 250 , // Modifica in base alla posizione dello startpoint
+          left:  60, // Modifica in base alla posizione dello startpoint
+        });
+      }
+      else if (nextStep === 8){
+        setSelectedTrail(null);
+        setArrowPosition(null);
+        setRegion(region);
+      }
+
+    } else {
+      
+      setCurrentStep(null); // Chiude il modal
     }
   };
 
@@ -101,8 +228,35 @@ const Tutorial: React.FC<TutorialProps> = ({ setSelectedTrail, findNearestTrail,
                 styles[`step${currentStep}`] || styles.defaultStepStyle,
               ]}
             >
-              <Text style={styles.modalText}>{steps[currentStep]}</Text>
+              {/* Contenitore per frecce e testo */}
+              <View style={styles.tutorialRow}>
+                {/* Freccia sinistra */}
+                <TouchableOpacity onPress={handlePreviousStep} disabled={currentStep === 0}>
+                  <View style={[styles.triangleLeft, currentStep === 0 && styles.disabledArrow]} />
+                </TouchableOpacity>
+
+                {/* Testo del tutorial */}
+                <Text style={styles.modalText}>{steps[currentStep]}</Text>
+
+                {/* Freccia destra */}
+                <TouchableOpacity onPress={handleNextStep} disabled={currentStep === steps.length - 1}>
+                  <View style={[styles.triangleRight, currentStep === steps.length - 1 && styles.disabledArrow]} />
+                </TouchableOpacity>
+              </View>
             </View>
+            {arrowPosition && (
+              <Entypo
+                style={{
+                  position: 'absolute',
+                  top: arrowPosition.top,
+                  left: arrowPosition.left,
+                  color: 'white',
+                  fontSize: 50,
+                }}
+                name='arrow-bold-down'
+              />
+            )}
+
             {/* Tocca a destra per andare avanti */}
             <TouchableOpacity
               style={[styles.halfScreen, styles.rightHalf]}
@@ -148,17 +302,63 @@ const styles: { [key: string]: any } = StyleSheet.create({
 
   modalContent: {
     position: 'absolute',
-    backgroundColor: '#FFF',
-    width: 300,
+    backgroundColor: '#979797',
+    width: 320,
     padding: 20,
-    borderRadius: 10,
+    borderRadius: 12,
+    alignItems: 'center', // Centra tutto
+    justifyContent: 'center',
   },
-
+  tutorialRow: {
+    flexDirection: 'row', // Disposizione orizzontale
+    alignItems: 'center', // Centra verticalmente
+    justifyContent: 'space-between', // Spazio tra frecce e testo
+  },
   modalText: {
     textAlign: 'center',
     fontSize: 18,
-    color: '#333',
+    color: '#fff',
+    flex: 1, // Permette al testo di adattarsi dinamicamente
+    marginHorizontal: 10, // Spazio tra testo e frecce
   },
+  triangleLeft: {
+    width: 0,
+    height: 0,
+    borderLeftWidth: 0,
+    borderRightWidth: 15,
+    borderTopWidth: 10,
+    borderBottomWidth: 10,
+    borderStyle: 'solid',
+    borderRightColor: '#86af49',
+    borderTopColor: 'transparent',
+    borderBottomColor: 'transparent',
+    shadowColor: '#000',  // Colore dell'ombra (nero)
+    shadowOffset: { width: 0, height: 2 },  // Offset dell'ombra
+    shadowOpacity: 0.2,  // Opacità dell'ombra
+    shadowRadius: 4,  // Raggio dell'ombra
+  },
+  triangleRight: {
+    width: 0,
+    height: 0,
+    borderRightWidth: 0,
+    borderLeftWidth: 15,
+    borderTopWidth: 10,
+    borderBottomWidth: 10,
+    borderStyle: 'solid',
+    borderLeftColor: '#86af49',
+    borderTopColor: 'transparent',
+    borderBottomColor: 'transparent',
+    shadowColor: '#000',  // Colore dell'ombra (nero)
+    shadowOffset: { width: 0, height: 2 },  // Offset dell'ombra
+    shadowOpacity: 0.2,  // Opacità dell'ombra
+    shadowRadius: 4,  // Raggio dell'ombra
+  },
+  disabledArrow: {
+    borderRightColor: '#979797',
+    borderLeftColor: '#979797',
+    shadowOpacity: 0,  // Opacità dell'ombra
+  },
+
   halfScreen: {
     flex: 1,
   },
@@ -177,8 +377,8 @@ const styles: { [key: string]: any } = StyleSheet.create({
     left: 50,
   },
   step2: {
-    bottom: 100,
-    right: 20,
+    top: 300,
+    left: 50,
   },
   step3: {
     bottom: 100,
@@ -197,7 +397,7 @@ const styles: { [key: string]: any } = StyleSheet.create({
     left: 10,
   },
   step7: {
-    bottom: 190,
+    bottom: 300,
     right: 10,
   },
   step8: {

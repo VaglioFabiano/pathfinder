@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, View, Text, TouchableOpacity, StyleSheet, ScrollView, Pressable, TextInput, KeyboardAvoidingView, Platform, Image, ActivityIndicator } from 'react-native';
+import { Modal, View, Text, TouchableOpacity, StyleSheet, ScrollView, Pressable, TextInput, KeyboardAvoidingView, Platform, Image } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import * as ReviewDAO from '@/dao/reviewDAO';
 import { Asset } from 'expo-asset';
@@ -35,6 +35,7 @@ interface Review {
   user_id: number;
   rating: number;
   comment: string;
+  username: string;
 }
 
 const TrailInfoModal: React.FC<PopupProps> = ({ selectedTrail, startTrail, closeModal, isVisible }) => {
@@ -47,7 +48,6 @@ const TrailInfoModal: React.FC<PopupProps> = ({ selectedTrail, startTrail, close
     : typeof selectedTrail?.image === "string"
     ? JSON.parse(selectedTrail.image) // Se è una stringa JSON, convertila in array
     : [];
-
 
 
 
@@ -126,27 +126,27 @@ const TrailInfoModal: React.FC<PopupProps> = ({ selectedTrail, startTrail, close
           <View style={styles.bottomSheet}>
             <View style={styles.separator} />
             <ScrollView contentContainerStyle={styles.scrollView}>
-            {/* Carosello di immagini */}
-            {images.length > 0 ? (
-              <ScrollView horizontal style={styles.imageScrollView}>
-                {images.map((img, index) => (
-                  <View key={index} style={styles.imageContainer}>
-                    <Image 
-                      source={{ uri: img }} 
-                      style={styles.image} 
-                      onLoad={() => setLoadingImages(false)}
-                      onError={(error) => {
-                        console.log(`Errore nel caricamento immagine: ${img}`, error);
-                        setLoadingImages(false);
-                      }}
-                    />
-                  </View>
-                ))}
-              </ScrollView>
-            ) : (
-              <Text style={styles.noImagesText}>No images available</Text>
-            )}
-            <View style={styles.separator} />
+              {/* Carosello di immagini */}
+              {images.length > 0 ? (
+                <ScrollView horizontal style={styles.imageScrollView}>
+                  {images.map((img, index) => (
+                    <View key={index} style={styles.imageContainer}>
+                      <Image 
+                        source={{ uri: img }} 
+                        style={styles.image} 
+                        onLoad={() => setLoadingImages(false)}
+                        onError={(error) => {
+                          console.log(`Errore nel caricamento immagine: ${img}`, error);
+                          setLoadingImages(false);
+                        }}
+                      />
+                    </View>
+                  ))}
+                </ScrollView>
+              ) : (
+                <Text style={styles.noImagesText}>No images available</Text>
+              )}
+              <View style={styles.separator} />
               <Text style={styles.trailName}>{selectedTrail?.name}</Text>
               <View style={styles.infoRow}>
                 <Text style={styles.infoText}>
@@ -181,7 +181,7 @@ const TrailInfoModal: React.FC<PopupProps> = ({ selectedTrail, startTrail, close
                     <View key={review.id} style={styles.commentContainer}>
                       <Text style={styles.commentText}>
                         <MaterialIcons name="person" size={16} color="#fff" />{" "}
-                        User {review.user_id}: {review.comment}
+                         {review.username}: {review.comment}
                       </Text>
                       <View style={styles.ratingContainer}>
                         {renderstaticStars(review.rating)}
@@ -190,7 +190,7 @@ const TrailInfoModal: React.FC<PopupProps> = ({ selectedTrail, startTrail, close
                   ))) : ( <Text style={styles.noCommentsText}>No comment</Text> )}
               </View>
 
-              {/* Form Aggiunta Commento */}
+              {/* Form Aggiunta Commento 
               <View style={styles.addCommentSection}>
                 <Text style={styles.commentTitle}>Submit a comment:</Text>
                 <View style={styles.commentForm}>
@@ -203,6 +203,7 @@ const TrailInfoModal: React.FC<PopupProps> = ({ selectedTrail, startTrail, close
                   </View>
                 </View>
               </View>
+              */}
             </ScrollView>
 
             <View>
@@ -215,7 +216,7 @@ const TrailInfoModal: React.FC<PopupProps> = ({ selectedTrail, startTrail, close
                     style={styles.closeButtonContainer}
                     onPress={() => closeModal(true)}
                   >
-                    <Text style={styles.closeButtonText}>Close</Text>
+                    <Text style={styles.buttonText}>Close</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -230,8 +231,18 @@ const styles = StyleSheet.create({
   backdrop: { flex: 1 },
   separator: { height: 1, backgroundColor: 'black', marginVertical: 5, opacity: 0.2, alignItems: 'center', justifyContent: 'center' },
   bottomSheet: { backgroundColor: '#979797', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, height: '85%' },
-  closeButtonContainer: { paddingVertical: 10, paddingHorizontal: 20, borderRadius: 5  },
-  closeButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold', marginBottom: 5 , textDecorationLine: 'underline'},
+  closeButtonContainer: {
+    backgroundColor: 'rgb(141, 141, 141)',  // Un grigio scuro
+    padding: 10,
+    borderRadius: 5,
+    // Ombra
+    shadowColor: '#000',  // Colore dell'ombra (nero)
+    shadowOffset: { width: 0, height: 2 },  // Offset dell'ombra
+    shadowOpacity: 0.2,  // Opacità dell'ombra
+    shadowRadius: 4,  // Raggio dell'ombra
+
+    elevation: 5,  // Per dispositivi Android, per l'ombra
+  },
   scrollView: { paddingBottom: 20 },
   trailName: { fontSize: 24, fontWeight: 'bold', marginBottom: 10, marginTop: 10, color: 'white' },
   infoRow: { flexDirection: 'row', justifyContent:"space-between" , flexWrap: 'wrap', marginTop: 10, marginBottom: 10 },
@@ -254,7 +265,12 @@ const styles = StyleSheet.create({
   submitButton: { alignSelf: 'flex-end', backgroundColor: '#86af49', paddingVertical: 5, paddingHorizontal: 20, borderRadius: 5 },
   submitButtonText: { color: 'white', fontSize: 16 },
   buttonRow: { flexDirection: 'row', justifyContent: "space-between", marginTop: 45, bottom: 40 },
-  startButton: { backgroundColor: '#86af49',padding: 10, borderRadius: 5 },
+  startButton: { backgroundColor: '#86af49',padding: 10, borderRadius: 5, 
+    shadowColor: '#000',  // Colore dell'ombra (nero)
+    shadowOffset: { width: 0, height: 2 },  // Offset dell'ombra
+    shadowOpacity: 0.2,  // Opacità dell'ombra
+    shadowRadius: 4,  // Raggio dell'ombra
+  },
   buttonText: { color: 'white', fontWeight: 'bold', marginHorizontal: 10, marginVertical: 5, fontSize: 16, },
   imageScrollView: {
     marginBottom: 10,

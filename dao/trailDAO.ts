@@ -1,5 +1,6 @@
 import getDatabase from '@/hooks/database';
 import * as WarningTrail from '@/dao/warningDAO';
+
 interface Coordinate {
     latitude: number;
     longitude: number;
@@ -25,7 +26,7 @@ interface Trail {
     region: string;
     state: string;
     province: string;
-    warning: Warning;
+    //warning: Warning;
     activity: string;
 }
   
@@ -65,20 +66,20 @@ const getTrail = async (id: number) => {
         const sql = "SELECT * FROM Trail WHERE id = ?";
         const res = await db.getAllAsync(sql, [id]);
         
-        const warnings = await WarningTrail.getWarning(id);
+        //const warnings = await WarningTrail.getWarning(id);
         
-        const warning = warnings.map((warning: Warning) => ({
+        /*const warning = warnings.map((warning: Warning) => ({
             trail_id: warning.trail_id,
             position: {
                 latitude: warning.position[0],
                 longitude: warning.position[1]
             },
             description: warning.description
-        }));
+        }));*/
 
         const result = res[0];
         
-        result.warning = warning;
+        //result.warning = warning;
 
         result.startpoint = JSON.parse(result.startpoint);
         result.trails = JSON.parse(result.trails);
@@ -103,39 +104,62 @@ const getTrail = async (id: number) => {
     }
 }
 
+import * as FileSystem from 'expo-file-system';
+
+const saveImagePermanently = async (imageUri: string): Promise<string> => {
+    try {
+        const fileName = imageUri.split('/').pop(); // Estrai il nome del file
+        const newPath = `${FileSystem.documentDirectory}${fileName}`; // Percorso permanente
+
+        await FileSystem.moveAsync({
+            from: imageUri,
+            to: newPath,
+        });
+
+        return newPath; // Restituisce il nuovo percorso dell'immagine
+    } catch (error) {
+        console.error("Errore nel salvataggio dell'immagine:", error);
+        return imageUri; // Se fallisce, usa il percorso originale
+    }
+};
+
 const createTrail = async (trail: Trail) => {
     try {
         const db = await getDatabase();
 
+        // Salva l'immagine in una posizione permanente
+        const newImagePath = await saveImagePermanently(trail.image);
+
+        console.log("Nuovo percorso dell'immagine:", newImagePath);
 
         const sql = `INSERT INTO Trail 
         (name, downhill, difficulty, length, duration, elevation, startpoint, trails, endpoint, description, image, city, region, state, province, activity, id_user) 
         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
-        
-        
+
         await db.runAsync(sql, [
-          trail.name,
-          trail.downhill,
-          trail.difficulty,
-          trail.length,
-          trail.duration,
-          trail.elevation,
-          JSON.stringify(trail.startpoint),
-          JSON.stringify(trail.trail),  
-          JSON.stringify(trail.endpoint),
-          trail.description,
-          trail.image,
-          trail.city,
-          trail.region,
-          trail.state,
-          trail.province,
-          trail.activity,
-          1
+            trail.name,
+            trail.downhill,
+            trail.difficulty,
+            trail.length,
+            trail.duration,
+            trail.elevation,
+            JSON.stringify(trail.startpoint),
+            JSON.stringify(trail.trail),  
+            JSON.stringify(trail.endpoint),
+            trail.description,
+            newImagePath ? newImagePath : null, // Salva solo il path
+            trail.city,
+            trail.region,
+            trail.state,
+            trail.province,
+            trail.activity,
+            1
         ]);
+
     } catch (error) {
         console.log(error);
     }
-}
+};
 
 const getTrailsCreatedByUsers = async (id_user: number): Promise<Trail[]> => {
     try {

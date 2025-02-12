@@ -1,3 +1,4 @@
+import { Entypo } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { TouchableOpacity, Text, StyleSheet, Modal, View, Dimensions } from 'react-native';
 
@@ -6,6 +7,7 @@ import { TouchableOpacity, Text, StyleSheet, Modal, View, Dimensions } from 'rea
 const Tutorial = () => {
   const [isClicked, setIsClicked] = useState(false);
   const [currentStep, setCurrentStep] = useState<number | null>(null);
+  const [arrowPosition, setArrowPosition] = useState<{ top: number; left: number } | null>(null);
 
   const steps = [
     'Welcome to Add Trail the Pathfinder map! \n From here you can orient yourself and record a new activity',
@@ -25,6 +27,28 @@ const Tutorial = () => {
     if (currentStep !== null && currentStep < steps.length - 1) {
       const nextStep = currentStep + 1;
       setCurrentStep(nextStep);
+      setArrowPosition(null);
+      if (nextStep == 1){
+        setArrowPosition({
+          top: height - 170 , // Modifica in base alla posizione dello startpoint
+          left:  width/2 - 30, // Modifica in base alla posizione dello startpoint
+        });
+      }
+      else if (nextStep == 2){
+        setArrowPosition({
+          top: height - 220 , // Modifica in base alla posizione dello startpoint
+          left:  width/2 - 30, // Modifica in base alla posizione dello startpoint
+        });
+      }
+      else if (nextStep == 3){
+        setArrowPosition({
+          top: height - 390 , // Modifica in base alla posizione dello startpoint
+          left:  width - 75, // Modifica in base alla posizione dello startpoint
+        });
+      }
+      else if (nextStep == 4){
+        setArrowPosition(null);
+      }
     } else {
       
       setCurrentStep(null); // Chiude il modal
@@ -32,8 +56,34 @@ const Tutorial = () => {
   };
 
   const handlePreviousStep = () => {
-    if (currentStep !== null && currentStep > 0) {
-      setCurrentStep(currentStep - 1);
+    if (currentStep !== null && currentStep < steps.length - 1) {
+      const nextStep = currentStep - 1;
+      setArrowPosition(null);
+      setCurrentStep(nextStep);
+      if (nextStep == 1){
+        setArrowPosition({
+          top: height - 170 , // Modifica in base alla posizione dello startpoint
+          left:  width/2 - 30, // Modifica in base alla posizione dello startpoint
+        });
+      }
+      else if (nextStep == 2){
+        setArrowPosition({
+          top: height - 220 , // Modifica in base alla posizione dello startpoint
+          left:  width/2 - 30, // Modifica in base alla posizione dello startpoint
+        });
+      }
+      else if (nextStep == 3){
+        setArrowPosition({
+          top: height - 390 , // Modifica in base alla posizione dello startpoint
+          left:  width - 75, // Modifica in base alla posizione dello startpoint
+        });
+      }
+      else if (nextStep == 4){
+        setArrowPosition(null);
+      }
+    } else {
+      
+      setCurrentStep(null); // Chiude il modal
     }
   };
 
@@ -63,8 +113,35 @@ const Tutorial = () => {
                 styles[`step${currentStep}`] || styles.defaultStepStyle,
               ]}
             >
-              <Text style={styles.modalText}>{steps[currentStep]}</Text>
+              {/* Contenitore per frecce e testo */}
+              <View style={styles.tutorialRow}>
+                {/* Freccia sinistra */}
+                <TouchableOpacity onPress={handlePreviousStep} disabled={currentStep === 0}>
+                  <View style={[styles.triangleLeft, currentStep === 0 && styles.disabledArrow]} />
+                </TouchableOpacity>
+
+                {/* Testo del tutorial */}
+                <Text style={styles.modalText}>{steps[currentStep]}</Text>
+
+                {/* Freccia destra */}
+                <TouchableOpacity onPress={handleNextStep} disabled={currentStep === steps.length - 1}>
+                  <View style={[styles.triangleRight, currentStep === steps.length - 1 && styles.disabledArrow]} />
+                </TouchableOpacity>
+              </View>
             </View>
+            {arrowPosition && (
+              <Entypo
+                style={{
+                  position: 'absolute',
+                  top: arrowPosition.top,
+                  left: arrowPosition.left,
+                  color: 'white',
+                  fontSize: 50,
+                }}
+                name='arrow-bold-down'
+              />
+            )}
+
             {/* Tocca a destra per andare avanti */}
             <TouchableOpacity
               style={[styles.halfScreen, styles.rightHalf]}
@@ -110,16 +187,61 @@ const styles: { [key: string]: any } = StyleSheet.create({
 
   modalContent: {
     position: 'absolute',
-    backgroundColor: '#FFF',
-    width: 300,
+    backgroundColor: '#979797',
+    width: 320,
     padding: 20,
-    borderRadius: 10,
+    borderRadius: 12,
+    alignItems: 'center', // Centra tutto
+    justifyContent: 'center',
   },
-
+  tutorialRow: {
+    flexDirection: 'row', // Disposizione orizzontale
+    alignItems: 'center', // Centra verticalmente
+    justifyContent: 'space-between', // Spazio tra frecce e testo
+  },
   modalText: {
     textAlign: 'center',
     fontSize: 18,
-    color: '#333',
+    color: '#fff',
+    flex: 1, // Permette al testo di adattarsi dinamicamente
+    marginHorizontal: 10, // Spazio tra testo e frecce
+  },
+  triangleLeft: {
+    width: 0,
+    height: 0,
+    borderLeftWidth: 0,
+    borderRightWidth: 15,
+    borderTopWidth: 10,
+    borderBottomWidth: 10,
+    borderStyle: 'solid',
+    borderRightColor: '#86af49',
+    borderTopColor: 'transparent',
+    borderBottomColor: 'transparent',
+    shadowColor: '#000',  // Colore dell'ombra (nero)
+    shadowOffset: { width: 0, height: 2 },  // Offset dell'ombra
+    shadowOpacity: 0.2,  // Opacità dell'ombra
+    shadowRadius: 4,  // Raggio dell'ombra
+  },
+  triangleRight: {
+    width: 0,
+    height: 0,
+    borderRightWidth: 0,
+    borderLeftWidth: 15,
+    borderTopWidth: 10,
+    borderBottomWidth: 10,
+    borderStyle: 'solid',
+    borderLeftColor: '#86af49',
+    borderTopColor: 'transparent',
+    borderBottomColor: 'transparent',
+    shadowColor: '#000',  // Colore dell'ombra (nero)
+    shadowOffset: { width: 0, height: 2 },  // Offset dell'ombra
+    shadowOpacity: 0.2,  // Opacità dell'ombra
+    shadowRadius: 4,  // Raggio dell'ombra
+  },
+  disabledArrow: {
+    borderRightColor: '#979797',
+    borderLeftColor: '#979797',
+    shadowOpacity: 0,  // Opacità dell'ombra
   },
   halfScreen: {
     flex: 1,
@@ -132,10 +254,10 @@ const styles: { [key: string]: any } = StyleSheet.create({
   },
   step0: {
     top: height / 2 - 100,
-    left: width / 2 - 150,
+    left: width / 2 - 160,
   },
   step1: {
-    bottom: 170,
+    bottom: 200,
     left: 50,
   },
   step2: {
@@ -150,7 +272,7 @@ const styles: { [key: string]: any } = StyleSheet.create({
  
   step4: {
     top: height / 2 - 100,
-    left: width / 2 - 150,
+    left: width / 2 - 160,
   },
 });
 

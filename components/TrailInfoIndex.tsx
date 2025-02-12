@@ -76,21 +76,21 @@ const TrailInfoIndex: React.FC<TrailInfoPanelProps> = ({submitWarning, currentPo
         {/* Bottone Pausa/Resume */}
         {!isPaused ? (
           <TouchableOpacity
-            style={[styles.endButton, { backgroundColor: '#86af49', width: '40%' }]}
+            style={[styles.endButton, { backgroundColor: '#86af49', width: '45%', marginLeft: 5 }] }
             onPress={pauseTrail}
           >
             <Text style={styles.buttonText}>Pause</Text>
           </TouchableOpacity>
         ) : (
           <TouchableOpacity
-            style={[styles.endButton, { backgroundColor: '#32421b', width: '40%' }]}
+            style={[styles.endButton, { backgroundColor: '#32421b', width: '45%', marginLeft: 5  }]}
             onPress={resumeTrail}
           >
             <Text style={styles.buttonText}>Resume</Text>
           </TouchableOpacity>
         )}
 
-        {/* Bottone di pericolo giallo */}
+        {/* Bottone di pericolo giallo 
         <TouchableOpacity
           style={[styles.warningButton, { width: '15%' }]}
           onPress={() => {
@@ -98,11 +98,11 @@ const TrailInfoIndex: React.FC<TrailInfoPanelProps> = ({submitWarning, currentPo
           }}
         >
           <Icon name="exclamation-triangle" size={16} color="white" />
-        </TouchableOpacity>
+        </TouchableOpacity>*/}
 
         {/* Bottone di fine */}
         <TouchableOpacity
-          style={[styles.endButton, { backgroundColor: '#dc3545', width: '40%' }]}
+          style={[styles.endButton, { backgroundColor: '#dc3545', width: '45%', marginRight: 5 }]}
           onPress={endTrail}
         >
           <Text style={styles.buttonText}>End</Text>
@@ -166,6 +166,10 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     marginBottom: 10,
+    shadowColor: '#000',  // Colore dell'ombra (nero)
+    shadowOffset: { width: 0, height: 2 },  // Offset dell'ombra
+    shadowOpacity: 0.2,  // Opacità dell'ombra
+    shadowRadius: 4,  // Raggio dell'ombra
   },
   buttonText: {
     color: 'white',

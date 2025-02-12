@@ -25,7 +25,7 @@ const TrailForm: React.FC<TrailFormProps> = ({ trailData, resetTrail }) => {
 
   const handleSubmit = async () => {
     if (!name.trim()) {
-      Alert.alert('Error', 'Trail name is requi#dc3545.');
+      Alert.alert('Error', 'Trail name is require.');
       return;
     }
 
@@ -40,7 +40,7 @@ const TrailForm: React.FC<TrailFormProps> = ({ trailData, resetTrail }) => {
       trail: trailData.positions.map((position: any) => [position.latitude, position.longitude]),
       endpoint: [trailData.positions[trailData.positions.length - 1].latitude, trailData.positions[trailData.positions.length - 1].longitude],
       description,
-      image: images[0] || '',
+      image: null,
       city: trailData.city,
       region: trailData.region,
       state: trailData.state,
@@ -49,7 +49,7 @@ const TrailForm: React.FC<TrailFormProps> = ({ trailData, resetTrail }) => {
     };
 
     await TrailDAO.createTrail(trail);
-    Alert.alert('Success', `Trail "${name}" saved successfully!`);
+    Alert.alert('Success', `Trail "${name}" saved successfully! \n (Image will be uploaded soon...)`);
     resetTrail();
   };
 
@@ -284,7 +284,11 @@ const TrailForm: React.FC<TrailFormProps> = ({ trailData, resetTrail }) => {
                 </TouchableOpacity>
               )}
               {step <= 1 && (
-                <View style={[styles.arrowButton, { backgroundColor: "#979797" }]} />
+                <View style={[styles.arrowButton, {shadowColor: '#000',  // Colore dell'ombra (nero)
+                  shadowOffset: { width: 0, height: 0 },  // Offset dell'ombra
+                  shadowOpacity: 0,  // Opacità dell'ombra
+                  shadowRadius: 0,  // Raggio dell'ombra
+                   backgroundColor: "#979797" }]} />
               )}
               {step < 4 ? (
                 <TouchableOpacity onPress={() => setStep(step + 1)} style={[styles.arrowButton, { justifyContent: "flex-end", right: 10 }]}>
@@ -370,6 +374,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginTop: 10,
+    marginBottom: 10,
+    shadowColor: '#000',  // Colore dell'ombra (nero)
+    shadowOffset: { width: 0, height: 2 },  // Offset dell'ombra
+    shadowOpacity: 0.2,  // Opacità dell'ombra
+    shadowRadius: 4,  // Raggio dell'ombra
   },
   imagePreviewContainer: {
     marginTop: 10,
@@ -382,6 +391,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#86af49',
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: '#000',  // Colore dell'ombra (nero)
+    shadowOffset: { width: 0, height: 2 },  // Offset dell'ombra
+    shadowOpacity: 0.2,  // Opacità dell'ombra
+    shadowRadius: 4,  // Raggio dell'ombra
   },
   closeButton: {
     backgroundColor:"#dc3545" ,
@@ -389,6 +402,10 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: '#000',  // Colore dell'ombra (nero)
+    shadowOffset: { width: 0, height: 2 },  // Offset dell'ombra
+    shadowOpacity: 0.2,  // Opacità dell'ombra
+    shadowRadius: 4,  // Raggio dell'ombra
   },
   difficultyButton: {
     flexDirection: 'row',
@@ -405,6 +422,10 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 8,
     backgroundColor: '#86af49',
+    shadowColor: '#000',  // Colore dell'ombra (nero)
+    shadowOffset: { width: 0, height: 2 },  // Offset dell'ombra
+    shadowOpacity: 0.2,  // Opacità dell'ombra
+    shadowRadius: 4,  // Raggio dell'ombra
   },
 
   // Labels and Text

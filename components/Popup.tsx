@@ -46,8 +46,8 @@ const Popup: React.FC<PopupProps> = ({ selectedTrail, startTrail, closeModal, se
           <TouchableOpacity style={styles.startButton} onPress={startTrail}>
             <Text style={styles.buttonText}>Start</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.cancelButton} onPress={() => closeModal(true)}>
-            <Text style={[styles.buttonText, {textDecorationLine:"underline"}]}>Close</Text>
+          <TouchableOpacity style={styles.closeButtonContainer} onPress={() => closeModal(true)}>
+            <Text style={[styles.buttonText]}>Close</Text>
           </TouchableOpacity>
         </View>
       </TouchableOpacity>
@@ -105,10 +105,22 @@ const styles = StyleSheet.create({
     backgroundColor: '#86af49',
     padding: 10,
     borderRadius: 8,
+     shadowColor: '#000',  // Colore dell'ombra (nero)
+    shadowOffset: { width: 0, height: 2 },  // Offset dell'ombra
+    shadowOpacity: 0.2,  // Opacità dell'ombra
+    shadowRadius: 4,  // Raggio dell'ombra
   },
-  cancelButton: {
+  closeButtonContainer: {
+    backgroundColor: 'rgb(141, 141, 141)',  // Un grigio scuro
     padding: 10,
-    borderRadius: 8,
+    borderRadius: 5,
+    // Ombra
+    shadowColor: '#000',  // Colore dell'ombra (nero)
+    shadowOffset: { width: 0, height: 2 },  // Offset dell'ombra
+    shadowOpacity: 0.2,  // Opacità dell'ombra
+    shadowRadius: 4,  // Raggio dell'ombra
+
+    elevation: 5,  // Per dispositivi Android, per l'ombra
   },
   buttonText: {
     color: 'white',

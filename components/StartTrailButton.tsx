@@ -9,7 +9,7 @@ interface StartTrailButtonProps {
 
 const activityIcons: { [key: string]: string } = {
   Walk: 'walk',
-  Hiking: 'hiking',
+  Hike: 'hiking',
   Bike: 'bike',
 };
 
@@ -113,6 +113,10 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     width: '100%',
     justifyContent: 'center',
+    shadowColor: '#000',  // Colore dell'ombra (nero)
+    shadowOffset: { width: 0, height: 2 },  // Offset dell'ombra
+    shadowOpacity: 0.2,  // Opacità dell'ombra
+    shadowRadius: 4,  // Raggio dell'ombra
   },
   activityIcon: {
     marginRight: 10,
@@ -124,6 +128,10 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     width: '100%',
+    shadowColor: '#000',  // Colore dell'ombra (nero)
+    shadowOffset: { width: 0, height: 2 },  // Offset dell'ombra
+    shadowOpacity: 0.2,  // Opacità dell'ombra
+    shadowRadius: 4,  // Raggio dell'ombra
   },
   buttonText: {
     color: 'white',
