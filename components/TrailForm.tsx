@@ -28,13 +28,13 @@ const TrailForm: React.FC<TrailFormProps> = ({ trailData, resetTrail }) => {
       Alert.alert('Error', 'Trail name is require.');
       return;
     }
-
+    const time =( (trailData.time/60) / 60).toFixed(2);
     const trail = {
       name,
       downhill: trailData.downhill,
       difficulty,
       length: trailData.distance.toFixed(2),
-      duration: trailData.time,
+      duration: time,
       elevation: trailData.elevation.toFixed(2),
       startpoint: [trailData.positions[0].latitude, trailData.positions[0].longitude],
       trail: trailData.positions.map((position: any) => [position.latitude, position.longitude]),
