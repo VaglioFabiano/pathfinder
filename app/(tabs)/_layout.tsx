@@ -5,7 +5,6 @@ import { HapticTab } from '@/components/HapticTab';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import MapView from 'react-native-maps';
 import { FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function TabLayout() {

@@ -32,7 +32,7 @@ const Popup: React.FC<PopupProps> = ({ selectedTrail, startTrail, closeModal, se
             <MaterialIcons name="timeline" size={16} color="#fff" /> {selectedTrail?.length} km
           </Text>
           <Text style={styles.infoText}>
-            <MaterialIcons name="schedule" size={16} color="#fff" /> {selectedTrail?.duration} ore
+            <MaterialIcons name="schedule" size={16} color="#fff" /> {selectedTrail?.duration} h
           </Text>
           <Text style={styles.infoText}>
             <MaterialIcons name="landscape" size={16} color="#fff" /> {selectedTrail?.elevation} m

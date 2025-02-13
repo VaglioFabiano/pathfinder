@@ -122,7 +122,6 @@ const MapWithTopoMap = () => {
       setLocation(currentLocation.coords);
       
 
-
       setRegion({
         latitude: currentLocation.coords.latitude,
         longitude: currentLocation.coords.longitude,
@@ -132,7 +131,7 @@ const MapWithTopoMap = () => {
      
       
     })();
-  }, [refresh]);
+  }, []);
   useEffect(() => {
     const fetchTrails = async () => {
       try {
@@ -147,7 +146,7 @@ const MapWithTopoMap = () => {
   }, [isFocused]);
 
   useEffect(() => {
-    if (selectedTrail && mapRef.current) {
+    if ( selectedTrail && mapRef.current) {
       mapRef.current.fitToCoordinates(
         [...selectedTrail.trail, selectedTrail.startpoint, selectedTrail.endpoint],
         {
@@ -157,12 +156,13 @@ const MapWithTopoMap = () => {
       );
     }
     else{
+      console.log(region?.latitude);
       mapRef.current && mapRef.current.animateToRegion(
         {
-          latitude: location?.latitude ?? 0,
-          longitude: location?.longitude ?? 0,
-          latitudeDelta: 0.004,
-          longitudeDelta: 0.004,
+          latitude: startIndex[0] ?? 0,
+          longitude: startIndex[1] ?? 0,
+          latitudeDelta: 0.08,
+          longitudeDelta: 0.08,
         }, 1000);
     }
     
@@ -176,14 +176,14 @@ const MapWithTopoMap = () => {
     setWarningModalVisible(false);
     setCurrentWarningText('');
   }
-
+  const [startIndex, setStartIndex] = useState([0, 0]);
   const fetchTrail = async (t: Trail) => {
     try {
       const trail = await TrailDAO.getTrail(t.id);
-      const index = (trail.trail.length / 2).toFixed(0);
+      setStartIndex([trail.startpoint.latitude, trail.startpoint.longitude]);
       mapRef.current?.animateToRegion({
-        latitude: trail.trail[index].latitude,
-        longitude: trail.trail[index].longitude,
+        latitude: trail.startpoint.latitude,
+        longitude: trail.startpoint.longitude,
         latitudeDelta: 0.8,
         longitudeDelta: 0.8,
       });

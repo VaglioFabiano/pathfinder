@@ -6,7 +6,6 @@ import RecenterButton from '@/components/recenterBotton';
 import Tutorial from '@/components/TutorialAdd';
 import TrailComponent from '@/components/TrailComponent';
 import polyline from '@mapbox/polyline';
-import * as TrailDAO from '@/dao/trailDAO';
 
 const GOOGLE_MAPS_APIKEY = 'AIzaSyDBHi_Rgdp1Va1KgknCyzJ4prT-hNTdevQ';
 

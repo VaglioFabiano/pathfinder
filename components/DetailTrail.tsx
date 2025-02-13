@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet, ScrollView, Pressable, TextInput, KeyboardAvoidingView, Platform, Image } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import * as ReviewDAO from '@/dao/reviewDAO';
-import { Asset } from 'expo-asset';
 
 interface PopupProps {
   selectedTrail: {
