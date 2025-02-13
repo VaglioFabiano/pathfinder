@@ -49,15 +49,12 @@ const Tree: React.FC<TreeProps> = ({ setRegion, location, trail, setRecomanded }
     }
 
     setIsSecondAnimationPlaying(true);
-    if (recommendedTrail) {
-      setTimeout(() => {
-        setShowBubble(false);  // Hide bubble
-        setIsSecondAnimationPlaying(false); // Stop second animation
-        resetTree();
-      }, 5000);
-    }  
-
     
+    setTimeout(() => {
+      setShowBubble(false);  // Hide bubble
+      setIsSecondAnimationPlaying(false); // Stop second animation
+      resetTree();
+    }, 3000);
   };
 
   const getClosestTrails = (location: any, trails: any[]) => {
