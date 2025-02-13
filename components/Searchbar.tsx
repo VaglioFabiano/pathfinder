@@ -77,18 +77,19 @@ const SearchBar = ({ mapRef }: { mapRef: React.RefObject<any> }) => {
     }
 
     setShowDropdown(false);
-    const selectedSuggestion = suggestions.find((s) => s.name === searchTerm);
 
-    if (selectedSuggestion) {
+    if (suggestions.length > 0) {
+      const firstSuggestion = suggestions[0];
       mapRef.current.animateToRegion(
         {
-          ...selectedSuggestion.coords,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
+          ...firstSuggestion.coords,
+          latitudeDelta: 0.05,
+          longitudeDelta: 0.05,
         },
         1000
       );
       updateRecentSearches(searchTerm);
+      Keyboard.dismiss();
     } else {
       Alert.alert('Location not found', 'Please refine your search.');
     }
@@ -121,25 +122,24 @@ const SearchBar = ({ mapRef }: { mapRef: React.RefObject<any> }) => {
         </View>
 
         {showDropdown && suggestions.length > 0 && (
-          <TouchableWithoutFeedback onPress={() => { Keyboard.dismiss(); setShowDropdown(false); setSuggestions([]); }}>
-            <View style={styles.suggestionsContainer}>
-              <FlatList
-                data={suggestions || []}
-                keyExtractor={(item, index) => index.toString()}
-                renderItem={({ item }) => (
-                  <TouchableOpacity onPress={() => handleSearch(item.name)}>
-                    <Text style={styles.suggestion}>{item?.name ?? 'No name available'}</Text>
-                  </TouchableOpacity>
-                )}
-                keyboardShouldPersistTaps="always"
-              />
-            </View>
-          </TouchableWithoutFeedback>
+          <View style={styles.suggestionsContainer}>
+            <FlatList
+              data={suggestions || []}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({ item }) => (
+                <TouchableOpacity onPress={() => handleSearch(item.name)}>
+                  <Text style={styles.suggestion}>{item?.name ?? 'No name available'}</Text>
+                </TouchableOpacity>
+              )}
+              keyboardShouldPersistTaps="always"
+            />
+          </View>
         )}
       </View>
     </TouchableWithoutFeedback>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {

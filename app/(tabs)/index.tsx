@@ -181,9 +181,12 @@ const MapWithTopoMap = () => {
     try {
       const trail = await TrailDAO.getTrail(t.id);
       setStartIndex([trail.startpoint.latitude, trail.startpoint.longitude]);
+      const index = (trail.trail.length / 2).toFixed(0);
+
+
       mapRef.current?.animateToRegion({
-        latitude: trail.startpoint.latitude,
-        longitude: trail.startpoint.longitude,
+        latitude: trail.trail[index].latitude,
+        longitude: trail.trail[index].longitude,
         latitudeDelta: 0.8,
         longitudeDelta: 0.8,
       });
