@@ -28,6 +28,10 @@ const TrailForm: React.FC<TrailFormProps> = ({ trailData, resetTrail }) => {
       Alert.alert('Error', 'Trail name is require.');
       return;
     }
+    if (!description.trim()) {
+      Alert.alert('Error', 'Trail description is require.');
+      return;
+    }
     const time =( (trailData.time/60) / 60).toFixed(2);
     const trail = {
       name,
@@ -87,7 +91,7 @@ const TrailForm: React.FC<TrailFormProps> = ({ trailData, resetTrail }) => {
           
             <View style={[{ flexDirection: 'row' }]}>
               <Icon name="map-outline" size={20} color="white" />
-              <Text style={styles.label}>Trail Name:</Text>
+              <Text style={styles.label}>Trail Name*:</Text>
             </View>
             <TextInput
               style={[styles.input, { width: '100%'}]}
@@ -134,7 +138,7 @@ const TrailForm: React.FC<TrailFormProps> = ({ trailData, resetTrail }) => {
             <View style={styles.inputContainer}>
             <View style={[{ flexDirection: 'row' }]}>
               <Icon name="text-box-outline" size={20} color="white" />
-              <Text style={styles.label}>Description:</Text>
+              <Text style={styles.label}>Description*:</Text>
               </View>
             </View>
             <TextInput

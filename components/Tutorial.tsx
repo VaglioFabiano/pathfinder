@@ -19,17 +19,17 @@ const Tutorial: React.FC<TutorialProps> = ({ setSelectedTrail, findNearestTrail,
   const [arrowPosition, setArrowPosition] = useState<{ top: number; left: number } | null>(null);
 
   const steps = [
-    'Welcome to the Pathfinder map! \n From here you can orient yourself and start a new activity',
-    'Tap this button to start a new activity',
-    'This line indicates the path of the trail you are following',
-    'Using this button you can return to the map of Pathfinder',
-    'Using this button you can add a new trail to the map',
-    'Here will be all your pernonal information',
-    'This is the button to recenter the map on your position',
-    'This is Treely!\n He will help you \nto find the best trail for you',
-    'End of tutorial! You are now ready to go.',
+    '🌍 Welcome to the Pathfinder map! \n Here, you can explore trails, find your way, and start a new adventure.',
+    '▶️ Tap this button to start a new activity. From here, you can begin a hike and track your journey.',
+    '📍 This line represents the trail path you are following. It will guide you from start to finish!',
+    '🗺️ Use this button to return to the Pathfinder map. If you ever get lost in the menus, you can always come back here.',
+    '➕ With this button, you can add a new trail to the map. Share your favorite routes with everyone!',
+    '👤 Here, you’ll find all your personal information: activities, progress, and preferences all in one place.',
+    '🎯 This is the button to recenter the map on your location. Tap it once to lock onto your position and follow your movements. Tap it again to unlock and move freely around the map.',
+    '🌳 This is Treely! Your friendly guide who will help you find the best trail for you!',
+    '🎉 End of the tutorial! You are now ready to explore the trails with Pathfinder!',
   ];
-
+  
   const openTutorial = () => {
     setIsClicked(true);
     setCurrentStep(0);
@@ -370,10 +370,10 @@ const styles: { [key: string]: any } = StyleSheet.create({
   },
   step0: {
     top: height / 2 - 100,
-    left: width / 2 - 150,
+    left: width / 2 - 160,
   },
   step1: {
-    top: 300,
+    top: 270,
     left: 50,
   },
   step2: {
@@ -381,15 +381,15 @@ const styles: { [key: string]: any } = StyleSheet.create({
     left: 50,
   },
   step3: {
-    bottom: 100,
+    bottom: 140,
     left: 10,
   },
   step4: {
-    bottom: 100,
+    bottom: 140,
     left: width / 2 - 150,
   },
   step5: {
-    bottom: 100,
+    bottom: 140,
     right: 10,
   },
   step6: {
@@ -402,7 +402,7 @@ const styles: { [key: string]: any } = StyleSheet.create({
   },
   step8: {
     top: height / 2 - 100,
-    left: width / 2 - 150,
+    left: width / 2 - 160,
   },
 });
 

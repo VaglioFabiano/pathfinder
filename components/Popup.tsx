@@ -1,3 +1,4 @@
+import { AntDesign } from '@expo/vector-icons';
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'; // Assicurati di importare MaterialIcons
@@ -22,7 +23,9 @@ interface PopupProps {
 const Popup: React.FC<PopupProps> = ({ selectedTrail, startTrail, closeModal, setIsModalDetailVisible }) => {
   return (
     <View style={styles.popupContainer}>
+      
       <TouchableOpacity style={styles.popup} onPress={() => { closeModal(false); setIsModalDetailVisible(true); }}>
+        <AntDesign name="infocirlceo" size={16} color="white" style={styles.iconStyle} />
         <Text style={styles.trailName}>{selectedTrail?.name}</Text>
         <View style={styles.infoRow}>
           <Text style={styles.infoText}>
@@ -36,8 +39,8 @@ const Popup: React.FC<PopupProps> = ({ selectedTrail, startTrail, closeModal, se
           </Text>
           <View style={[styles.difficultyContainer, 
             { backgroundColor: selectedTrail?.difficulty === 'Beginner' ? '#4986af' :
-             selectedTrail?.difficulty === 'Intermediate' ? '#af8649' : '#af4953' }]}>
-            <Text style={[styles.difficultyLabel, {color:  "#fff"} ]}>{selectedTrail?.difficulty}</Text>
+             selectedTrail?.difficulty === 'Intermediate' ? '#af8649' : '#af4953' }]} >
+            <Text style={[styles.difficultyLabel, {color: "#fff"}]}>{selectedTrail?.difficulty}</Text>
           </View>
         </View>
         <View style={styles.separator} />
@@ -105,7 +108,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#86af49',
     padding: 10,
     borderRadius: 8,
-     shadowColor: '#000',  // Colore dell'ombra (nero)
+    shadowColor: '#000',  // Colore dell'ombra (nero)
     shadowOffset: { width: 0, height: 2 },  // Offset dell'ombra
     shadowOpacity: 0.2,  // Opacità dell'ombra
     shadowRadius: 4,  // Raggio dell'ombra
@@ -128,6 +131,14 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     marginVertical: 5,
     fontSize: 16,
+  },
+  iconStyle: {
+    alignSelf:"flex-end",  // Center the icon horizontally
+     marginBottom: 5,
+     shadowColor: '#000',  // Colore dell'ombra (nero)
+    shadowOffset: { width: 0, height: 2 },  // Offset dell'ombra
+    shadowOpacity: 0.2,  // Opacità dell'ombra
+    shadowRadius: 4,  // Raggio dell'ombra
   },
 });
 

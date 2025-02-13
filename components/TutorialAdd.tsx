@@ -10,13 +10,13 @@ const Tutorial = () => {
   const [arrowPosition, setArrowPosition] = useState<{ top: number; left: number } | null>(null);
 
   const steps = [
-    'Welcome to Add Trail the Pathfinder map! \n From here you can orient yourself and record a new activity',
-    'Tap this button to start recording a new activity',
-    'This button indicates which activity you are recording',
-    'This is the button to recenter the map on your position',
-    'End of tutorial! You are now ready to go.',
+    '🌍 Welcome to the "Add Trail" section of the Pathfinder map! \n Here, you can orient yourself and start recording a new activity.',
+    '▶️ Tap this button to begin recording a new activity. This will track your movement as you explore.',
+    '📌 This button shows which activity you are currently recording. Keep an eye on it to ensure your session is active!',
+    '🎯 This is the button to recenter the map on your location. Tap it once to lock onto your position and follow your movements. Tap it again to unlock and freely explore the map.',
+    '🎉 End of the tutorial! You are now ready to record your own trails and start your adventure!',
   ];
-
+  
   const openTutorial = () => {
     setIsClicked(true);
     setCurrentStep(0);
