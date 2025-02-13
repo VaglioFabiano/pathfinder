@@ -157,13 +157,26 @@ const MapWithTopoMap = () => {
     }
     else{
       console.log(region?.latitude);
-      mapRef.current && mapRef.current.animateToRegion(
-        {
-          latitude: startIndex[0] ?? 0,
-          longitude: startIndex[1] ?? 0,
-          latitudeDelta: 0.08,
-          longitudeDelta: 0.08,
-        }, 1000);
+      if (startIndex){
+        mapRef.current && mapRef.current.animateToRegion(
+          {
+            latitude: startIndex[0] ?? 0,
+            longitude: startIndex[1] ?? 0,
+            latitudeDelta: 0.08,
+            longitudeDelta: 0.08,
+          }, 1000);
+
+          setStartIndex(null);
+      }
+      else{
+        mapRef.current && mapRef.current.animateToRegion(
+          {
+            latitude: location?.latitude ?? 0,
+            longitude: location?.longitude ?? 0,
+            latitudeDelta: 0.004,
+            longitudeDelta: 0.004,
+          }, 1000);
+      }
     }
     
   }, [selectedTrail, recomanded]);
@@ -176,7 +189,7 @@ const MapWithTopoMap = () => {
     setWarningModalVisible(false);
     setCurrentWarningText('');
   }
-  const [startIndex, setStartIndex] = useState([0, 0]);
+  const [startIndex, setStartIndex] = useState(null);
   const fetchTrail = async (t: Trail) => {
     try {
       const trail = await TrailDAO.getTrail(t.id);
