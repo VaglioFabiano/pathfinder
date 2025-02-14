@@ -186,7 +186,7 @@ const TrailForm: React.FC<TrailFormProps> = ({ trailData, resetTrail }) => {
             <View style={styles.recapSection}>
               <Icon name="speedometer" size={20} color="white" />
               <Text style={styles.recapLabel}>Difficulty:</Text>
-              <View style={[styles.difficultyButton, { backgroundColor: difficulty === 'Beginner' ? '#4986af' : difficulty === 'Intermediate' ? '#af8649' : '#af4953' }]}>
+              <View style={[styles.difficultyButton, {width: '40%', backgroundColor: difficulty === 'Beginner' ? '#4986af' : difficulty === 'Intermediate' ? '#af8649' : '#af4953' }]}>
                 <Text style={styles.recapValue}>{difficulty}</Text>
               </View>
             </View>

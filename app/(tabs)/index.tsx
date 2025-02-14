@@ -131,7 +131,8 @@ const MapWithTopoMap = () => {
      
       
     })();
-  }, []);
+  }, [refresh]);
+
   useEffect(() => {
     const fetchTrails = async () => {
       try {
@@ -156,7 +157,6 @@ const MapWithTopoMap = () => {
       );
     }
     else{
-      console.log(region?.latitude);
       if (startIndex){
         mapRef.current && mapRef.current.animateToRegion(
           {
@@ -169,7 +169,8 @@ const MapWithTopoMap = () => {
           setStartIndex(null);
       }
       else{
-        mapRef.current && mapRef.current.animateToRegion(
+        
+          mapRef.current && mapRef.current.animateToRegion(
           {
             latitude: location?.latitude ?? 0,
             longitude: location?.longitude ?? 0,
@@ -260,8 +261,9 @@ const MapWithTopoMap = () => {
       setTrailActive(false);
       setSelectedTrail(null);
       setSimulatedPosition(null);
+      setRefresh((r) => !r);
+
       alert("Devi raggiungere il punto di arrivo per terminare il trail!");
-      
     }
   
     

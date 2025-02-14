@@ -23,7 +23,6 @@ const Tree: React.FC<TreeProps> = ({ setRegion, location, trail, setRecomanded }
     setRecommendedTrail(null);
     setIsSecondAnimationPlaying(false);
     setRecomanded([]);
-   
   };
 
   const hideTree = () => {

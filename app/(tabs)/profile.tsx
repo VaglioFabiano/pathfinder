@@ -176,7 +176,7 @@ const handleUserSelect = (user: { id: number; name: string; surname: string }) =
                                         <MaterialIcons name="timeline" size={16} color="#fff" /> {trail.length} km
                                     </Text>
                                     <Text style={styles.infoText}>
-                                        <MaterialIcons name="schedule" size={16} color="#fff" /> {trail.duration} ore
+                                        <MaterialIcons name="schedule" size={16} color="#fff" /> {trail.duration} h
                                     </Text>
                                     <Text style={styles.infoText}>
                                         <MaterialIcons name="landscape" size={16} color="#fff" /> {trail.elevation ? `${trail.elevation} m` : "N/A"}
@@ -228,7 +228,7 @@ const handleUserSelect = (user: { id: number; name: string; surname: string }) =
                         <MaterialIcons name="timeline" size={16} color="#fff" /> {trail.length} km
                       </Text>
                       <Text style={styles.infoText}>
-                        <MaterialIcons name="schedule" size={16} color="#fff" /> {trail.duration} ore
+                        <MaterialIcons name="schedule" size={16} color="#fff" /> {trail.duration} h
                       </Text>
                       <Text style={styles.infoText}>
                         <MaterialIcons name="landscape" size={16} color="#fff" /> {trail.elevation ? `${trail.elevation} m` : "N/A"}
